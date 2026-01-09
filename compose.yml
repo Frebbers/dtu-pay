@@ -1,7 +1,17 @@
 services:
+<<<<<<< HEAD
   student_service:
+=======
+
+  demo:
+>>>>>>> 8290a4d (fixed docker by reverting to package copying)
     build: .
-    image: student_service
-    container_name: student_service
+    image: demo
+    container_name: demo
     ports:
+<<<<<<< HEAD
      - "8080:8080"
+=======
+      - "8080:8080"
+
+>>>>>>> 8290a4d (fixed docker by reverting to package copying)

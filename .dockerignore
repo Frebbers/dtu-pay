@@ -1,5 +1,28 @@
+# Ignore everything by default
 *
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
+
+# Allow Docker / Compose files
+!Dockerfile
+!compose.yml
+!README.md
+
+# Allow Maven build inputs
+!pom.xml
+!mvnw
+!mvnw.cmd
+!.mvn/
+!.mvn/**
+
+# Allow source code + tests/resources
+!src/
+!src/**
+
+# Allow cucumber features (if needed during build/tests)
+!features/
+!features/**
+
+!target/
+!target/quarkus-app/
+!target/quarkus-app/**
+
+
