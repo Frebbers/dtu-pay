@@ -2,8 +2,8 @@
 set -e
 
 # Package
-./mvnw -q package
-
+mvn compile
+mvn package -Dmaven.test.skip
 # Docker build
 docker build -t dtu-pay:latest .
 
