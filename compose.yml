@@ -1,16 +1,7 @@
 services:
-<<<<<<< HEAD
   student_service:
     build: .
     image: student_service
     container_name: student_service
     ports:
      - "8080:8080"
-=======
-demo:
-build: .
-image: demo
-container_name: demo
-ports:
-- "8080:8080"
->>>>>>> 04bf23203be7d18fbc16100560356406fb868d78
