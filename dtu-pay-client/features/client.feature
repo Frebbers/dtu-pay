@@ -1,0 +1,13 @@
+Feature: Payment (Client)
+  Scenario: Successful Payment
+    Given a customer with name "Susan", last name "Baldwin", and CPR "030354-4422" (client)
+    And the customer is registered with the bank with an initial balance of 1000 kr (client)
+    And the customer is registered with Simple DTU Pay using their bank account (client)
+    Given a merchant with name "Daniel", last name "Oliver", and CPR "141561-3046" (client)
+    And the merchant is registered with the bank with an initial balance of 1000 kr (client)
+    And the merchant is registered with Simple DTU Pay using their bank account (client)
+    When the merchant initiates a payment for 10 kr by the customer (client)
+    Then the payment is successful (client)
+    And the balance of the customer at the bank is 890 kr (client)
+    And the balance of the merchant at the bank is 1010 kr (client)
+

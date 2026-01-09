@@ -2,8 +2,8 @@
 *
 
 # Allow Docker / Compose files
-!Dockerfile
-!compose.yml
+!dtu-pay-server/Dockerfile
+!dtu-pay-server/compose.yml
 !README.md
 
 # Allow Maven build inputs
