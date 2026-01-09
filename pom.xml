@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
 
     <name>DTU Pay Parent</name>
-    <description>Parent POM for DTU Pay multi-module project</description>
+    <description>Parent POM for DTU Pay Project</description>
 
     <modules>
         <module>dtu-pay-server</module>
@@ -16,33 +16,10 @@
     </modules>
 
     <properties>
-        <compiler-plugin.version>3.14.1</compiler-plugin.version>
-        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
-        <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-        <quarkus.platform.version>3.30.1</quarkus.platform.version>
-        <skipITs>true</skipITs>
-        <surefire-plugin.version>3.5.4</surefire-plugin.version>
+        <maven.compiler.release>21</maven.compiler.release>
     </properties>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${compiler-plugin.version}</version>
-                    <configuration>
-                        <parameters>true</parameters>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${surefire-plugin.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 </project>
 

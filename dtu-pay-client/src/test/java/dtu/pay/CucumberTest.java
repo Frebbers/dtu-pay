@@ -9,6 +9,7 @@ import io.cucumber.junit.CucumberOptions.SnippetType;
 @CucumberOptions(plugin="summary"
                 , publish= false
                 , features = "features"
+                , glue = "dtu.pay"
                 , snippets = SnippetType.CAMELCASE
                 )
 public class CucumberTest {

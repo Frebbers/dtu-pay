@@ -136,7 +136,12 @@
             <groupId>com.sun.xml.ws</groupId>
             <artifactId>jaxws-rt</artifactId>
             <version>4.0.3</version>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-tools</artifactId>
+            <version>4.0.3</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -147,7 +152,6 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
             <version>4.0.5</version>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.jws</groupId>
@@ -180,6 +184,18 @@
                 <groupId>com.sun.xml.ws</groupId>
                 <artifactId>jaxws-maven-plugin</artifactId>
                 <version>4.0.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sun.xml.ws</groupId>
+                        <artifactId>jaxws-rt</artifactId>
+                        <version>4.0.3</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.ws</groupId>
+                        <artifactId>jaxws-tools</artifactId>
+                        <version>4.0.3</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
