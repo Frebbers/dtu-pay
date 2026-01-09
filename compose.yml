@@ -1,0 +1,7 @@
+services:
+  student_service:
+    build: .
+    image: student_service
+    container_name: student_service
+    ports:
+     - "8080:8080"
