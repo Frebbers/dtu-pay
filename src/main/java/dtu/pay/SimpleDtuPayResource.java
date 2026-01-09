@@ -48,7 +48,7 @@ public class SimpleDtuPayResource {
     public Response pay(PaymentRequest request) {
         boolean success = service.pay(request.amount, request.cid, request.mid);
         if (!success) {
-            return Response.status(Response.Status.NOT_FOUND).entity(service.getLatestError()).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(service.getLatestError()).build();
         }
         return Response.ok().build();
     }
