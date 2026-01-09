@@ -8,6 +8,6 @@ Feature: Payment (Client)
     And the merchant is registered with Simple DTU Pay using their bank account (client)
     When the merchant initiates a payment for 10 kr by the customer (client)
     Then the payment is successful (client)
-    And the balance of the customer at the bank is 890 kr (client)
+    And the balance of the customer at the bank is 990 kr (client)
     And the balance of the merchant at the bank is 1010 kr (client)
 
