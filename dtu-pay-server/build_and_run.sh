@@ -1,12 +1,9 @@
 #!/bin/bash
 set -e
 
-# Package
-mvn compile
-mvn package -Dmaven.test.skip
-# Docker build
-docker build -t dtu-pay:latest .
-
+echo "Building DTU Pay Server..."
+sh build.sh
 # Docker compose
+echo "Starting Quarkus server..."
 docker compose up -d
 

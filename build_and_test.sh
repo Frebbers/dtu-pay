@@ -2,27 +2,19 @@
 set -e
 
 echo "Building DTU Pay Server..."
-cd dtu-pay-server
-chmod +x ../mvnw
-../mvnw compile
-../mvnw package -Dmaven.test.skip
-
-echo "Starting Quarkus server..."
-java -jar target/quarkus-app/quarkus-run.jar &
-QUARKUS_PID=$!
-sleep 5  # Give server time to start
+sh dtu-pay-server/build.sh
 
 echo "Running server tests..."
-../mvnw -q test
+./mvnw -q test -f dtu-pay-server/pom.xml
+
+echo "Starting Quarkus server using docker compose..."
+docker compose -f dtu-pay-server/compose.yml up -d
 
 echo "Building DTU Pay Client..."
-cd ../dtu-pay-client
-../mvnw compile
+./mvnw -q compile -f dtu-pay-client/pom.xml
 
 echo "Running client tests..."
-../mvnw -q test
+./mvnw -q test -f dtu-pay-client/pom.xml
 
-echo "Stopping Quarkus application with PID $QUARKUS_PID"
-kill $QUARKUS_PID
-cd ..
-
+echo "Stopping Quarkus container..."
+docker compose -f dtu-pay-server/compose.yml down
