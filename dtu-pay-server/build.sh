@@ -4,5 +4,3 @@ set -e
 # Package
 mvn compile
 mvn package -Dmaven.test.skip
-# Docker build
-# docker build -t dtu-pay:latest .
