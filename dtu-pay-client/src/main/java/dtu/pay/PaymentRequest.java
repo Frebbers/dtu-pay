@@ -1,4 +1,6 @@
 package dtu.pay;
 
-public record PaymentRequest(int amount, String cid, String mid) {}
+import java.math.BigDecimal;
+
+public record PaymentRequest(BigDecimal amount, String cid, String mid) {}
 

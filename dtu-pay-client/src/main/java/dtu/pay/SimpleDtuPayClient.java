@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class SimpleDtuPayClient {
@@ -21,7 +22,7 @@ public class SimpleDtuPayClient {
         this.base = client.target("http://localhost:8080");
     }
 
-    public String register(Customer customer) {
+    public String registerDTUPayAccount(Customer customer) {
         try (Response r = base.path("customers").request()
                 .post(Entity.entity(customer, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == 200) {
@@ -32,7 +33,7 @@ public class SimpleDtuPayClient {
         }
     }
 
-    public String register(Merchant merchant) {
+    public String registerDTUPayAccount(Merchant merchant) {
         try (Response r = base.path("merchants").request()
                 .post(Entity.entity(merchant, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == 200) {
@@ -43,7 +44,7 @@ public class SimpleDtuPayClient {
         }
     }
 
-    public boolean pay(int amount, String cid, String mid) {
+    public boolean pay(BigDecimal amount, String cid, String mid) {
         PaymentRequest req = new PaymentRequest(amount, cid, mid);
         try (Response r = base.path("payments").request()
                 .post(Entity.entity(req, MediaType.APPLICATION_JSON))) {
@@ -59,7 +60,8 @@ public class SimpleDtuPayClient {
     public List<Payment> getPayments() {
         try (Response r = base.path("payments").request().get()) {
             if (r.getStatus() == 200) {
-                return r.readEntity(new GenericType<List<Payment>>() {});
+                return r.readEntity(new GenericType<List<Payment>>() {
+                });
             }
             return new ArrayList<>();
         }
@@ -81,6 +83,3 @@ public class SimpleDtuPayClient {
         return latestError;
     }
 }
-
-
-
