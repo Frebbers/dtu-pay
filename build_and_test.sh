@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+echo "Building Messaging Utilities..."
+mvn clean package -f utilities/messaging-utilities/pom.xml
+
 echo "Building DTU Pay Server..."
 #sh dtu-pay-server/build.sh
 mvn clean package -f dtu-pay-server/pom.xml
