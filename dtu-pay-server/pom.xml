@@ -147,6 +147,10 @@
                     <keep>true</keep>
                     <packageName>dtu.ws.fastmoney</packageName>
                     <sourceDestDir>src/main/java</sourceDestDir>
+                    <vmArgs>
+                        <vmArg>-Duser.language=en</vmArg>
+                        <vmArg>-Duser.country=US</vmArg>
+                    </vmArgs>
                 </configuration>
             </plugin>
         </plugins>
