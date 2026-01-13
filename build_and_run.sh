@@ -2,6 +2,9 @@
 set -e
 
 pushd dtu-pay-server
+
+docker compose -f compose.yml down || true
+
 mvn clean package
 # Create a new docker image if necessary.
 docker compose build
