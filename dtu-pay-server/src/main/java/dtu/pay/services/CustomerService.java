@@ -2,10 +2,17 @@ package dtu.pay.services;
 
 import dtu.pay.Customer;
 import dtu.pay.Payment;
+import messaging.implementations.RabbitMqQueue;
 
 import java.util.List;
 
 public class CustomerService {
+    private final RabbitMqQueue mq;
+
+    public CustomerService(RabbitMqQueue mq) {
+        this.mq = mq;
+    }
+
     public String register(Customer customer) {
         return "Customer registered";
     }

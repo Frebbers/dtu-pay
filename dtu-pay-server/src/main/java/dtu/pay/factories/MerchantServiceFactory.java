@@ -4,10 +4,11 @@ import dtu.pay.services.MerchantService;
 import messaging.implementations.RabbitMqQueue;
 
 public class MerchantServiceFactory {
+    private final RabbitMqQueue mq;
     public MerchantServiceFactory() {
-        var mq = new RabbitMqQueue("merchantServiceQueue");
+         mq = new RabbitMqQueue("merchantServiceQueue");
     }
     public MerchantService getService() {
-        return new MerchantService();
+        return new MerchantService(mq);
     }
 }

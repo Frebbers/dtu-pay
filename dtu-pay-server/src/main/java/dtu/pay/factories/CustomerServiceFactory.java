@@ -4,10 +4,11 @@ import dtu.pay.services.CustomerService;
 import messaging.implementations.RabbitMqQueue;
 
 public class CustomerServiceFactory {
+    private final RabbitMqQueue mq;
     public CustomerServiceFactory() {
-        var mq = new RabbitMqQueue("customerServiceQueue");
+        mq = new RabbitMqQueue("customerServiceQueue");
     }
     public CustomerService getService() {
-        return new CustomerService();
+        return new CustomerService(mq);
     }
 }
