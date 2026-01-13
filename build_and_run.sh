@@ -20,6 +20,6 @@ popd
 # Give the Web server a chance to finish start up
 sleep 2 
 
-pushd dtu-pay-client 
+pushd dtu-pay-E2ETest 
 mvn clean test
 popd
