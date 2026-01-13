@@ -1,4 +1,5 @@
-#!/bin/bash
+#Not currently in use. This is from hubert
+##!/bin/bash
 set -e
 
 pushd dtu-pay-server
