@@ -13,10 +13,10 @@ echo "Starting Quarkus server using docker compose..."
 docker compose -f dtu-pay-server/compose.yml up -d
 
 echo "Building DTU Pay Client..."
-mvn -q compile -f dtu-pay-client/pom.xml
+mvn -q compile -f dtu-pay-E2ETest/pom.xml
 
 echo "Running client tests..."
-mvn -q test -f dtu-pay-client/pom.xml
+mvn -q test -f dtu-pay-E2ETest/pom.xml
 
 echo "Stopping Quarkus container..."
 docker compose -f dtu-pay-server/compose.yml down
