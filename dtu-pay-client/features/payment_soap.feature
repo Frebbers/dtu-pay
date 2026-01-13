@@ -9,5 +9,5 @@ Feature: Payment via SOAP API
     And the merchant is registered with Simple DTU Pay using their bank account
     When the merchant initiates a payment for 10 kr by the customer
     Then the payment is successful
-    And the balance of the customer at the bank is 890 kr
+    And the balance of the customer at the bank is 990 kr
     And the balance of the merchant at the bank is 1010 kr

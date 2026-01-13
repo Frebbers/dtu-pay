@@ -2,7 +2,8 @@
 set -e
 
 echo "Building DTU Pay Server..."
-sh build.sh
+mvn clean package
+docker compose build
 # Docker compose
 echo "Starting Quarkus server..."
 docker compose up -d

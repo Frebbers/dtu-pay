@@ -1,7 +1,7 @@
 services:
 
   dtu-pay:
-    build: ..
+    build: .
     image: dtu-pay
     container_name: dtu-pay
     ports:
