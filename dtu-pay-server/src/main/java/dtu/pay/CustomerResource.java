@@ -1,15 +1,17 @@
 package dtu.pay;
 
+import dtu.pay.factories.CustomerServiceFactory;
+import dtu.pay.services.CustomerService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 
 @Path("")
-public class SimpleDtuPayResource {
+public class CustomerResource {
 
-    SimpleDtuPayService service = new SimpleDtuPayService();
-
+//    SimpleDtuPayService service = new SimpleDtuPayService();
+    CustomerService service = new CustomerServiceFactory().getService();
     @POST
     @Path("customers")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -26,21 +28,7 @@ public class SimpleDtuPayResource {
         return Response.noContent().build();
     }
 
-    @POST
-    @Path("merchants")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response registerMerchant(Merchant merchant) {
-        String id = service.register(merchant);
-        return Response.ok(id).build();
-    }
 
-    @DELETE
-    @Path("merchants/{id}")
-    public Response deleteMerchant(@PathParam("id") String id) {
-        service.unregisterMerchantById(id);
-        return Response.noContent().build();
-    }
 
     @POST
     @Path("payments")
