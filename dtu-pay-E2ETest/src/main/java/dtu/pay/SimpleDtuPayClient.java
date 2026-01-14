@@ -22,7 +22,7 @@ public class SimpleDtuPayClient {
         this.base = client.target("http://localhost:8080");
     }
 
-    public String registerDTUPayAccount(Customer customer) {
+    public String registerDTUPayCustomer(User customer) {
         Response r = base.path("customers").request()
                 .post(Entity.entity(customer, MediaType.APPLICATION_JSON));
 
@@ -34,7 +34,7 @@ public class SimpleDtuPayClient {
             }
     }
 
-    public String registerDTUPayAccount(Merchant merchant) {
+    public String registerDTUPayMerchant(User merchant) {
         try (Response r = base.path("merchants").request()
                 .post(Entity.entity(merchant, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == 200) {
