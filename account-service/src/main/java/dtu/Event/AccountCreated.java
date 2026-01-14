@@ -16,6 +16,5 @@ public class AccountCreated extends AccountEvent {
 	private UUID accountId;
     private String firstName;
     private String lastName;
-    private String cpr;
     private String bankAccountNumber;
 }

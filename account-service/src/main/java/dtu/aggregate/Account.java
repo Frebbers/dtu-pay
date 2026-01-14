@@ -27,7 +27,6 @@ public class Account {
 	private UUID accountId;
 	private String firstname;
 	private String lastname;
-	private String cpr;
 	private String bankAccountNumber;
 
 	@Setter(AccessLevel.NONE)
@@ -35,14 +34,13 @@ public class Account {
 
 	private Map<Class<? extends AccountEvent>, Consumer<AccountEvent>> handlers = new HashMap<>();
 
-	public static Account create(String firstName, String lastName, String cpr, String bankAccountNumber) {
+	public static Account create(String firstName, String lastName, String bankAccountNumber) {
 		UUID accountId = UUID.randomUUID();
-		AccountCreated event = new AccountCreated(accountId, firstName, lastName, cpr, bankAccountNumber);
+		AccountCreated event = new AccountCreated(accountId, firstName, lastName, bankAccountNumber);
 		var account = new Account();
 		account.accountId = accountId;
 		account.firstname = firstName;
 		account.lastname = lastName;
-		account.cpr = cpr;
 		account.bankAccountNumber = bankAccountNumber;
 		account.appliedEvents.add(event);
 		return account;
@@ -62,8 +60,8 @@ public class Account {
 		handlers.put(AccountCreated.class, e -> apply((AccountCreated) e));
 	}
 
-	public static Account rehydrate(UUID id, String firstName, String lastName, String cpr, String bankAccountNumber) {
-		AccountCreated created = new AccountCreated(id, firstName, lastName, cpr, bankAccountNumber);
+	public static Account rehydrate(UUID id, String firstName, String lastName, String bankAccountNumber) {
+		AccountCreated created = new AccountCreated(id, firstName, lastName, bankAccountNumber);
 		return Account.createFromEvents(Stream.of(created));
 	}
 
@@ -87,7 +85,6 @@ public class Account {
 		accountId = event.getAccountId();
 		firstname = event.getFirstName();
 		lastname = event.getLastName();
-		cpr = event.getCpr();
 		bankAccountNumber = event.getBankAccountNumber();
 	}
 

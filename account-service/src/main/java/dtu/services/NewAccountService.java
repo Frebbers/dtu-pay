@@ -29,9 +29,9 @@ public class NewAccountService {
     mq.addHandler("UserDerigisterRequest", this::handleUserDerigisteration);
   }
 
-  public UUID createAccount(String firstName, String lastName, String cpr, String accountNumber) {
+  public UUID createAccount(String firstName, String lastName, String accountNumber) {
     if(readRepo.existsByBankAccountNumber(accountNumber)) throw new IllegalArgumentException("Account already exists");
-    Account account = Account.create(firstName, lastName, cpr, accountNumber);
+    Account account = Account.create(firstName, lastName, accountNumber);
     writeRepo.save(account);
     return account.getAccountId();
   }
@@ -39,17 +39,16 @@ public class NewAccountService {
   private void handleUserRegistration(Event e) {
     logger.info("Received user registration event:" + e.getTopic());
     var account = e.getArgument(0, Account.class);
-    UUID id = createAccount(account.getFirstname(), account.getLastname(), account.getCpr(), account.getBankAccountNumber()); 
-    Event event = new Event("UserRegistered", id);
-    Event event2 = new Event("UserAccountCreated",
+    UUID id = createAccount(account.getFirstname(), account.getLastname(), account.getBankAccountNumber()); 
+    Event responseEvent = new Event("UserRegistered", id);
+    Event savingToRepoEvent = new Event("UserAccountCreated",
       id.toString(),
       account.getFirstname(),
       account.getLastname(),
-      account.getCpr(),
       account.getBankAccountNumber()
   );
-    mq.publish(event);
-    mq.publish(event2);  
+    mq.publish(responseEvent);
+    mq.publish(savingToRepoEvent);  
   } 
 
   public void handleUserDerigisteration(Event e) {

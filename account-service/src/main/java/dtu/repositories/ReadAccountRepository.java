@@ -35,7 +35,7 @@ public class ReadAccountRepository {
     String cpr = event.getArgument(3, String.class);
     String bankAcc = event.getArgument(4, String.class);
 
-    Account account = Account.rehydrate(id, firstName, lastName, cpr, bankAcc);
+    Account account = Account.rehydrate(id, firstName, lastName, bankAcc);
    
     accounts.put(id, account); 
   }
