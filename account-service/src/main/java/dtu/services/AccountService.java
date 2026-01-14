@@ -1,7 +1,7 @@
 package dtu.services;
 
 import messaging.Event;
-import messaging.implementations.RabbitMqQueue;
+import messaging.MessageQueue;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -9,65 +9,71 @@ import java.util.UUID;
 
 public class AccountService {
     private static final Logger logger = Logger.getLogger(AccountService.class.getName());
-    private final RabbitMqQueue mq;
-    private final Map<String, Customer> customers = new ConcurrentHashMap<>(); // key: uuid, value: Customer
-    private final Map<String, Merchant> merchants = new ConcurrentHashMap<>(); // key: uuid, value: Merchant
+    private static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
+    private static final String CUSTOMER_REGISTERED = "CustomerRegistered";
+    private static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
+    private static final String MERCHANT_REGISTERED = "MerchantRegistered";
 
-    public AccountService(RabbitMqQueue mq) {
+    private final MessageQueue mq;
+    private final Map<AccountKey, String> idByKey = new ConcurrentHashMap<>();
+    private final Map<String, Account> accountsById = new ConcurrentHashMap<>();
+
+    public AccountService(MessageQueue mq) {
         this.mq = mq;
 
         // Subscribe to registration events
-        mq.addHandler("customer.register", this::handleCustomerRegistration);
-        mq.addHandler("merchant.register", this::handleMerchantRegistration);
+        mq.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
+        mq.addHandler(MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
     }
 
-    public void handleCustomerRegistration(Event e) {
-        logger.info("Received customer registration event: " + e);
-        String name = e.getArgument(0, String.class);
-        String accountNumber = e.getArgument(1, String.class);
-        if (name == null || accountNumber == null) {
-            logger.warning("Invalid customer registration event: missing data");
-            mq.publish(new Event("customer.register.error", "Missing name or accountNumber"));
-            return;
-        }
-        // Check for duplicate (by name+accountNumber)
-        boolean exists = customers.values().stream().anyMatch(c -> c.name().equals(name) && c.accountNumber().equals(accountNumber));
-        if (exists) {
-            logger.warning("Duplicate customer registration: " + name + ", " + accountNumber);
-            mq.publish(new Event("customer.register.error", "Customer already registered: " + name + ", " + accountNumber));
-            return;
-        }
-        String uuid = UUID.randomUUID().toString();
-        Customer customer = new Customer(uuid, name, accountNumber);
-        customers.put(uuid, customer);
-        logger.info("Customer registered: " + uuid);
-        mq.publish(new Event("customer.registered", uuid, name, accountNumber));
+    public void handleCustomerRegistrationRequested(Event event) {
+        handleRegistration(event, "customer", CUSTOMER_REGISTERED);
     }
 
-    public void handleMerchantRegistration(Event e) {
-        logger.info("Received merchant registration event: " + e);
-        String name = e.getArgument(0, String.class);
-        String accountNumber = e.getArgument(1, String.class);
-        if (name == null || accountNumber == null) {
-            logger.warning("Invalid merchant registration event: missing data");
-            mq.publish(new Event("merchant.register.error", "Missing name or accountNumber"));
-            return;
-        }
-        // Check for duplicate (by name+accountNumber)
-        boolean exists = merchants.values().stream().anyMatch(m -> m.name().equals(name) && m.accountNumber().equals(accountNumber));
-        if (exists) {
-            logger.warning("Duplicate merchant registration: " + name + ", " + accountNumber);
-            mq.publish(new Event("merchant.register.error", "Merchant already registered: " + name + ", " + accountNumber));
-            return;
-        }
-        String uuid = UUID.randomUUID().toString();
-        Merchant merchant = new Merchant(uuid, name, accountNumber);
-        merchants.put(uuid, merchant);
-        logger.info("Merchant registered: " + uuid);
-        mq.publish(new Event("merchant.registered", uuid, name, accountNumber));
+    public void handleMerchantRegistrationRequested(Event event) {
+        handleRegistration(event, "merchant", MERCHANT_REGISTERED);
     }
 
-    // Simple record for customer/merchant details
-    public record Customer(String uuid, String name, String accountNumber) {}
-    public record Merchant(String uuid, String name, String accountNumber) {}
+    private void handleRegistration(Event event, String type, String successTopic) {
+        RegistrationRequest request = event.getArgument(0, RegistrationRequest.class);
+        Object correlationId = event.getArgument(1, Object.class);
+        if (request == null) {
+            logger.warning("Registration request missing body for type " + type);
+            String fallbackId = UUID.randomUUID().toString();
+            mq.publish(new Event(successTopic, fallbackId, correlationId));
+            return;
+        }
+
+        String id = registerAccount(request, type);
+        mq.publish(new Event(successTopic, id, correlationId));
+    }
+
+    private String registerAccount(RegistrationRequest request, String type) {
+        String cprNumber = safe(request.cprNumber());
+        String bankAccountNum = safe(request.bankAccountNum());
+
+        if (cprNumber.isEmpty() || bankAccountNum.isEmpty()) {
+            logger.warning("Registration missing cpr or bank account for " + type + ": " + request);
+            String uuid = UUID.randomUUID().toString();
+            accountsById.put(uuid, new Account(uuid, request.firstName(), request.lastName(),
+                    request.cprNumber(), request.bankAccountNum(), type));
+            return uuid;
+        }
+
+        AccountKey key = new AccountKey(cprNumber, bankAccountNum, type);
+        return idByKey.computeIfAbsent(key, unusedKey -> {
+            String uuid = UUID.randomUUID().toString();
+            accountsById.put(uuid, new Account(uuid, request.firstName(), request.lastName(),
+                    request.cprNumber(), request.bankAccountNum(), type));
+            return uuid;
+        });
+    }
+
+    private static String safe(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    public record RegistrationRequest(String firstName, String lastName, String cprNumber,
+                                      String bankAccountNum) {}
+    private record AccountKey(String cprNumber, String bankAccountNum, String type) {}
 }

@@ -112,6 +112,17 @@
 			<version>3.4.3</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.30</version>
+      <scope>provided</scope>
+    </dependency>
+		<dependency>
+			<groupId>org.jmolecules</groupId>
+			<artifactId>jmolecules-ddd</artifactId>
+			<version>1.4.0</version>
+		</dependency>
 
 	</dependencies>
 
@@ -121,6 +132,24 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.14.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.7.1</version>
+				<executions>
+					<execution>
+						<id>copy-runtime-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<includeScope>runtime</includeScope>
+							<outputDirectory>${project.build.directory}/dependency</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -137,31 +166,6 @@
 					</properties>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>com.sun.xml.ws</groupId>
-				<artifactId>jaxws-maven-plugin</artifactId>
-				<version>4.0.3</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>wsimport</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<wsdlUrls>
-						<wsdlUrl>http://fm-00.compute.dtu.dk/services/BankService?wsdl</wsdlUrl>
-					</wsdlUrls>
-					<keep>true</keep>
-					<packageName>dtu.ws.fastmoney</packageName>
-					<sourceDestDir>src/main/java</sourceDestDir>
-					<vmArgs>
-						<vmArg>-Duser.language=en</vmArg>
-						<vmArg>-Duser.country=US</vmArg>
-					</vmArgs>
-				</configuration>
-			</plugin>
-
 		</plugins>
 	</build>
 </project>

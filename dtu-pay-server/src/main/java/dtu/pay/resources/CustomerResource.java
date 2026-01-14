@@ -1,0 +1,59 @@
+package dtu.pay.resources;
+
+import dtu.pay.factories.ReportServiceFactory;
+import dtu.pay.factories.UserServiceFactory;
+import dtu.pay.models.CustomerReport;
+import dtu.pay.models.User;
+import dtu.pay.models.exceptions.UserAlreadyExistsException;
+import dtu.pay.services.ReportService;
+import dtu.pay.services.UserService;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+
+@Path("")
+public class CustomerResource {
+
+    //    SimpleDtuPayService service = new SimpleDtuPayService();
+    UserService service = new UserServiceFactory().getService();
+    ReportService reportService = new ReportServiceFactory().getService();
+
+    @POST
+    @Path("customers")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response registerCustomer(User customer) {
+        String id;
+        try {
+            id = service.register(customer);
+        } catch (UserAlreadyExistsException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
+        } catch (Exception e) {
+            return Response.serverError().build();
+        }
+        return Response.ok(id).build();
+    }
+
+    @DELETE
+    @Path("customers/{id}")
+    public Response deleteCustomer(@PathParam("id") String id) {
+        service.unregisterUserById(id);
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Path("customers/{id}")
+    public Response customerExists(@PathParam("id") String id) {
+        service.userExists(id);
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Path("payments")
+    @Produces(MediaType.APPLICATION_JSON)
+    public CustomerReport getPayments(int customerId) {
+        return reportService.getCustomerReport(customerId);
+    }
+
+}
+

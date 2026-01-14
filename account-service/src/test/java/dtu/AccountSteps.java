@@ -6,6 +6,7 @@ import dtu.services.Merchant;
 import dtu.services.MerchantRegistrationService;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +35,8 @@ public class AccountSteps {
     private RegistrationType lastRegistrationAttempt;
 
     @Given("a customer with firstname {string} and lastname {string} and CPR number {string} and account number {string}")
-    public void aCustomerWithFirstnameLastnameCprAndAccountNumber(String firstname, String lastname, String cprNumber, String accountNumber) {
+    public void aCustomerWithFirstnameLastnameCprAndAccountNumber(String firstname, String lastname, String cprNumber,
+            String accountNumber) {
         customerFirstname = firstname;
         customerLastname = lastname;
         customerCprNumber = cprNumber;
@@ -60,14 +62,16 @@ public class AccountSteps {
     }
 
     @Then("^a \"customer.registered\" event should be published with uuid, name \"([^\"]*)\" and account number \"([^\"]*)\"$")
-    public void aCustomerRegisteredEventShouldBePublishedWithUuidNameAndAccountNumber(String name, String accountNumber) {
+    public void aCustomerRegisteredEventShouldBePublishedWithUuidNameAndAccountNumber(String name,
+            String accountNumber) {
         assertNotNull(customerUuid);
         assertEquals(customerName, name);
         assertEquals(customerAccountNumber, accountNumber);
     }
 
     @Given("a merchant with firstname {string} and lastname {string} and CPR number {string} and account number {string}")
-    public void aMerchantWithFirstnameLastnameCprAndAccountNumber(String firstname, String lastname, String cprNumber, String accountNumber) {
+    public void aMerchantWithFirstnameLastnameCprAndAccountNumber(String firstname, String lastname, String cprNumber,
+            String accountNumber) {
         merchantFirstname = firstname;
         merchantLastname = lastname;
         merchantCprNumber = cprNumber;
@@ -93,7 +97,8 @@ public class AccountSteps {
     }
 
     @Then("^a \"merchant.registered\" event should be published with uuid, name \"([^\"]*)\" and account number \"([^\"]*)\"$")
-    public void aMerchantRegisteredEventShouldBePublishedWithUuidNameAndAccountNumber(String name, String accountNumber) {
+    public void aMerchantRegisteredEventShouldBePublishedWithUuidNameAndAccountNumber(String name,
+            String accountNumber) {
         assertNotNull(merchantUuid);
         assertEquals(merchantName, name);
         assertEquals(merchantAccountNumber, accountNumber);
@@ -132,7 +137,9 @@ public class AccountSteps {
         return UUID.randomUUID().toString(); // Simulate success
     }
 
-    private enum RegistrationType { CUSTOMER, MERCHANT }
+    private enum RegistrationType {
+        CUSTOMER, MERCHANT
+    }
 
     @Before
     public void resetState() {

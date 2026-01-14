@@ -1,6 +1,6 @@
-FROM eclipse-temurin:25 as jre-build
-WORKDIR /usr/src
-#TODO Fix this! account-service is not using quarkus
-COPY target/quarkus-app /usr/src/quarkus-app
-CMD java -Xmx64m \
--jar quarkus-app/quarkus-run.jar
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY target/account-service-*.jar /app/account-service.jar
+COPY target/dependency /app/dependency
+ENV RABBITMQ_HOST=rabbitMq
+CMD ["java", "-cp", "account-service.jar:dependency/*", "dtu.services.AccountServiceApplication"]
