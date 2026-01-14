@@ -48,15 +48,19 @@ public class ClientSteps {
 
     @Given("a customer with name {string}, last name {string}, and CPR {string}")
     public void a_customer_with_name_last_name_and_cpr_client(String firstName, String lastName, String cpr) {
-        customer = new dtu.pay.User(firstName, lastName, cpr, "1234567890");
+        customer = new dtu.pay.User(firstName, lastName, null, cpr);
     }
 
     @Given("the customer is registered with the bank with an initial balance of {int} kr")
     public void the_customer_is_registered_with_the_bank_with_an_initial_balance_of_kr_client(Integer initialBalance) throws BankServiceException_Exception {
+        //convert customer to bank user
         User user = new User();
-        user.setCprNumber(user.getCprNumber());
-        user.setFirstName(user.getFirstName());
-        user.setLastName(user.getLastName());
+//        user.setCprNumber(user.getCprNumber());
+//        user.setFirstName(user.getFirstName());
+//        user.setLastName(user.getLastName());
+        user.setCprNumber(customer.cprNumber());
+        user.setFirstName(customer.firstName());
+        user.setLastName(customer.lastName());
 
         customerBankAccNum = bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(initialBalance));
         bankAccounts.add(customerBankAccNum);
