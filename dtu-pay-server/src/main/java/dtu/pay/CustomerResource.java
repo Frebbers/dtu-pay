@@ -27,6 +27,12 @@ public class CustomerResource {
         service.unregisterCustomerById(id);
         return Response.noContent().build();
     }
+    @GET
+    @Path("customers/{id}")
+    public Response customerExists(@PathParam("id") String id) {
+        service.unregisterCustomerById(id);
+        return Response.noContent().build();
+    }
 
 
 

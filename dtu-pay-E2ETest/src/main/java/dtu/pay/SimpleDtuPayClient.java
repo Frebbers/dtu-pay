@@ -23,14 +23,15 @@ public class SimpleDtuPayClient {
     }
 
     public String registerDTUPayAccount(Customer customer) {
-        try (Response r = base.path("customers").request()
-                .post(Entity.entity(customer, MediaType.APPLICATION_JSON))) {
+        Response r = base.path("customers").request()
+                .post(Entity.entity(customer, MediaType.APPLICATION_JSON));
+
             if (r.getStatus() == 200) {
                 return r.readEntity(String.class);
             }
-            latestError = r.readEntity(String.class);
-            return null;
-        }
+            else {
+                throw new RuntimeException(r.readEntity(String.class));
+            }
     }
 
     public String registerDTUPayAccount(Merchant merchant) {
@@ -81,5 +82,11 @@ public class SimpleDtuPayClient {
 
     public String getLatestError() {
         return latestError;
+    }
+
+    public boolean customerExists(String customerId) {
+        try (Response r = base.path("customers").path(customerId).request().get()) {
+            return r.getStatus() == 200;
+        }
     }
 }

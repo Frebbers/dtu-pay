@@ -1,6 +1,6 @@
 Feature: create account
     Scenario: Successful Account Creation
-        Given a user with name "Alice", last name "Johnson", and CPR "150390-1234"
-        When the user registers for a DTU Pay account
-        Then the account creation is successful
-        And the user has a DTU Pay account associated with their bank account
+        Given a customer with name "Susan", last name "Baldwin", and CPR "240396-8174"
+        And the customer is registered with the bank with an initial balance of 1000 kr
+        And the customer is registered with Simple DTU Pay using their bank account
+        Then the account is created successfully

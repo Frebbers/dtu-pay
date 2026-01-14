@@ -7,6 +7,7 @@ import dtu.ws.fastmoney.BankService_Service;
 import dtu.ws.fastmoney.User;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -129,6 +130,11 @@ public class ClientSteps {
                 System.out.println("Could not retire account: " + account);
             }
         }
+    }
+
+    @Then("the account is created successfully")
+    public void theAccountIsCreatedSuccessfully() {
+        assertNotNull(customerId);
     }
 }
 
