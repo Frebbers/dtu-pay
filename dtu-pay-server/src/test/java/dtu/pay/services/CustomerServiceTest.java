@@ -1,5 +1,6 @@
 package dtu.pay.services;
 
+import dtu.pay.Customer;
 import dtu.pay.factories.CustomerServiceFactory;
 import messaging.Event;
 import messaging.MessageQueue;
@@ -16,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomerServiceTest {
     private CustomerService customerService;
     private CompletableFuture<Event> publishedEvent;
+    private CompletableFuture<Customer> registeredCustomer =new CompletableFuture<>();
+
     private RabbitMqQueue mq = new RabbitMqQueue() {
         @Override
         public void publish(Event event) {
@@ -37,7 +40,15 @@ class CustomerServiceTest {
     }
 
     @Test
-    void register() {
+    void registerSuccessfully() {
+        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678")
+//        publishedEvent = new CompletableFuture<Event>();
+//        new Thread(() -> {
+//            var result = customerService.register(customer);
+//
+//        })
+        var result = customerService.register(customer);
+
     }
 
     @Test
