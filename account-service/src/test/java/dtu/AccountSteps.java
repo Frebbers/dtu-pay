@@ -13,6 +13,9 @@ public class AccountSteps {
     private String customerCprNumber;
     private String customerName;
     private String customerAccountNumber;
+    private String merchantFirstname;
+    private String merchantLastname;
+    private String merchantCprNumber;
     private String merchantName;
     private String merchantAccountNumber;
     private String customerUuid;
@@ -55,9 +58,12 @@ public class AccountSteps {
         assertEquals(customerAccountNumber, accountNumber);
     }
 
-    @Given("a merchant with name {string} and account number {string}")
-    public void aMerchantWithNameAndAccountNumber(String name, String accountNumber) {
-        merchantName = name;
+    @Given("a merchant with firstname {string} and lastname {string} and CPR number {string} and account number {string}")
+    public void aMerchantWithFirstnameLastnameCprAndAccountNumber(String firstname, String lastname, String cprNumber, String accountNumber) {
+        merchantFirstname = firstname;
+        merchantLastname = lastname;
+        merchantCprNumber = cprNumber;
+        merchantName = (firstname + " " + lastname).trim();
         merchantAccountNumber = accountNumber;
     }
 
@@ -128,5 +134,8 @@ public class AccountSteps {
         merchantUuid = null;
         latestError = null;
         lastRegistrationAttempt = null;
+        merchantFirstname = null;
+        merchantLastname = null;
+        merchantCprNumber = null;
     }
 }

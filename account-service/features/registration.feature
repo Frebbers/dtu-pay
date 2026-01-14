@@ -13,13 +13,13 @@ Feature: Registration
     Then the registration should fail with error "Customer already registered: Alice Doe, acc123"
 
   Scenario: Merchant registration with valid details
-    Given a merchant with name "Bob's Store" and account number "acc456"
+    Given a merchant with firstname "Bob" and lastname "Store" and CPR number "250580-9856" and account number "acc456"
     When the merchant registers with DTU Pay
     Then the merchant should be registered successfully and receive a UUID
-    And a "merchant.registered" event should be published with uuid, name "Bob's Store" and account number "acc456"
+    And a "merchant.registered" event should be published with uuid, name "Bob Store" and account number "acc456"
 
   Scenario: Merchant registration with duplicate account
-    Given a merchant with name "Bob's Store" and account number "acc456"
+    Given a merchant with firstname "Bob" and lastname "Store" and CPR number "250580-9856" and account number "acc456"
     And the merchant is already registered
     When the merchant registers with DTU Pay
-    Then the registration should fail with error "Merchant already registered: Bob's Store, acc456"
+    Then the registration should fail with error "Merchant already registered: Bob Store, acc456"
