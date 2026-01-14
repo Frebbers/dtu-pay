@@ -1,8 +1,5 @@
 package dtu.pay;
 
-import dtu.ws.fastmoney.BankService;
-import dtu.ws.fastmoney.BankServiceException_Exception;
-import dtu.ws.fastmoney.BankService_Service;
 
 import java.math.BigDecimal;
 import java.util.*;
