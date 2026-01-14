@@ -29,8 +29,7 @@ public class Account {
 	private String lastname;
 	private String cpr;
 	private String bankAccountNumber;
-	
-	
+
 	@Setter(AccessLevel.NONE)
 	private List<AccountEvent> appliedEvents = new ArrayList<AccountEvent>();
 
@@ -62,7 +61,12 @@ public class Account {
 	private void registerEventHandlers() {
 		handlers.put(AccountCreated.class, e -> apply((AccountCreated) e));
 	}
-	
+
+	public static Account rehydrate(UUID id, String firstName, String lastName, String cpr, String bankAccountNumber) {
+		AccountCreated created = new AccountCreated(id, firstName, lastName, cpr, bankAccountNumber);
+		return Account.createFromEvents(Stream.of(created));
+	}
+
 	/* Event Handling */
 
 	private void applyEvents(Stream<AccountEvent> events) throws Error {
@@ -76,7 +80,7 @@ public class Account {
 	}
 
 	private void missingHandler(AccountEvent e) {
-		throw new Error("handler for event "+e+" missing");
+		throw new Error("handler for event " + e + " missing");
 	}
 
 	private void apply(AccountCreated event) {

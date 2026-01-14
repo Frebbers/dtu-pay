@@ -8,8 +8,7 @@ import java.util.logging.Logger;
 import dtu.aggregate.Account;
 import dtu.repositories.AccountRepository;
 import dtu.repositories.ReadAccountRepository;
-import dtu.services.AccountService.Customer;
-import dtu.services.AccountService.Merchant;
+
 import messaging.Event;
 import messaging.implementations.RabbitMqQueue;
 
@@ -26,8 +25,8 @@ public class NewAccountService {
     this.writeRepo = writeRepo;
 
     // Subscribe to registration events
-    mq.addHandler("CustomerRegistrationRequested", this::handleCustomerRegistration);
-    mq.addHandler("MerchantRegistrationRequested", this::handleMerchantRegistration);
+    mq.addHandler("UserRegistrationRequested", this::handleUserRegistration);
+    mq.addHandler("UserDerigisterRequest", this::handleUserDerigisteration);
   }
 
   public UUID createAccount(String firstName, String lastName, String cpr, String accountNumber) {
@@ -37,22 +36,26 @@ public class NewAccountService {
     return account.getAccountId();
   }
 
-  private void handleCustomerRegistration(Event e) {
-    logger.info("Received customer registration event:" + e.getTopic());
+  private void handleUserRegistration(Event e) {
+    logger.info("Received user registration event:" + e.getTopic());
     var account = e.getArgument(0, Account.class);
-    UUID id = createAccount(account.getFirstname(),account.getLastname(), account.getCpr(), account.getBankAccountNumber()); 
-    Event event = new Event("MerchantRegistered", id);
-    mq.publish(event);  
+    UUID id = createAccount(account.getFirstname(), account.getLastname(), account.getCpr(), account.getBankAccountNumber()); 
+    Event event = new Event("UserRegistered", id);
+    Event event2 = new Event("UserAccountCreated",
+      id.toString(),
+      account.getFirstname(),
+      account.getLastname(),
+      account.getCpr(),
+      account.getBankAccountNumber()
+  );
+    mq.publish(event);
+    mq.publish(event2);  
   } 
 
-  private void handleMerchantRegistration(Event e) {
-    logger.info("Received merchant registration event:" + e.getTopic());
-    // Implementation goes here
-    var account = e.getArgument(0, Account.class);
-    UUID id = createAccount(account.getFirstname(),account.getLastname(), account.getCpr(), account.getBankAccountNumber()); 
-    Event event = new Event("CustomerRegistered", id);
-    mq.publish(event); 
+  public void handleUserDerigisteration(Event e) {
+    logger.info("Received user derigistration event:" + e.getTopic());
+    UUID id = e.getArgument(0, UUID.class);
+    //writeRepo.deleteById(id);
   }
-
-
+  
 }

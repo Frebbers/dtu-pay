@@ -15,7 +15,6 @@ import dtu.aggregate.Account;
 import messaging.Event;
 import messaging.MessageQueue;
 
-
 @Repository
 public class ReadAccountRepository {
 
@@ -25,25 +24,20 @@ public class ReadAccountRepository {
   private final Map<UUID, Account> customers = new ConcurrentHashMap<>(); // key: uuid, value: Customer
   private final Map<UUID, Account> merchants = new ConcurrentHashMap<>(); // key: uuid, value: Merchant
 
-	public ReadAccountRepository(MessageQueue eventQueue) {
-		eventQueue.addHandler("CustomerRegistered", this::handleCustomerCreatedEvent);
-    eventQueue.addHandler("MerchantRegistered", this::handleMerchantCreatedEvent);
-	}
-
-  public void handleCustomerCreatedEvent(Event event) {
-    AccountCreated accountCreatedEvent = event.getArgument(0, AccountCreated.class);
-    Account account = new Account();
-    customers.put(accountCreatedEvent.getAccountId(), account);
+  public ReadAccountRepository(MessageQueue eventQueue) {
+    eventQueue.addHandler("AccountCreated", this::handleAccountCreatedEvent);
   }
 
-  public void handleMerchantCreatedEvent(Event event) {
-    AccountCreated accountCreatedEvent = event.getArgument(0, AccountCreated.class);
-    Account account = Account.rehydrate(accountCreatedEvent.getAccountId(), 
-      accountCreatedEvent.getFirstName(), 
-      accountCreatedEvent.getLastName(), 
-      accountCreatedEvent.getCpr(), 
-      accountCreatedEvent.getBankAccountNumber());
-    merchants.put(accountCreatedEvent.getAccountId(), account);
+  public void handleAccountCreatedEvent(Event event) {
+    UUID id = UUID.fromString(event.getArgument(0, String.class));
+    String firstName = event.getArgument(1, String.class);
+    String lastName = event.getArgument(2, String.class);
+    String cpr = event.getArgument(3, String.class);
+    String bankAcc = event.getArgument(4, String.class);
+
+    Account account = Account.rehydrate(id, firstName, lastName, cpr, bankAcc);
+   
+    accounts.put(id, account); 
   }
 
   public Account getCustomerById(UUID id) {
@@ -59,7 +53,9 @@ public class ReadAccountRepository {
   }
 
   // public void handleAccountCreatedEvent(messaging.Event event) {
-  //   AccountCreated accountCreatedEvent = event.getArgument(0, AccountCreated.class);
-  //   bankAccountNumbers.put(accountCreatedEvent.getAccountId(), accountCreatedEvent.getBankAccountNumber());
+  // AccountCreated accountCreatedEvent = event.getArgument(0,
+  // AccountCreated.class);
+  // bankAccountNumbers.put(accountCreatedEvent.getAccountId(),
+  // accountCreatedEvent.getBankAccountNumber());
   // }
 }
