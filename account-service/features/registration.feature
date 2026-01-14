@@ -23,3 +23,10 @@ Feature: Registration
     And the merchant is already registered
     When the merchant registers with DTU Pay
     Then the registration should fail with error "Merchant already registered: Bob Store, acc456"
+
+  Scenario: Customer registration
+    Given there is a customer with empty id
+    When the customer is being registered
+    Then the "CustomerRegistrationRequested" event is sent
+    When the "CustomerIdAssigned" event is sent with non-empty id
+    Then the customer is registered and his id is set
