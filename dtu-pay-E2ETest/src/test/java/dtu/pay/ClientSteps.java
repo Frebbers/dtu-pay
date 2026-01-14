@@ -7,7 +7,6 @@ import dtu.ws.fastmoney.BankService_Service;
 import dtu.ws.fastmoney.User;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
-import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -19,7 +18,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClientSteps {
-    private dtu.pay.User user;
+    private dtu.pay.User customer;
+    private dtu.pay.User merchant;
     private String customerId, merchantId;
     private SimpleDtuPayClient dtupay = new SimpleDtuPayClient();
     private boolean successful = false;
@@ -36,7 +36,7 @@ public class ClientSteps {
     public void beforeScenario() {
         // Create a fresh instance of SimpleDtuPayClient for each scenario
         dtupay = new SimpleDtuPayClient();
-        user = null;
+        customer = null;
         customerId = null;
         merchantId = null;
         successful = false;
@@ -48,7 +48,7 @@ public class ClientSteps {
 
     @Given("a customer with name {string}, last name {string}, and CPR {string}")
     public void a_customer_with_name_last_name_and_cpr_client(String firstName, String lastName, String cpr) {
-        user = new dtu.pay.User(firstName, lastName, null, cpr);
+        customer = new dtu.pay.User(firstName, lastName, null, cpr);
     }
 
     @Given("the customer is registered with the bank with an initial balance of {int} kr")
@@ -62,15 +62,15 @@ public class ClientSteps {
         bankAccounts.add(customerBankAccNum);
     }
 
-    @Given("the customer is registered with Simple DTU Pay using their bank account")
+    @Given("the customer is registered with DTU Pay using their bank account")
     public void the_customer_is_registered_with_simple_dtu_pay_using_their_bank_account_client() {
-        customer = new Customer(customer.firstName(), customer.lastName(), customer.cprNumber(), customerBankAccNum);
+        customer = new dtu.pay.User("John", "Doe", customerBankAccNum, null);
         customerId = dtupay.registerDTUPayAccount(customer);
     }
 
     @Given("a merchant with name {string}, last name {string}, and CPR {string}")
     public void a_merchant_with_name_last_name_and_cpr_client(String firstName, String lastName, String cpr) {
-        merchant = new Merchant(firstName, lastName, cpr, null);
+        merchant = new dtu.pay.User(firstName, lastName, merchantBankAccNum, null);
     }
 
     @Given("the merchant is registered with the bank with an initial balance of {bigdecimal} kr")
@@ -86,7 +86,7 @@ public class ClientSteps {
 
     @Given("the merchant is registered with Simple DTU Pay using their bank account")
     public void the_merchant_is_registered_with_simple_dtu_pay_using_their_bank_account_client() {
-        merchant = new Merchant(merchant.firstName(), merchant.lastName(), merchant.cprNumber(), merchantBankAccNum);
+        merchant = new dtu.pay.User(merchant.firstName(), merchant.lastName(), merchant.cprNumber(), merchantBankAccNum);
         merchantId = dtupay.registerDTUPayAccount(merchant);
     }
 
