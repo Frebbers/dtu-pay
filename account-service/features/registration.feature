@@ -30,3 +30,10 @@ Feature: Registration
     Then the "CustomerRegistrationRequested" event is sent
     When the "CustomerIdAssigned" event is sent with non-empty id
     Then the customer is registered and his id is set
+
+  Scenario: Merchant registration
+    Given there is a merchant with empty id
+    When the merchant is being registered
+    Then the "MerchantRegistrationRequested" event is sent
+    When the "MerchantIdAssigned" event is sent with non-empty id
+    Then the merchant is registered and his id is set

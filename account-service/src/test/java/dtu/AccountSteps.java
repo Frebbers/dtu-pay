@@ -2,6 +2,8 @@ package dtu;
 
 import dtu.services.Customer;
 import dtu.services.CustomerRegistrationService;
+import dtu.services.Merchant;
+import dtu.services.MerchantRegistrationService;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
@@ -143,6 +145,8 @@ public class AccountSteps {
         merchantFirstname = null;
         merchantLastname = null;
         merchantCprNumber = null;
+        merchantName = null;
+        merchantAccountNumber = null;
     }
 
     private CompletableFuture<Event> publishedEvent = new CompletableFuture<>();
@@ -162,6 +166,9 @@ public class AccountSteps {
     private CustomerRegistrationService service = new CustomerRegistrationService(q);
     private CompletableFuture<Customer> registeredCustomer = new CompletableFuture<>();
     private Customer customer;
+    private MerchantRegistrationService merchantService = new MerchantRegistrationService(q);
+    private CompletableFuture<Merchant> registeredMerchant = new CompletableFuture<>();
+    private Merchant merchant;
 
     @Given("there is a customer with empty id")
     public void thereIsACustomerWithEmptyId() {
@@ -183,17 +190,24 @@ public class AccountSteps {
 
     @Then("the {string} event is sent")
     public void theEventIsSent(String string) {
-        Event event = new Event(string, new Object[] { customer });
+        Object person = string.contains("Customer") ? customer : merchant;
+        Event event = new Event(string, new Object[] { person });
         assertEquals(event,publishedEvent.join());
     }
 
     @When("the {string} event is sent with non-empty id")
     public void theEventIsSentWithNonEmptyId(String string) {
-        // This step simulate the event created by a downstream service.
-        var c = new Customer();
-        c.setName(customer.getName());
-        c.setId("123");
-        service.handleCustomerIdAssigned(new Event("..",new Object[] {c}));
+        if (string.contains("Customer")) {
+            var c = new Customer();
+            c.setName(customer.getName());
+            c.setId("123");
+            service.handleCustomerIdAssigned(new Event("..",new Object[] {c}));
+        } else {
+            var m = new Merchant();
+            m.setName(merchant.getName());
+            m.setId("123");
+            merchantService.handleMerchantIdAssigned(new Event("..",new Object[] {m}));
+        }
     }
 
     @Then("the customer is registered and his id is set")
@@ -201,5 +215,30 @@ public class AccountSteps {
         // Our logic is very simple at the moment; we don't
         // remember that the customer is registered.
         assertNotNull(registeredCustomer.join().getId());
+    }
+
+    @Given("there is a merchant with empty id")
+    public void thereIsAMerchantWithEmptyId() {
+        merchant = new Merchant();
+        merchant.setName("James");
+        assertNull(merchant.getId());
+    }
+
+    @When("the merchant is being registered")
+    public void theMerchantIsBeingRegistered() {
+        // We have to run the registration in a thread, because
+        // the register method will only finish after the next @When
+        // step is executed.
+        new Thread(() -> {
+            var result = merchantService.register(merchant);
+            registeredMerchant.complete(result);
+        }).start();
+    }
+
+    @Then("the merchant is registered and his id is set")
+    public void theMerchantIsRegisteredAndHisIdIsSet() {
+        // Our logic is very simple at the moment; we don't
+        // remember that the merchant is registered.
+        assertNotNull(registeredMerchant.join().getId());
     }
 }
