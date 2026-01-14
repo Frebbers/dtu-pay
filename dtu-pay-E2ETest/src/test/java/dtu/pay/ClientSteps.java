@@ -48,7 +48,7 @@ public class ClientSteps {
 
     @Given("a customer with name {string}, last name {string}, and CPR {string}")
     public void a_customer_with_name_last_name_and_cpr_client(String firstName, String lastName, String cpr) {
-        customer = new dtu.pay.User(firstName, lastName, null, cpr);
+        customer = new dtu.pay.User(firstName, lastName, cpr, "1234567890");
     }
 
     @Given("the customer is registered with the bank with an initial balance of {int} kr")

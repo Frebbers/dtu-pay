@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-
+#TODO update this to run all tests
 echo "Building Messaging Utilities..."
 mvn clean package -f utilities/messaging-utilities/pom.xml
 
