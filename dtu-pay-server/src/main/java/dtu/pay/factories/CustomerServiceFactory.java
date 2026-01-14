@@ -2,7 +2,7 @@ package dtu.pay.factories;
 
 import dtu.pay.services.CustomerService;
 import messaging.implementations.RabbitMqQueue;
-
+/// @author s224804
 public class CustomerServiceFactory {
     private final RabbitMqQueue mq;
     public CustomerServiceFactory() {
