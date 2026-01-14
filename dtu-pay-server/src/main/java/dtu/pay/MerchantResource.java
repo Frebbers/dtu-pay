@@ -1,6 +1,7 @@
 package dtu.pay;
 
 import dtu.pay.factories.MerchantServiceFactory;
+import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import dtu.pay.services.MerchantService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -14,7 +15,14 @@ public class MerchantResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerMerchant(Merchant merchant) {
-        String id = service.register(merchant);
+        String id;
+        try {id = service.register(merchant);}
+        catch (UserAlreadyExistsException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
+        }
+        catch (Exception e) {
+            return Response.serverError().build();
+        }
         return Response.ok(id).build();
     }
 
