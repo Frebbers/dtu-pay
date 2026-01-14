@@ -1,4 +1,4 @@
-Feature: Payment via SOAP API
+Feature: Payment via DTU Pay
 
   Scenario: Successful Payment
     Given a customer with name "Susan", last name "Baldwin", and CPR "240396-8174"
