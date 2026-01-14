@@ -18,7 +18,7 @@ class CustomerServiceTest {
     private CustomerService customerService;
     private CompletableFuture<Event> publishedEvent;
 
-    private RabbitMqQueue mq = new RabbitMqQueue() {
+    private MessageQueue mq = new MessageQueue() {
         @Override
         public void publish(Event event) {
             publishedEvent.complete(event);
@@ -38,18 +38,38 @@ class CustomerServiceTest {
         customerService = null;
     }
 
-    @Test
-    void registerSuccessfully() {
-        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678");
+//    @Test
+//    void registerSuccessfully() {
+//        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678");
 //        publishedEvent = new CompletableFuture<Event>();
 //        new Thread(() -> {
 //            var result = customerService.register(customer);
+//        }).start();
+//        mq.publish(new Event("CustomerRegistered"));
 //
-//        })
-        var result = customerService.register(customer);
+//    }
 
+
+    @Test
+    void registerSuccessfully() throws Exception {
+        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678");
+        publishedEvent = new CompletableFuture<>();
+
+        CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> customerService.register(customer));
+
+        Event request = publishedEvent.get(); // the "CustomerRegistrationRequested" event
+        assertEquals("CustomerRegistrationRequested", request.getType());
+
+        CorrelationId correlationId = request.getArgument(1, CorrelationId.class);
+
+        String expectedResponse = "Success!";
+        customerService.handleCustomerRegistered(new Event(
+                "CustomerRegistered",
+                new Object[] { expectedResponse, correlationId }
+        ));
+
+        assertEquals(expectedResponse, resultFuture.get());
     }
-
     @Test
     void handleCustomerRegistered() {
     }
