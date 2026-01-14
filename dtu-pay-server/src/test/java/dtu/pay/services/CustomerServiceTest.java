@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class CustomerServiceTest {
     private CustomerService customerService;
     private CompletableFuture<Event> publishedEvent;
-    private CompletableFuture<Customer> registeredCustomer =new CompletableFuture<>();
 
     private RabbitMqQueue mq = new RabbitMqQueue() {
         @Override
