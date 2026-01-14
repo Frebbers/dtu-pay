@@ -112,6 +112,17 @@
 			<version>3.4.3</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.30</version>
+      <scope>provided</scope>
+    </dependency>
+		<dependency>
+			<groupId>org.jmolecules</groupId>
+			<artifactId>jmolecules-ddd</artifactId>
+			<version>1.4.0</version>
+		</dependency>
 
 	</dependencies>
 
