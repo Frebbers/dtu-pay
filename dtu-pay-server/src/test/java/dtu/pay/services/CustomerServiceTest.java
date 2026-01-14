@@ -40,7 +40,7 @@ class CustomerServiceTest {
 
     @Test
     void registerSuccessfully() {
-        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678")
+        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678");
 //        publishedEvent = new CompletableFuture<Event>();
 //        new Thread(() -> {
 //            var result = customerService.register(customer);
