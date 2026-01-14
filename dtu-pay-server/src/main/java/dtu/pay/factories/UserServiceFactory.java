@@ -9,7 +9,7 @@ public class UserServiceFactory {
     private final MessageQueue mq;
     public UserServiceFactory() {
         mq = new RabbitMqQueue("userServiceQueue");
-    }
+    }//TODO fix this
     public UserService getService() {
         return new UserService(mq);
     }

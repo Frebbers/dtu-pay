@@ -21,7 +21,7 @@ public class ClientSteps {
     private dtu.pay.User customer;
     private dtu.pay.User merchant;
     private String customerId, merchantId;
-    private SimpleDtuPayClient dtupay = new SimpleDtuPayClient();
+    private DtuPayClient dtupay = new DtuPayClient();
     private boolean successful = false;
     private List<Payment> payments;
 
@@ -35,7 +35,7 @@ public class ClientSteps {
     @Before
     public void beforeScenario() {
         // Create a fresh instance of SimpleDtuPayClient for each scenario
-        dtupay = new SimpleDtuPayClient();
+        dtupay = new DtuPayClient();
         customer = null;
         customerId = null;
         merchantId = null;

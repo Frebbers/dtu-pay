@@ -11,13 +11,13 @@ import java.util.List;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class SimpleDtuPayClient {
+public class DtuPayClient {
 
     private final Client client;
     private final WebTarget base;
     private String latestError;
 
-    public SimpleDtuPayClient() {
+    public DtuPayClient() {
         this.client = ClientBuilder.newClient();
         this.base = client.target("http://localhost:8080");
     }
