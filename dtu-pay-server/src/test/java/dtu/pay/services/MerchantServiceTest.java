@@ -1,10 +1,9 @@
 package dtu.pay.services;
 
 import dtu.pay.Merchant;
-import dtu.pay.factories.MerchantServiceFactory;
+import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
-import messaging.implementations.RabbitMqQueue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,7 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.*;
 /// @author s224804
 class MerchantServiceTest {
-    private MerchantService MerchantService;
+    private MerchantService merchantService;
     private CompletableFuture<Event> publishedEvent;
 
     private MessageQueue mq = new MessageQueue() {
@@ -52,10 +51,16 @@ class MerchantServiceTest {
 
     @Test
     void registerSuccessfully() throws Exception {
-        Merchant Merchant = new Merchant("John", "Doe", "120805-1234", "12345678");
+        Merchant merchant = new Merchant("John", "Doe", "120805-1234", "12345678");
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> MerchantService.register(Merchant));
+        CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> {
+            try {
+                return MerchantService.register(merchant);
+            } catch (UserAlreadyExistsException | Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         Event request = publishedEvent.get(); // the "MerchantRegistrationRequested" event
         assertEquals("MerchantRegistrationRequested", request.getType());

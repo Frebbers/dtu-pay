@@ -1,31 +1,31 @@
 package dtu.pay.services;
 
-import dtu.pay.Merchant;
 import dtu.pay.Payment;
+import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
-import messaging.implementations.RabbitMqQueue;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class MerchantService {
+public class UserService {
     private final MessageQueue mq;
     private final Map<CorrelationId, CompletableFuture<String>> correlations = new ConcurrentHashMap<>();
 
-    public MerchantService(MessageQueue mq) {
+    public UserService(MessageQueue mq) {
         this.mq = mq;
-        mq.addHandler("MerchantRegistered", this::handleMerchantRegistered);
-        mq.addHandler("MerchantNotRegistered", this::handleMerchantNotRegistered);
+        mq.addHandler("UserRegistered", this::handleUserRegistered);
+        mq.addHandler("UserNotRegistered", this::handleUserNotRegistered);
     }
 
-    public String register(Merchant merchant) throws Exception, UserAlreadyExistsException {
+    public String register(User user) throws Exception, UserAlreadyExistsException {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
             correlations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event("MerchantRegistrationRequested", new Object[]{merchant, correlationId});
+            Event event = new Event("UserRegistrationRequested", new Object[]{user, correlationId});
             mq.publish(event);
             // TODO: check if joining timeout
             return correlations.get(correlationId).join();
@@ -34,13 +34,13 @@ public class MerchantService {
         }
     }
 
-    public void handleMerchantRegistered(Event e){
-        String merchant = e.getArgument(0, String.class);
+    public void handleUserRegistered(Event e){
+        String user = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        correlations.get(correlationId).complete(merchant);
+        correlations.get(correlationId).complete(user);
     }
 
-    public void handleMerchantNotRegistered(Event e) {
+    public void handleUserNotRegistered(Event e) {
         String error = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         if(error.toLowerCase().contains("already exists")) {
@@ -49,18 +49,16 @@ public class MerchantService {
         correlations.get(correlationId).completeExceptionally(new Exception(error));
     }
 
-    public void unregisterMerchantById(String id) {
+    public void unregisterUserById(String id) {
+
+    }
+
+    public boolean userExists(String id) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public boolean pay(int amount, String cid, String mid) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public Object getLatestError() {
-        throw new UnsupportedOperationException();
-    }
-
-    public List<Payment> getPayments() {
-        throw new UnsupportedOperationException();
-    }
 }

@@ -1,20 +1,21 @@
-package dtu.pay;
+package dtu.pay.resources;
 
-import dtu.pay.factories.MerchantServiceFactory;
+import dtu.pay.factories.UserServiceFactory;
+import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
-import dtu.pay.services.MerchantService;
+import dtu.pay.services.UserService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 public class MerchantResource {
-    private final MerchantService service = new MerchantServiceFactory().getService();
+    private final UserService service = new UserServiceFactory().getService();
 
     @POST
     @Path("merchants")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response registerMerchant(Merchant merchant) {
+    public Response registerMerchant(User merchant) {
         String id;
         try {id = service.register(merchant);}
         catch (UserAlreadyExistsException e) {
@@ -29,7 +30,7 @@ public class MerchantResource {
     @DELETE
     @Path("merchants/{id}")
     public Response deleteMerchant(@PathParam("id") String id) {
-        service.unregisterMerchantById(id);
+        service.unregisterUserById(id);
         return Response.noContent().build();
     }
 }

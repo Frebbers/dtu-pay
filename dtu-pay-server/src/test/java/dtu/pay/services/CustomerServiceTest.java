@@ -1,10 +1,8 @@
 package dtu.pay.services;
 
 import dtu.pay.Customer;
-import dtu.pay.factories.CustomerServiceFactory;
 import messaging.Event;
 import messaging.MessageQueue;
-import messaging.implementations.RabbitMqQueue;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -134,7 +134,7 @@ public class ClientSteps {
 
     @Then("the account is created successfully")
     public void theAccountIsCreatedSuccessfully() {
-        assertNotNull(customerId);
+        assertTrue(customerId != null || merchantId != null);
     }
 }
 

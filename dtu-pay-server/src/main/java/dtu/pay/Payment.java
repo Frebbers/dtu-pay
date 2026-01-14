@@ -1,4 +1,6 @@
 package dtu.pay;
 
-public record Payment(int amount, Customer customer, Merchant merchant) {}
+import dtu.pay.models.User;
+
+public record Payment(int amount, User customer, User merchant) {}
 
