@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+// TODO: delete if no longer needed
 public class SimpleDtuPayService {
     private Map<String, Customer> customers = new ConcurrentHashMap<>();
     private Map<String, Merchant> merchants = new ConcurrentHashMap<>();

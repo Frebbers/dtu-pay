@@ -1,6 +1,7 @@
 package dtu.pay.services;
 
-import dtu.pay.Customer;
+import dtu.pay.models.User;
+import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.junit.jupiter.api.AfterEach;
@@ -12,8 +13,8 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 /// @author s224804
-class CustomerServiceTest {
-    private CustomerService customerService;
+class UserServiceTest {
+    private UserService userService;
     private CompletableFuture<Event> publishedEvent;
 
     private MessageQueue mq = new MessageQueue() {
@@ -27,48 +28,54 @@ class CustomerServiceTest {
 
     @BeforeEach
     void setUp() {
-        customerService = new CustomerService(mq);
+        userService = new UserService(mq);
     }
 
     @AfterEach
     void tearDown() {
         mq = null;
-        customerService = null;
+        userService = null;
     }
 
 //    @Test
 //    void registerSuccessfully() {
-//        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678");
+//        User User = new User("John", "Doe", "120805-1234", "12345678");
 //        publishedEvent = new CompletableFuture<Event>();
 //        new Thread(() -> {
-//            var result = customerService.register(customer);
+//            var result = UserService.register(User);
 //        }).start();
-//        mq.publish(new Event("CustomerRegistered"));
+//        mq.publish(new Event("UserRegistered"));
 //
 //    }
 
 
     @Test
     void registerSuccessfully() throws Exception {
-        Customer customer = new Customer("John", "Doe", "120805-1234", "12345678");
+        User user = new User("John", "Doe", "12345678");
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> customerService.register(customer));
+        CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> {
+            try {
+                return userService.register(user);
+            } catch (UserAlreadyExistsException | Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
-        Event request = publishedEvent.get(); // the "CustomerRegistrationRequested" event
-        assertEquals("CustomerRegistrationRequested", request.getType());
+        Event request = publishedEvent.get(); // the "UserRegistrationRequested" event
+        assertEquals("UserRegistrationRequested", request.getType());
 
         CorrelationId correlationId = request.getArgument(1, CorrelationId.class);
 
         String expectedResponse = "Success!";
-        customerService.handleCustomerRegistered(new Event(
-                "CustomerRegistered",
+        userService.handleUserRegistered(new Event(
+                "UserRegistered",
                 new Object[] { expectedResponse, correlationId }
         ));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
     @Test
-    void handleCustomerRegistered() {
+    void handleUserRegistered() {
     }
 }
