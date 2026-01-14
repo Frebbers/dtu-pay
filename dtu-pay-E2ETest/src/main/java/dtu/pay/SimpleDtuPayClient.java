@@ -22,9 +22,9 @@ public class SimpleDtuPayClient {
         this.base = client.target("http://localhost:8080");
     }
 
-    public String registerDTUPayCustomer(User customer) {
+    public String registerDTUPayAccount(User user) {
         Response r = base.path("customers").request()
-                .post(Entity.entity(customer, MediaType.APPLICATION_JSON));
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
 
             if (r.getStatus() == 200) {
                 return r.readEntity(String.class);
@@ -32,17 +32,6 @@ public class SimpleDtuPayClient {
             else {
                 throw new RuntimeException(r.readEntity(String.class));
             }
-    }
-
-    public String registerDTUPayMerchant(User merchant) {
-        try (Response r = base.path("merchants").request()
-                .post(Entity.entity(merchant, MediaType.APPLICATION_JSON))) {
-            if (r.getStatus() == 200) {
-                return r.readEntity(String.class);
-            }
-            latestError = r.readEntity(String.class);
-            return null;
-        }
     }
 
     public boolean pay(BigDecimal amount, String cid, String mid) {

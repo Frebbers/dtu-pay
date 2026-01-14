@@ -19,8 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ClientSteps {
-    private Customer customer;
-    private Merchant merchant;
+    private dtu.pay.User user;
     private String customerId, merchantId;
     private SimpleDtuPayClient dtupay = new SimpleDtuPayClient();
     private boolean successful = false;
@@ -37,8 +36,7 @@ public class ClientSteps {
     public void beforeScenario() {
         // Create a fresh instance of SimpleDtuPayClient for each scenario
         dtupay = new SimpleDtuPayClient();
-        customer = null;
-        merchant = null;
+        user = null;
         customerId = null;
         merchantId = null;
         successful = false;
@@ -50,15 +48,15 @@ public class ClientSteps {
 
     @Given("a customer with name {string}, last name {string}, and CPR {string}")
     public void a_customer_with_name_last_name_and_cpr_client(String firstName, String lastName, String cpr) {
-        customer = new Customer(firstName, lastName, cpr, null);
+        user = new dtu.pay.User(firstName, lastName, null, cpr);
     }
 
     @Given("the customer is registered with the bank with an initial balance of {int} kr")
     public void the_customer_is_registered_with_the_bank_with_an_initial_balance_of_kr_client(Integer initialBalance) throws BankServiceException_Exception {
         User user = new User();
-        user.setCprNumber(customer.cprNumber());
-        user.setFirstName(customer.firstName());
-        user.setLastName(customer.lastName());
+        user.setCprNumber(user.getCprNumber());
+        user.setFirstName(user.getFirstName());
+        user.setLastName(user.getLastName());
 
         customerBankAccNum = bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(initialBalance));
         bankAccounts.add(customerBankAccNum);
