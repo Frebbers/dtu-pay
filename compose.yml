@@ -6,11 +6,40 @@ services:
     container_name: dtu-pay
     ports:
      - "8080:8080"
+    depends_on:
+     rabbitmq:
+       condition: service_healthy
+    networks:
+     - dtu-net
 
   account-service:
     build: ./account-service
     image: account-service
     ports:
      - "8081:8081"
+    environment:
+     - RABBITMQ_HOST=rabbitmq
+    depends_on:
+     rabbitmq:
+       condition: service_healthy
+    networks:
+     - dtu-net
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+     - "5672:5672"
+     - "15672:15672"
+    healthcheck:
+     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+     interval: 5s
+     timeout: 5s
+     retries: 12
+     start_period: 5s
+    networks:
+     - dtu-net
 
+networks:
+  dtu-net:
+    driver: bridge
