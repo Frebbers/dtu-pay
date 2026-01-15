@@ -25,6 +25,19 @@ services:
     networks:
      - dtu-net
 
+  token-service:
+    build:
+      context: .
+      dockerfile: token-service/Dockerfile
+    image: token-service
+    environment:
+     - RABBITMQ_HOST=rabbitmq
+    depends_on:
+     rabbitmq:
+       condition: service_healthy
+    networks:
+     - dtu-net
+
   rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq
