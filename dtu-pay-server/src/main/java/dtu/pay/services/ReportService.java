@@ -27,7 +27,7 @@ public class ReportService {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
             customerCorrelations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event("CustomerReportRequested", new Object[]{customerId, correlationId});
+            Event event = new Event("CustomerReportRequested", customerId, correlationId);
             mq.publish(event);
             // TODO: check if joining timeout
             return customerCorrelations.get(correlationId).join();
@@ -40,7 +40,7 @@ public class ReportService {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
             merchantCorrelations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event("CustomerReportRequested", new Object[]{merchantId, correlationId});
+            Event event = new Event("MerchantReportRequested", merchantId, correlationId);
             mq.publish(event);
             // TODO: check if joining timeout
             return merchantCorrelations.get(correlationId).join();
@@ -53,7 +53,7 @@ public class ReportService {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
             managerCorrelations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event("CustomerReportRequested", new Object[]{correlationId});
+            Event event = new Event("ManagerReportRequested", correlationId);
             mq.publish(event);
             // TODO: check if joining timeout
             return managerCorrelations.get(correlationId).join();
@@ -68,13 +68,13 @@ public class ReportService {
         customerCorrelations.get(correlationId).complete(report);
     }
 
-    private void handleMerchantReport(Event e) {
+    public void handleMerchantReport(Event e) {
         MerchantReport report = e.getArgument(0, MerchantReport.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         merchantCorrelations.get(correlationId).complete(report);
     }
 
-    private void handleManagerReport(Event e) {
+    public void handleManagerReport(Event e) {
         ManagerReport report = e.getArgument(0, ManagerReport.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         managerCorrelations.get(correlationId).complete(report);
