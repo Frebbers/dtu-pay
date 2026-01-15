@@ -41,6 +41,8 @@ public class PaymentService {
     }
 
     public void handlePaymentFailed(Event e) {
-        // TODO
+        String error = e.getArgument(0, String.class);
+        CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+        correlations.get(correlationId).completeExceptionally(new Exception(error)); // TODO
     }
 }
