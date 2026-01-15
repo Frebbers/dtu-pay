@@ -1,4 +1,7 @@
 package dtu.pay.models;
 
-public record Payment(int amount, User customer, User merchant) {}
-
+public record Payment(
+        int amount,
+        String token,
+        String merchantId
+) {}
