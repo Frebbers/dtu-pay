@@ -55,7 +55,7 @@ public class CustomerResource {
     @GET
     @Path("payments")
     @Produces(MediaType.APPLICATION_JSON)
-    public CustomerReport getPayments(int customerId) {
+    public CustomerReport getPayments(String customerId) {
         return reportService.getCustomerReport(customerId);
     }
 
