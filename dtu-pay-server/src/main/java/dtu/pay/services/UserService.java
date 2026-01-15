@@ -1,12 +1,10 @@
 package dtu.pay.services;
 
-import dtu.pay.Payment;
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,9 +33,9 @@ public class UserService {
     }
 
     public void handleUserRegistered(Event e){
-        String user = e.getArgument(0, String.class);
+        String userId = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        correlations.get(correlationId).complete(user);
+        correlations.get(correlationId).complete(userId);
     }
 
     public void handleUserNotRegistered(Event e) {
