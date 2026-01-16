@@ -68,13 +68,18 @@ public class ClientSteps {
 
     @Given("the customer is registered with DTU Pay using their bank account")
     public void the_customer_is_registered_with_simple_dtu_pay_using_their_bank_account_client() {
-        customer = new dtu.pay.User("John", "Doe", customerBankAccNum, null);
-        customerId = dtupay.registerDTUPayAccount(customer);
+        customer = new dtu.pay.User(
+                customer.firstName(),
+                customer.lastName(),
+                customerBankAccNum,
+                customer.cprNumber()
+        );
+        customerId = dtupay.registerCustomer(customer);
     }
 
     @Given("a merchant with name {string}, last name {string}, and CPR {string}")
     public void a_merchant_with_name_last_name_and_cpr_client(String firstName, String lastName, String cpr) {
-        merchant = new dtu.pay.User(firstName, lastName, merchantBankAccNum, null);
+        merchant = new dtu.pay.User(firstName, lastName, null, cpr);
     }
 
     @Given("the merchant is registered with the bank with an initial balance of {bigdecimal} kr")
@@ -88,10 +93,10 @@ public class ClientSteps {
         bankAccounts.add(merchantBankAccNum);
     }
 
-    @Given("the merchant is registered with Simple DTU Pay using their bank account")
-    public void the_merchant_is_registered_with_simple_dtu_pay_using_their_bank_account_client() {
-        merchant = new dtu.pay.User(merchant.firstName(), merchant.lastName(), merchant.cprNumber(), merchantBankAccNum);
-        merchantId = dtupay.registerDTUPayAccount(merchant);
+    @Given("the merchant is registered with DTU Pay using their bank account")
+    public void the_merchant_is_registered_with_dtu_pay_using_their_bank_account_client() {
+        merchant = new dtu.pay.User(merchant.firstName(), merchant.lastName(), merchantBankAccNum, merchant.cprNumber());
+        merchantId = dtupay.registerMerchant(merchant);
     }
 
     @When("the merchant initiates a payment for {bigdecimal} kr by the customer")

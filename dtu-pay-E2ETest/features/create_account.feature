@@ -9,4 +9,4 @@ Feature: create account
         Given a merchant with name "Daniel", last name "Oliver", and CPR "120394-4827"
         And the merchant is registered with the bank with an initial balance of 1000 kr
         And the merchant is registered with DTU Pay using their bank account
-        Then the account is created successfullyay.Use
+        Then the account is created successfully

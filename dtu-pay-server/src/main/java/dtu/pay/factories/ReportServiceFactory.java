@@ -7,7 +7,7 @@ import messaging.implementations.RabbitMqQueue;
 public class ReportServiceFactory {
     private final MessageQueue mq;
     public ReportServiceFactory() {
-        mq = new RabbitMqQueue("userServiceQueue");//TODO fix this
+        mq = new RabbitMqQueue("rabbitmq");
     }
     public ReportService getService() {
         return new ReportService(mq);

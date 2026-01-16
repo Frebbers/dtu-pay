@@ -8,8 +8,8 @@ import messaging.implementations.RabbitMqQueue;
 public class UserServiceFactory {
     private final MessageQueue mq;
     public UserServiceFactory() {
-        mq = new RabbitMqQueue("userServiceQueue");
-    }//TODO fix this
+        mq = new RabbitMqQueue("rabbitmq");
+    }
     public UserService getService() {
         return new UserService(mq);
     }
