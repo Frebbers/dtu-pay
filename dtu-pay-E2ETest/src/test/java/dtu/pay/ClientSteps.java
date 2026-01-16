@@ -59,9 +59,6 @@ public class ClientSteps {
     public void the_customer_is_registered_with_the_bank_with_an_initial_balance_of_kr_client(Integer initialBalance) throws BankServiceException_Exception {
         //convert customer to bank user
         User user = new User();
-//        user.setCprNumber(user.getCprNumber());
-//        user.setFirstName(user.getFirstName());
-//        user.setLastName(user.getLastName());
         user.setCprNumber(customer.cprNumber());
         user.setFirstName(customer.firstName());
         user.setLastName(customer.lastName());
