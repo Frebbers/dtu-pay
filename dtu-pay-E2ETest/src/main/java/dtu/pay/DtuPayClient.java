@@ -7,11 +7,14 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class DtuPayClient {
+public class DtuPayClient implements Closeable {
 
     private final Client client;
     private final WebTarget base;
@@ -90,5 +93,9 @@ public class DtuPayClient {
         try (Response r = base.path("customers").path(customerId).request().get()) {
             return r.getStatus() == 200;
         }
+    }
+    @Override
+    public void close() throws IOException {
+        client.close();
     }
 }

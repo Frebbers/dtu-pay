@@ -136,6 +136,7 @@ public class ClientSteps {
         cleanUpAccountsSoap();
     }
 
+    //TODO delete this method and its implementations, using the step def instead
     private void cleanUpAccountsSoap() {
         for (String account : bankAccounts) {
             try {
@@ -159,7 +160,7 @@ public class ClientSteps {
             bank.retireAccount(bankApiKey, acc.getId());
         }
         catch (BankServiceException_Exception ignored) {}
-
     }
+
 }
 
