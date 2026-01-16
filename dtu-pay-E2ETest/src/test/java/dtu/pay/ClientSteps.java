@@ -35,6 +35,9 @@ public class ClientSteps {
     @Before
     public void beforeScenario() {
         // Create a fresh instance of SimpleDtuPayClient for each scenario
+        try{dtupay.unregisterCustomer(customerId);
+            cleanUpAccountsSoap();
+        } catch (Exception e) {}// Ignore
         dtupay = new DtuPayClient();
         customer = null;
         customerId = null;
@@ -129,7 +132,10 @@ public class ClientSteps {
         if (merchantId != null) {
             dtupay.unregisterMerchant(merchantId);
         }
+        cleanUpAccountsSoap();
+    }
 
+    private void cleanUpAccountsSoap() {
         for (String account : bankAccounts) {
             try {
                 bank.retireAccount(bankApiKey, account);

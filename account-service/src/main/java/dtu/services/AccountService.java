@@ -1,79 +1,58 @@
 package dtu.services;
 
-import messaging.Event;
-import messaging.MessageQueue;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 import java.util.UUID;
+import java.util.logging.Logger;
+
+import dtu.aggregate.Account;
+import dtu.repositories.AccountRepository;
+import dtu.repositories.ReadAccountRepository;
+
+import messaging.Event;
+import messaging.implementations.RabbitMqQueue;
+
 
 public class AccountService {
-    private static final Logger logger = Logger.getLogger(AccountService.class.getName());
-    private static final String CUSTOMER_REGISTRATION_REQUESTED = "CustomerRegistrationRequested";
-    private static final String CUSTOMER_REGISTERED = "CustomerRegistered";
-    private static final String MERCHANT_REGISTRATION_REQUESTED = "MerchantRegistrationRequested";
-    private static final String MERCHANT_REGISTERED = "MerchantRegistered";
+  private static final Logger logger = Logger.getLogger(AccountService.class.getName());
+  private final RabbitMqQueue mq;
+  private final ReadAccountRepository readRepo;
+  private final AccountRepository writeRepo;
 
-    private final MessageQueue mq;
-    private final Map<AccountKey, String> idByKey = new ConcurrentHashMap<>();
-    private final Map<String, Account> accountsById = new ConcurrentHashMap<>();
+  public AccountService(RabbitMqQueue mq, ReadAccountRepository readRepo, AccountRepository writeRepo) {
+    this.mq = mq;
+    this.readRepo = readRepo;
+    this.writeRepo = writeRepo;
 
-    public AccountService(MessageQueue mq) {
-        this.mq = mq;
+    // Subscribe to registration events
+    mq.addHandler("UserRegistrationRequested", this::handleUserRegistration);
+    mq.addHandler("UserDerigisterRequest", this::handleUserDerigisteration);
+  }
 
-        // Subscribe to registration events
-        mq.addHandler(CUSTOMER_REGISTRATION_REQUESTED, this::handleCustomerRegistrationRequested);
-        mq.addHandler(MERCHANT_REGISTRATION_REQUESTED, this::handleMerchantRegistrationRequested);
-    }
+  public UUID createAccount(String firstName, String lastName, String accountNumber) {
+    if(readRepo.existsByBankAccountNumber(accountNumber)) throw new IllegalArgumentException("Account already exists");
+    Account account = Account.create(firstName, lastName, accountNumber);
+    writeRepo.save(account);
+    return account.getAccountId();
+  }
 
-    public void handleCustomerRegistrationRequested(Event event) {
-        handleRegistration(event, "customer", CUSTOMER_REGISTERED);
-    }
+  private void handleUserRegistration(Event e) {
+    logger.info("Received user registration event:" + e.getTopic());
+    var account = e.getArgument(0, Account.class);
+    UUID id = createAccount(account.getFirstname(), account.getLastname(), account.getBankAccountNumber()); 
+    Event responseEvent = new Event("UserRegistered", id);
+    Event savingToRepoEvent = new Event("UserAccountCreated",
+      id.toString(),
+      account.getFirstname(),
+      account.getLastname(),
+      account.getBankAccountNumber()
+  );
+    mq.publish(responseEvent);
+    mq.publish(savingToRepoEvent);  
+  } 
 
-    public void handleMerchantRegistrationRequested(Event event) {
-        handleRegistration(event, "merchant", MERCHANT_REGISTERED);
-    }
-
-    private void handleRegistration(Event event, String type, String successTopic) {
-        RegistrationRequest request = event.getArgument(0, RegistrationRequest.class);
-        Object correlationId = event.getArgument(1, Object.class);
-        if (request == null) {
-            logger.warning("Registration request missing body for type " + type);
-            String fallbackId = UUID.randomUUID().toString();
-            mq.publish(new Event(successTopic, fallbackId, correlationId));
-            return;
-        }
-
-        String id = registerAccount(request, type);
-        mq.publish(new Event(successTopic, id, correlationId));
-    }
-
-    private String registerAccount(RegistrationRequest request, String type) {
-        String cprNumber = safe(request.cprNumber());
-        String bankAccountNum = safe(request.bankAccountNum());
-
-        if (cprNumber.isEmpty() || bankAccountNum.isEmpty()) {
-            logger.warning("Registration missing cpr or bank account for " + type + ": " + request);
-            String uuid = UUID.randomUUID().toString();
-            accountsById.put(uuid, new Account(uuid, request.firstName(), request.lastName(),
-                    request.cprNumber(), request.bankAccountNum(), type));
-            return uuid;
-        }
-
-        AccountKey key = new AccountKey(cprNumber, bankAccountNum, type);
-        return idByKey.computeIfAbsent(key, unusedKey -> {
-            String uuid = UUID.randomUUID().toString();
-            accountsById.put(uuid, new Account(uuid, request.firstName(), request.lastName(),
-                    request.cprNumber(), request.bankAccountNum(), type));
-            return uuid;
-        });
-    }
-
-    private static String safe(String value) {
-        return value == null ? "" : value.trim();
-    }
-
-    public record RegistrationRequest(String firstName, String lastName, String cprNumber,
-                                      String bankAccountNum) {}
-    private record AccountKey(String cprNumber, String bankAccountNum, String type) {}
+  public void handleUserDerigisteration(Event e) {
+    logger.info("Received user derigistration event:" + e.getTopic());
+    UUID id = e.getArgument(0, UUID.class);
+    //writeRepo.deleteById(id);
+  }
+  
 }
