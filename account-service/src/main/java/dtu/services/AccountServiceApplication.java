@@ -4,15 +4,21 @@ import messaging.implementations.RabbitMqQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
+import dtu.repositories.AccountRepository;
+import dtu.repositories.ReadAccountRepository;
+
 public class AccountServiceApplication {
     private static final Logger logger = Logger.getLogger(AccountServiceApplication.class.getName());
+    
 
     public static void main(String[] args) throws InterruptedException {
         String rabbitHost = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
         int maxAttempts = readIntEnv("RABBITMQ_CONNECT_RETRIES", 30);
         long delayMs = readLongEnv("RABBITMQ_CONNECT_DELAY_MS", 2000L);
         RabbitMqQueue mq = connectWithRetry(rabbitHost, maxAttempts, delayMs);
-        new AccountService(mq);
+        ReadAccountRepository readRepo = new ReadAccountRepository(mq);
+        AccountRepository writeRepo = new AccountRepository(mq);
+        new NewAccountService(mq, readRepo, writeRepo);
         logger.info("Account service started. Waiting for events on RabbitMQ host: " + rabbitHost);
         new CountDownLatch(1).await();
     }

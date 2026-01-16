@@ -15,6 +15,7 @@ import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Entity;
 
 import dtu.Event.AccountCreated;
+import dtu.Event.AccountDeregistered;
 import dtu.Event.AccountEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,6 +29,7 @@ public class Account {
 	private String firstname;
 	private String lastname;
 	private String bankAccountNumber;
+	private boolean active = false;
 
 	@Setter(AccessLevel.NONE)
 	private List<AccountEvent> appliedEvents = new ArrayList<AccountEvent>();
@@ -39,9 +41,6 @@ public class Account {
 		AccountCreated event = new AccountCreated(accountId, firstName, lastName, bankAccountNumber);
 		var account = new Account();
 		account.accountId = accountId;
-		account.firstname = firstName;
-		account.lastname = lastName;
-		account.bankAccountNumber = bankAccountNumber;
 		account.appliedEvents.add(event);
 		return account;
 	}
@@ -52,12 +51,19 @@ public class Account {
 		return account;
 	}
 
+	public void deregister() {
+		AccountDeregistered event = new AccountDeregistered(accountId);
+		this.appliedEvents.add(event);
+	}
+
+
 	public Account() {
 		registerEventHandlers();
 	}
 
 	private void registerEventHandlers() {
 		handlers.put(AccountCreated.class, e -> apply((AccountCreated) e));
+		handlers.put(AccountDeregistered.class, e -> apply((AccountDeregistered) e));
 	}
 
 	public static Account rehydrate(UUID id, String firstName, String lastName, String bankAccountNumber) {
@@ -71,6 +77,9 @@ public class Account {
 		events.forEachOrdered(e -> {
 			this.applyEvent(e);
 		});
+		if(this.accountId == null) {
+			throw new Error("Account does not exist");
+		}
 	}
 
 	private void applyEvent(AccountEvent e) {
@@ -86,6 +95,11 @@ public class Account {
 		firstname = event.getFirstName();
 		lastname = event.getLastName();
 		bankAccountNumber = event.getBankAccountNumber();
+		active = true;
+	}
+
+	private void apply(AccountDeregistered event) {
+		active = false;
 	}
 
 	public void clearAppliedEvents() {
