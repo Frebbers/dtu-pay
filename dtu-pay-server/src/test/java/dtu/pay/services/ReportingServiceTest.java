@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ReportServiceTest {
-    private ReportService reportService;
+class ReportingServiceTest {
+    private ReportingService reportingService;
     private CompletableFuture<Event> publishedEvent;
 
     private MessageQueue mq = new MessageQueue() {
@@ -30,13 +30,13 @@ class ReportServiceTest {
 
     @BeforeEach
     void setUp() {
-        reportService = new ReportService(mq);
+        reportingService = new ReportingService(mq);
     }
 
     @AfterEach
     void tearDown() {
         mq = null;
-        reportService = null;
+        reportingService = null;
     }
 
     @Test
@@ -44,7 +44,7 @@ class ReportServiceTest {
         String customerId = "customerId";
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<CustomerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportService.getCustomerReport(customerId));
+        CompletableFuture<CustomerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getCustomerReport(customerId));
 
         Event request = publishedEvent.get();
         assertEquals("CustomerReportRequested", request.getType());
@@ -57,7 +57,7 @@ class ReportServiceTest {
                         new Payment(2, "token2", "merchantId2")
                 )
         );
-        reportService.handleCustomerReport(new Event("CustomerReportReturned", expectedResponse, correlationId));
+        reportingService.handleCustomerReport(new Event("CustomerReportReturned", expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
@@ -67,7 +67,7 @@ class ReportServiceTest {
         String merchantId = "merchantId";
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<MerchantReport> resultFuture = CompletableFuture.supplyAsync(() -> reportService.getMerchantReport(merchantId));
+        CompletableFuture<MerchantReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getMerchantReport(merchantId));
 
         Event request = publishedEvent.get();
         assertEquals("MerchantReportRequested", request.getType());
@@ -80,7 +80,7 @@ class ReportServiceTest {
                         new MerchantPayment(2, "token2")
                 )
         );
-        reportService.handleMerchantReport(new Event("MerchantReportReturned", expectedResponse, correlationId));
+        reportingService.handleMerchantReport(new Event("MerchantReportReturned", expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
@@ -89,7 +89,7 @@ class ReportServiceTest {
     void getManagerReportSuccessfully() throws Exception {
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<ManagerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportService.getManagerReport());
+        CompletableFuture<ManagerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getManagerReport());
 
         Event request = publishedEvent.get();
         assertEquals("ManagerReportRequested", request.getType());
@@ -103,7 +103,7 @@ class ReportServiceTest {
                 ),
                 3
         );
-        reportService.handleManagerReport(new Event("ManagerReportReturned", expectedResponse, correlationId));
+        reportingService.handleManagerReport(new Event("ManagerReportReturned", expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }

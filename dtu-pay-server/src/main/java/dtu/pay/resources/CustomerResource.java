@@ -1,12 +1,12 @@
 package dtu.pay.resources;
 
-import dtu.pay.factories.ReportServiceFactory;
+import dtu.pay.factories.ReportingServiceFactory;
 import dtu.pay.factories.TokenServiceFactory;
 import dtu.pay.factories.UserServiceFactory;
 import dtu.pay.models.CustomerReport;
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
-import dtu.pay.services.ReportService;
+import dtu.pay.services.ReportingService;
 import dtu.pay.services.TokenServiceClient;
 import dtu.pay.services.UserService;
 import jakarta.ws.rs.*;
@@ -19,7 +19,7 @@ public class CustomerResource {
 
     //    SimpleDtuPayService service = new SimpleDtuPayService();
     UserService service = new UserServiceFactory().getService();
-    ReportService reportService = new ReportServiceFactory().getService();
+    ReportingService reportingService = new ReportingServiceFactory().getService();
     TokenServiceClient tokenService = new TokenServiceFactory().getService();
 
     @POST
@@ -53,10 +53,10 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("payments")
+    @Path("reports")
     @Produces(MediaType.APPLICATION_JSON)
-    public CustomerReport getPayments(String customerId) {
-        return reportService.getCustomerReport(customerId);
+    public CustomerReport getReport(String customerId) {
+        return reportingService.getCustomerReport(customerId);
     }
 
     @POST

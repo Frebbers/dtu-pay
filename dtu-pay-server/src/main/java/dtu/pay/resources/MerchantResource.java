@@ -1,11 +1,11 @@
 package dtu.pay.resources;
 
-import dtu.pay.factories.ReportServiceFactory;
+import dtu.pay.factories.ReportingServiceFactory;
 import dtu.pay.factories.UserServiceFactory;
 import dtu.pay.models.MerchantReport;
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
-import dtu.pay.services.ReportService;
+import dtu.pay.services.ReportingService;
 import dtu.pay.services.UserService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.Response;
 @Path("")
 public class MerchantResource {
     private final UserService userService = new UserServiceFactory().getService();
-    private final ReportService reportService = new ReportServiceFactory().getService();
+    private final ReportingService reportingService = new ReportingServiceFactory().getService();
 
     @POST
     @Path("merchants")
@@ -43,6 +43,6 @@ public class MerchantResource {
     @Path("reports")
     @Produces(MediaType.APPLICATION_JSON)
     public MerchantReport getReport(String merchantId) {
-        return reportService.getMerchantReport(merchantId);
+        return reportingService.getMerchantReport(merchantId);
     }
 }
