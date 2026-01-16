@@ -7,6 +7,7 @@ import dtu.ws.fastmoney.BankService_Service;
 import dtu.ws.fastmoney.User;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -37,6 +38,7 @@ public class ClientSteps {
         // Create a fresh instance of SimpleDtuPayClient for each scenario
         try{dtupay.unregisterCustomer(customerId);
             cleanUpAccountsSoap();
+            bankAccounts.clear();
         } catch (Exception e) {}// Ignore
         dtupay = new DtuPayClient();
         customer = null;
@@ -44,7 +46,6 @@ public class ClientSteps {
         merchantId = null;
         successful = false;
         payments = null;
-        bankAccounts.clear();
         customerBankAccNum = null;
         merchantBankAccNum = null;
     }
@@ -148,6 +149,17 @@ public class ClientSteps {
     @Then("the account is created successfully")
     public void theAccountIsCreatedSuccessfully() {
         assertTrue(customerId != null || merchantId != null);
+    }
+
+    @Given("user with CPR {string} is cleaned up")
+    public void userWithCPRIsCleanedUp(String cpr) {
+
+        try {
+            var acc = bank.getAccountByCprNumber(cpr);
+            bank.retireAccount(bankApiKey, acc.getId());
+        }
+        catch (BankServiceException_Exception ignored) {}
+
     }
 }
 
