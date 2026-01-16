@@ -1,5 +1,6 @@
 package dtu.pay.services;
 
+import dtu.pay.events.ReportEvent;
 import dtu.pay.models.*;
 import dtu.pay.repositories.ReportRepository;
 import messaging.Event;
@@ -12,37 +13,37 @@ public class ReportingService {
     public ReportingService(MessageQueue mq, ReportRepository reportRepository) {
         this.mq = mq;
         this.reportRepository = reportRepository;
-        mq.addHandler("BankTransferCompletedSuccessfully", this::handleCompletedBankTransfer);
-        mq.addHandler("CustomerReportRequested", this::handleCustomerReportRequest);
-        mq.addHandler("MerchantReportRequested", this::handleMerchantReport);
-        mq.addHandler("ManagerReportRequested", this::handleManagerReport);
+        mq.addHandler(ReportEvent.BANK_TRANSFER_COMPLETED_SUCCESSFULLY, this::handleCompletedBankTransfer);
+        mq.addHandler(ReportEvent.CUSTOMER_REPORT_REQUESTED, this::handleCustomerReportRequest);
+        mq.addHandler(ReportEvent.MERCHANT_REPORT_REQUESTED, this::handleMerchantReport);
+        mq.addHandler(ReportEvent.MANAGER_REPORT_REQUESTED, this::handleManagerReport);
     }
 
-    private void handleCompletedBankTransfer(Event event) {
+    public void handleCompletedBankTransfer(Event event) {
         Payment payment = event.getArgument(0, Payment.class); // TODO: check
         reportRepository.createReport(payment);
     }
 
-    private void handleCustomerReportRequest(Event e) {
+    public void handleCustomerReportRequest(Event e) {
         String customerId = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         CustomerReport customerReport = reportRepository.getCustomerReport(customerId);
-        Event event = new Event("CustomerReportReturned", customerReport, correlationId);
+        Event event = new Event(ReportEvent.CUSTOMER_REPORT_RETURNED, customerReport, correlationId);
         mq.publish(event);
     }
 
-    private void handleMerchantReport(Event e) {
+    public void handleMerchantReport(Event e) {
         String merchantId = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         MerchantReport merchantReport = reportRepository.getMerchantReport(merchantId);
-        Event event = new Event("MerchantReportReturned", merchantReport, correlationId);
+        Event event = new Event(ReportEvent.MERCHANT_REPORT_RETURNED, merchantReport, correlationId);
         mq.publish(event);
     }
 
-    private void handleManagerReport(Event e) {
+    public void handleManagerReport(Event e) {
         CorrelationId correlationId = e.getArgument(0, CorrelationId.class);
         ManagerReport managerReport = reportRepository.getManagerReport();
-        Event event = new Event("ManagerReportReturned", managerReport, correlationId);
+        Event event = new Event(ReportEvent.MANAGER_REPORT_RETURNED, managerReport, correlationId);
         mq.publish(event);
     }
 }

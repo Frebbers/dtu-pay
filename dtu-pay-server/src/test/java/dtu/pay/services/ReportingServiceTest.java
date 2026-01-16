@@ -1,5 +1,7 @@
 package dtu.pay.services;
 
+import dtu.pay.events.ReportEvent;
+import dtu.pay.factories.ReportingServiceFactory;
 import dtu.pay.models.*;
 import messaging.Event;
 import messaging.MessageQueue;
@@ -30,7 +32,7 @@ class ReportingServiceTest {
 
     @BeforeEach
     void setUp() {
-        reportingService = new ReportingService(mq);
+        reportingService = new ReportingServiceFactory().getService();
     }
 
     @AfterEach
@@ -47,7 +49,7 @@ class ReportingServiceTest {
         CompletableFuture<CustomerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getCustomerReport(customerId));
 
         Event request = publishedEvent.get();
-        assertEquals("CustomerReportRequested", request.getType());
+        assertEquals(ReportEvent.CUSTOMER_REPORT_REQUESTED, request.getType());
 
         CorrelationId correlationId = request.getArgument(1, CorrelationId.class);
 
@@ -57,7 +59,7 @@ class ReportingServiceTest {
                         new Payment(2, "token2", "merchantId2")
                 )
         );
-        reportingService.handleCustomerReport(new Event("CustomerReportReturned", expectedResponse, correlationId));
+        reportingService.handleCustomerReport(new Event(ReportEvent.CUSTOMER_REPORT_RETURNED, expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
@@ -70,7 +72,7 @@ class ReportingServiceTest {
         CompletableFuture<MerchantReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getMerchantReport(merchantId));
 
         Event request = publishedEvent.get();
-        assertEquals("MerchantReportRequested", request.getType());
+        assertEquals(ReportEvent.MERCHANT_REPORT_REQUESTED, request.getType());
 
         CorrelationId correlationId = request.getArgument(1, CorrelationId.class);
 
@@ -80,7 +82,7 @@ class ReportingServiceTest {
                         new MerchantPayment(2, "token2")
                 )
         );
-        reportingService.handleMerchantReport(new Event("MerchantReportReturned", expectedResponse, correlationId));
+        reportingService.handleMerchantReport(new Event(ReportEvent.MERCHANT_REPORT_RETURNED, expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
@@ -92,7 +94,7 @@ class ReportingServiceTest {
         CompletableFuture<ManagerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getManagerReport());
 
         Event request = publishedEvent.get();
-        assertEquals("ManagerReportRequested", request.getType());
+        assertEquals(ReportEvent.MANAGER_REPORT_REQUESTED, request.getType());
 
         CorrelationId correlationId = request.getArgument(0, CorrelationId.class);
 
@@ -103,7 +105,7 @@ class ReportingServiceTest {
                 ),
                 3
         );
-        reportingService.handleManagerReport(new Event("ManagerReportReturned", expectedResponse, correlationId));
+        reportingService.handleManagerReport(new Event(ReportEvent.MANAGER_REPORT_RETURNED, expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
