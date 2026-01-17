@@ -2,6 +2,7 @@ package dtu.token;
 
 import dtu.token.messages.ConsumeTokenRequested;
 import dtu.token.messages.TokenConsumed;
+import dtu.token.messages.TokenConsumptionRejected;
 import dtu.token.messages.TokenRequestRejected;
 import dtu.token.messages.TokenRequestSubmitted;
 import dtu.token.messages.TokensIssued;
@@ -27,6 +28,7 @@ public class TokenSteps {
     private String customerId;
     private List<String> issuedTokens;
     private Event lastPublished;
+    private String lastConsumedToken;
 
     @Before
     public void setup() {
@@ -35,6 +37,7 @@ public class TokenSteps {
         customerId = null;
         issuedTokens = new ArrayList<>();
         lastPublished = null;
+        lastConsumedToken = null;
     }
 
     @Given("a customer id {string}")
@@ -56,8 +59,18 @@ public class TokenSteps {
     public void theCustomerConsumesAToken() {
         Assertions.assertFalse(issuedTokens.isEmpty(), "No tokens available to consume");
         String token = issuedTokens.get(0);
+        lastConsumedToken = token;
         ConsumeTokenRequested command = new ConsumeTokenRequested(UUID.randomUUID().toString(), token, null, null,
                 System.currentTimeMillis());
+        mq.send(new Event(TokenTopics.CONSUME_TOKEN_REQUESTED, command));
+        lastPublished = mq.lastPublished();
+    }
+
+    @When("the same token is consumed again")
+    public void theSameTokenIsConsumedAgain() {
+        Assertions.assertNotNull(lastConsumedToken, "No consumed token available to reuse");
+        ConsumeTokenRequested command = new ConsumeTokenRequested(UUID.randomUUID().toString(), lastConsumedToken, null,
+                null, System.currentTimeMillis());
         mq.send(new Event(TokenTopics.CONSUME_TOKEN_REQUESTED, command));
         lastPublished = mq.lastPublished();
     }
@@ -79,6 +92,13 @@ public class TokenSteps {
         Assertions.assertNotNull(lastPublished, "No event published");
         Assertions.assertEquals(TokenTopics.TOKEN_REQUEST_REJECTED, lastPublished.getTopic());
         lastPublished.getArgument(0, TokenRequestRejected.class);
+    }
+
+    @Then("the token consumption is rejected")
+    public void theTokenConsumptionIsRejected() {
+        Assertions.assertNotNull(lastPublished, "No event published");
+        Assertions.assertEquals(TokenTopics.TOKEN_CONSUMPTION_REJECTED, lastPublished.getTopic());
+        lastPublished.getArgument(0, TokenConsumptionRejected.class);
     }
 
     @Then("the token is consumed for customer {string}")
