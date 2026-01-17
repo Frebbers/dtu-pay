@@ -8,17 +8,16 @@ import java.util.List;
 
 import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankService_Service;
-import dtu.ws.fastmoney.Account;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 
-import dtu.ws.fastmoney.User;
 import io.cucumber.java.After;
 import io.cucumber.java.PendingException;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-public class AccountCreationSteps {
+public class BankAccountSteps {
 
   private final ScenarioContext context;
   private BankService bank = new BankService_Service().getBankServicePort();
@@ -30,7 +29,7 @@ public class AccountCreationSteps {
   private String DTUPayAccountId;
   private Throwable latestError;
 
-  public  AccountCreationSteps(ScenarioContext context) {
+  public BankAccountSteps(ScenarioContext context) {
     this.context = context;
   }
 
@@ -67,30 +66,32 @@ public class AccountCreationSteps {
     catch (BankServiceException_Exception ignored) {}
   }
 
-  @When("the merchant is registered with Simple DTU Pay using their bank account")
-  public void theMerchantIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
-    latestError = null;
-    DTUPayAccountId = null;
+    @Given("the user is registered with the bank with an initial balance of {int} kr")
+    public void registerInBank(int balance) throws BankServiceException_Exception {
+        var user = new dtu.ws.fastmoney.User();
+        user.setFirstName(context.user.firstName());
+        user.setLastName(context.user.lastName());
+        user.setCprNumber(context.user.cprNumber());
 
-    dtu.pay.User request = new dtu.pay.User(customer.firstName(), customer.lastName(), createdUserBankAccNumber, null);
+        context.bankAccountId = bank.createAccountWithBalance
+                (bankApiKey, user, new BigDecimal(balance));
+    }
 
-    try {
-      DTUPayAccountId = dtupay.registerDTUPayMerchant(request);
-    } catch (Throwable t) {
-    latestError = t;
-   }
-  }
+//  @When("the merchant is registered with Simple DTU Pay using their bank account")
+//  public void theMerchantIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
+//    latestError = null;
+//    DTUPayAccountId = null;
+//
+//    dtu.pay.User request = new dtu.pay.User(customer.firstName(), customer.lastName(), createdUserBankAccNumber, null);
+//
+//    try {
+//      DTUPayAccountId = dtupay.registerDTUPayMerchant(request);
+//    } catch (Throwable t) {
+//    latestError = t;
+//   }
+//  }
 
-  @When("the user attempts to register again with Simple DTU Pay using the same bank account")
-  public void theUserAttemptsToRegisterAgainWithSimpleDTUPayUsingTheSameBankAccount() {
-    // Write code here that turns the phrase above into concrete actions
-    assert latestError == null;
-    theUserIsRegisteredWithSimpleDTUPayUsingTheirBankAccount();
-  }
 
-  @Then("the DTU Pay registration fails with error {string}")
-  public void theDTUPayRegistrationFailsWithError(String expectedErrorMessage) {
-    // Write code here that turns the phrase above into concrete actions
-    assert latestError.getMessage().contains(expectedErrorMessage);
-  }
+
+
 }
