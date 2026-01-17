@@ -13,6 +13,7 @@ import dtu.ws.fastmoney.BankServiceException_Exception;
 
 import dtu.ws.fastmoney.User;
 import io.cucumber.java.After;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -28,34 +29,8 @@ public class AccountCreationSteps {
   private String DTUPayAccountId;
   private Throwable latestError;
 
-  @Given("a user with name {string}, last name {string}, and CPR {string}")
-  public void aUserWithNameLastNameAndCPR(String firstName, String lastName, String cpr) {
-    customer = new dtu.pay.User(firstName, lastName, null, cpr);
-  }
-
-  @Given("the user is registered with the bank with an initial balance of {int} kr")
-  public void theUserIsRegisteredWithTheBankWithAnInitialBalanceOfKr(Integer initialBalance) throws BankServiceException_Exception {
-    User user = new User();
-    user.setCprNumber(customer.cprNumber());
-    user.setFirstName(customer.firstName());
-    user.setLastName(customer.lastName());
-
-    createdUserBankAccNumber = bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(initialBalance));
-    bankAccounts.add(createdUserBankAccNumber);
-  }
-
-  @When("the user is registered with Simple DTU Pay using their bank account")
-  public void theUserIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
-    latestError = null;
-    DTUPayAccountId = null;
-
-    dtu.pay.User request = new dtu.pay.User(customer.firstName(), customer.lastName(), createdUserBankAccNumber, null); 
-
-    try {
-      DTUPayAccountId = dtupay.registerDTUPayAccount(request);
-    } catch (Throwable t) {
-      latestError = t;
-    }
+  public  AccountCreationSteps(ScenarioContext context) {
+    this.context = context;
   }
 
   @Then("the DTU Pay registration is successful")
@@ -67,8 +42,8 @@ public class AccountCreationSteps {
 
   @Then("a non-empty string user id is returned")
   public void aNonEmptyStringUserIdIsReturned() {
-    assertNotNull("Returned user id should not be null", DTUPayAccountId);
-    assertFalse("Returned user id should not be empty", DTUPayAccountId.trim().isEmpty());
+    assertNotNull("Returned user id should not be null", context.DTUPayAccountId);
+    assertFalse("Returned user id should not be empty", context.DTUPayAccountId.trim().isEmpty());
   }
 
   @After
@@ -80,14 +55,5 @@ public class AccountCreationSteps {
                 System.out.println("Could not retire account: " + account);
             }
         }
-  }
-  @Given("User with CPR {string} is not registered in the bank")
-  public void userWithCPRIsCleanedUp(String cpr) {
-
-    try {
-      var acc = bank.getAccountByCprNumber(cpr);
-      bank.retireAccount(bankApiKey, acc.getId());
-    }
-    catch (BankServiceException_Exception ignored) {}
   }
 }

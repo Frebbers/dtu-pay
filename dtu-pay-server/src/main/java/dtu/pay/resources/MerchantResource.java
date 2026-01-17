@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+@Path("")
 public class MerchantResource {
     private final UserService service = new UserServiceFactory().getService();
 

@@ -10,7 +10,7 @@ public class UserServiceFactory {
     public UserServiceFactory() {
         String host = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
         mq = new RabbitMqQueue(host);
-    }//TODO fix this
+    }
     public UserService getService() {
         return new UserService(mq);
     }
