@@ -83,4 +83,27 @@ public class DtuPayClient {
             return r.getStatus() == 200;
         }
     }
+
+    public List<String> requestTokens(String customerId, int amount) {
+        TokenRequest request = new TokenRequest(amount);
+
+        try (Response r = base.path("customers")
+                .path(customerId)
+                .path("tokens")
+                .request()
+                .post(Entity.json(request))) {
+
+            if (r.getStatus() == 200) {
+                return r.readEntity(new GenericType<List<String>>() {});
+            }
+
+            throw new RuntimeException(
+                    "Token request failed (" + r.getStatus() + "): " +
+                            r.readEntity(String.class)
+            );
+        }
+    }
+
+
+
 }

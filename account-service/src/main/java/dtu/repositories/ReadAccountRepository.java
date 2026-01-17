@@ -55,9 +55,6 @@ public class ReadAccountRepository {
     return accounts.values().stream().anyMatch(account -> account.bankAccountNum().equals(bankAccountNum));
   }
 
-  public void deleteAll() {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'deleteAll'");
-  }
+ 
 
 }

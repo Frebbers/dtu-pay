@@ -20,9 +20,7 @@ import io.cucumber.java.en.When;
 
 public class AccountCreationSteps {
 
-  private String firstName;
-  private String lastName;
-  private String cpr;
+  private final ScenarioContext context;
   private BankService bank = new BankService_Service().getBankServicePort();
   private String bankApiKey = "amber2460";
   private DtuPayClient dtupay = new DtuPayClient();
@@ -32,34 +30,8 @@ public class AccountCreationSteps {
   private String DTUPayAccountId;
   private Throwable latestError;
 
-  @Given("a user with name {string}, last name {string}, and CPR {string}")
-  public void aUserWithNameLastNameAndCPR(String firstName, String lastName, String cpr) {
-    customer = new dtu.pay.User(firstName, lastName, null, cpr);
-  }
-
-  @Given("the user is registered with the bank with an initial balance of {int} kr")
-  public void theUserIsRegisteredWithTheBankWithAnInitialBalanceOfKr(Integer initialBalance) throws BankServiceException_Exception {
-    User user = new User();
-    user.setCprNumber(customer.cprNumber());
-    user.setFirstName(customer.firstName());
-    user.setLastName(customer.lastName());
-
-    createdUserBankAccNumber = bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(initialBalance));
-    bankAccounts.add(createdUserBankAccNumber);
-  }
-
-  @When("the customer is registered with Simple DTU Pay using their bank account")
-  public void theUserIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
-    latestError = null;
-    DTUPayAccountId = null;
-
-    dtu.pay.User request = new dtu.pay.User(customer.firstName(), customer.lastName(), createdUserBankAccNumber, null); 
-
-    try {
-      DTUPayAccountId = dtupay.registerDTUPayCustomer(request);
-    } catch (Throwable t) {
-      latestError = t;
-    }
+  public  AccountCreationSteps(ScenarioContext context) {
+    this.context = context;
   }
 
   @Then("the DTU Pay registration is successful")
@@ -71,8 +43,8 @@ public class AccountCreationSteps {
 
   @Then("a non-empty string user id is returned")
   public void aNonEmptyStringUserIdIsReturned() {
-    assertNotNull("Returned user id should not be null", DTUPayAccountId);
-    assertFalse("Returned user id should not be empty", DTUPayAccountId.trim().isEmpty());
+    assertNotNull("Returned user id should not be null", context.DTUPayAccountId);
+    assertFalse("Returned user id should not be empty", context.DTUPayAccountId.trim().isEmpty());
   }
 
   @After
