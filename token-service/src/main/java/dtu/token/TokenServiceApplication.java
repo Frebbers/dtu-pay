@@ -8,7 +8,7 @@ public class TokenServiceApplication {
     private static final Logger logger = Logger.getLogger(TokenServiceApplication.class.getName());
 
     public static void main(String[] args) throws InterruptedException {
-        String rabbitHost = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
+        String rabbitHost = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
         int maxAttempts = readIntEnv("RABBITMQ_CONNECT_RETRIES", 30);
         long delayMs = readLongEnv("RABBITMQ_CONNECT_DELAY_MS", 2000L);
         RabbitMqQueue mq = connectWithRetry(rabbitHost, maxAttempts, delayMs);

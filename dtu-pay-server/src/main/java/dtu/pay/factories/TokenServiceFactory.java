@@ -8,7 +8,7 @@ public class TokenServiceFactory {
     private final MessageQueue mq;
 
     public TokenServiceFactory() {
-        String host = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
+        String host = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
         mq = new RabbitMqQueue(host);
     }
 
