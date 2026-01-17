@@ -84,4 +84,13 @@ public class AccountCreationSteps {
             }
         }
   }
+  @Given("User with CPR {string} is not registered in the bank")
+  public void userWithCPRIsCleanedUp(String cpr) {
+
+    try {
+      var acc = bank.getAccountByCprNumber(cpr);
+      bank.retireAccount(bankApiKey, acc.getId());
+    }
+    catch (BankServiceException_Exception ignored) {}
+  }
 }
