@@ -11,6 +11,7 @@ import java.util.UUID;
 import messaging.Event;
 import messaging.MessageQueue;
 
+/// @author Christian Hyltoft
 public class TokenService {
     private final MessageQueue mq;
     private final TokenStore store;
