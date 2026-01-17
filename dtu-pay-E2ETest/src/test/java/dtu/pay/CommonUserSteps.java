@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CommonCustomerSteps {
+public class CommonUserSteps {
 
     private String firstName;
     private String lastName;
@@ -35,21 +35,21 @@ public class CommonCustomerSteps {
         catch (BankServiceException_Exception ignored) {}
     }
 
-    public CommonCustomerSteps(ScenarioContext context) {
+    public CommonUserSteps(ScenarioContext context) {
         this.context = context;
     }
 
     @Given("a user with name {string}, last name {string}, and CPR {string}")
     public void aUserWithNameLastNameAndCpr(String first, String last, String cpr) {
-        context.customer = new dtu.pay.User(first, last, null, cpr);
+        context.user = new dtu.pay.User(first, last, null, cpr);
     }
 
     @Given("the user is registered with the bank with an initial balance of {int} kr")
     public void registerInBank(int balance) throws BankServiceException_Exception {
         var user = new dtu.ws.fastmoney.User();
-        user.setFirstName(context.customer.firstName());
-        user.setLastName(context.customer.lastName());
-        user.setCprNumber(context.customer.cprNumber());
+        user.setFirstName(context.user.firstName());
+        user.setLastName(context.user.lastName());
+        user.setCprNumber(context.user.cprNumber());
 
         context.bankAccountId =
                 bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(balance));
@@ -58,8 +58,19 @@ public class CommonCustomerSteps {
     @Given("the customer is registered with Simple DTU Pay using their bank account")
     public void registerInDtuPay() {
         var request = new dtu.pay.User(
-                context.customer.firstName(),
-                context.customer.lastName(),
+                context.user.firstName(),
+                context.user.lastName(),
+                context.bankAccountId,
+                null
+        );
+        context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+    }
+
+    @Given("the merchant is registered with Simple DTU Pay using their bank account")
+    public void theMerchantIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
+        var request = new dtu.pay.User(
+                context.user.firstName(),
+                context.user.lastName(),
                 context.bankAccountId,
                 null
         );
