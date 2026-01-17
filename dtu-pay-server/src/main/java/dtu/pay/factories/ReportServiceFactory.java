@@ -7,7 +7,8 @@ import messaging.implementations.RabbitMqQueue;
 public class ReportServiceFactory {
     private final MessageQueue mq;
     public ReportServiceFactory() {
-        mq = new RabbitMqQueue("userServiceQueue");//TODO fix this
+        String host = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
+        mq = new RabbitMqQueue(host);
     }
     public ReportService getService() {
         return new ReportService(mq);

@@ -1,17 +1,18 @@
 package dtu.pay.factories;
 
-import dtu.pay.services.UserService;
+import dtu.pay.services.TokenServiceClient;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
 
-
-public class UserServiceFactory {
+public class TokenServiceFactory {
     private final MessageQueue mq;
-    public UserServiceFactory() {
+
+    public TokenServiceFactory() {
         String host = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
         mq = new RabbitMqQueue(host);
-    }//TODO fix this
-    public UserService getService() {
-        return new UserService(mq);
+    }
+
+    public TokenServiceClient getService() {
+        return new TokenServiceClient(mq);
     }
 }

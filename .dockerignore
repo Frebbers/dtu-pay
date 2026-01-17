@@ -4,6 +4,8 @@
 # Allow Docker / Compose files
 !dtu-pay-server/Dockerfile
 !dtu-pay-server/compose.yml
+!token-service/Dockerfile
+!compose.yml
 !README.md
 
 # Allow Maven build inputs
@@ -21,8 +23,12 @@
 !features/
 !features/**
 
+!token-service/
+!token-service/**
+!utilities/
+!utilities/**
+
 !target/
 !target/quarkus-app/
 !target/quarkus-app/**
-
 

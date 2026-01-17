@@ -1,15 +1,18 @@
 package dtu.pay.resources;
 
 import dtu.pay.factories.ReportServiceFactory;
+import dtu.pay.factories.TokenServiceFactory;
 import dtu.pay.factories.UserServiceFactory;
 import dtu.pay.models.CustomerReport;
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import dtu.pay.services.ReportService;
+import dtu.pay.services.TokenServiceClient;
 import dtu.pay.services.UserService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 
 @Path("")
 public class CustomerResource {
@@ -17,6 +20,7 @@ public class CustomerResource {
     //    SimpleDtuPayService service = new SimpleDtuPayService();
     UserService service = new UserServiceFactory().getService();
     ReportService reportService = new ReportServiceFactory().getService();
+    TokenServiceClient tokenService = new TokenServiceFactory().getService();
 
     @POST
     @Path("customers")
@@ -55,5 +59,21 @@ public class CustomerResource {
         return reportService.getCustomerReport(customerId);
     }
 
-}
+    @POST
+    @Path("customers/{id}/tokens")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response requestTokens(@PathParam("id") String customerId, TokenRequest request) {
+        int count = request == null ? 0 : request.count();
+        try {
+            List<String> tokens = tokenService.requestTokens(customerId, count);
+            return Response.ok(tokens).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
+    }
 
+}
