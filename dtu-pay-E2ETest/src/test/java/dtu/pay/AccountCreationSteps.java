@@ -47,7 +47,7 @@ public class AccountCreationSteps {
     bankAccounts.add(createdUserBankAccNumber);
   }
 
-  @When("the user is registered with Simple DTU Pay using their bank account")
+  @When("the customer is registered with Simple DTU Pay using their bank account")
   public void theUserIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
     latestError = null;
     DTUPayAccountId = null;
@@ -55,7 +55,7 @@ public class AccountCreationSteps {
     dtu.pay.User request = new dtu.pay.User(customer.firstName(), customer.lastName(), createdUserBankAccNumber, null); 
 
     try {
-      DTUPayAccountId = dtupay.registerDTUPayAccount(request);
+      DTUPayAccountId = dtupay.registerDTUPayCustomer(request);
     } catch (Throwable t) {
       latestError = t;
     }

@@ -21,9 +21,14 @@ public class DtuPayClient {
         this.client = ClientBuilder.newClient();
         this.base = client.target("http://localhost:8080");
     }
-
-    public String registerDTUPayAccount(User user) {
-        Response r = base.path("customers").request()
+    public String registerDTUPayMerchant(User user) {
+        return registerDTUPayAccount(user, "merchants");
+    }
+    public String registerDTUPayCustomer(User user) {
+        return registerDTUPayAccount(user, "customers");
+    }
+    private String registerDTUPayAccount(User user, String endpoint) {
+        Response r = base.path(endpoint).request()
                 .post(Entity.entity(user, MediaType.APPLICATION_JSON));
 
             if (r.getStatus() == 200) {
