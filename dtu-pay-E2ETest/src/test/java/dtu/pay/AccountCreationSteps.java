@@ -108,4 +108,17 @@ public class AccountCreationSteps {
     latestError = t;
    }
   }
+
+  @When("the user attempts to register again with Simple DTU Pay using the same bank account")
+  public void theUserAttemptsToRegisterAgainWithSimpleDTUPayUsingTheSameBankAccount() {
+    // Write code here that turns the phrase above into concrete actions
+    assert latestError == null;
+    theUserIsRegisteredWithSimpleDTUPayUsingTheirBankAccount();
+  }
+
+  @Then("the DTU Pay registration fails with error {string}")
+  public void theDTUPayRegistrationFailsWithError(String expectedErrorMessage) {
+    // Write code here that turns the phrase above into concrete actions
+    assert latestError.getMessage().contains(expectedErrorMessage);
+  }
 }
