@@ -32,7 +32,7 @@ class ReportingServiceTest {
 
     @BeforeEach
     void setUp() {
-        reportingService = new ReportingServiceFactory().getService();
+        reportingService = new ReportingService(mq);
     }
 
     @AfterEach
