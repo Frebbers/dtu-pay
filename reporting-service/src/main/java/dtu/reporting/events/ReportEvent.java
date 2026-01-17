@@ -1,4 +1,4 @@
-package dtu.pay.events;
+package dtu.reporting.events;
 
 public class ReportEvent {
     public static final String BANK_TRANSFER_COMPLETED_SUCCESSFULLY = "BankTransferCompletedSuccessfully";

@@ -27,6 +27,19 @@ services:
     networks:
      - dtu-net
 
+  reporting-service:
+    build:
+      context: .
+      dockerfile: reporting-service/Dockerfile
+    image: reporting-service
+    environment:
+     - RABBITMQ_HOST=rabbitmq
+    depends_on:
+     rabbitmq:
+       condition: service_healthy
+    networks:
+     - dtu-net
+
   token-service:
     build:
       context: .

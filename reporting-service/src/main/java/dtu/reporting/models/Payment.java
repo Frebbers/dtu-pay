@@ -1,4 +1,4 @@
-package dtu.pay.models;
+package dtu.reporting.models;
 
 public record Payment(
         int amount,

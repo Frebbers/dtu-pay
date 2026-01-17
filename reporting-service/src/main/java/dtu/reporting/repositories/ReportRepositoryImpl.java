@@ -1,6 +1,6 @@
-package dtu.pay.repositories;
+package dtu.reporting.repositories;
 
-import dtu.pay.models.*;
+import dtu.reporting.models.*;
 
 import java.util.HashMap;
 import java.util.Map;

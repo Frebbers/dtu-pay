@@ -1,8 +1,8 @@
-package dtu.pay.services;
+package dtu.reporting.services;
 
-import dtu.pay.events.ReportEvent;
-import dtu.pay.models.*;
-import dtu.pay.repositories.ReportRepository;
+import dtu.reporting.events.ReportEvent;
+import dtu.reporting.models.*;
+import dtu.reporting.repositories.ReportRepository;
 import messaging.Event;
 import messaging.MessageQueue;
 

@@ -1,4 +1,4 @@
-package dtu.pay.models;
+package dtu.reporting.models;
 
 import java.util.UUID;
 

@@ -1,8 +1,8 @@
-package dtu.pay.factories;
+package dtu.reporting.factories;
 
-import dtu.pay.repositories.ReportRepository;
-import dtu.pay.repositories.ReportRepositoryImpl;
-import dtu.pay.services.ReportingService;
+import dtu.reporting.repositories.ReportRepository;
+import dtu.reporting.repositories.ReportRepositoryImpl;
+import dtu.reporting.services.ReportingService;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
 
