@@ -3,11 +3,11 @@ package dtu.repositories;
 import dtu.aggregate.Account;
 import messaging.MessageQueue;
 
-public class AccountRepository {
+public class WriteAccountRepository {
   
   private EventStore eventStore;
 
-	public AccountRepository(MessageQueue bus) {
+	public WriteAccountRepository(MessageQueue bus) {
 		eventStore = new EventStore(bus);
 	}
 
