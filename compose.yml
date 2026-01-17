@@ -4,6 +4,8 @@ services:
     build: ./dtu-pay-server
     image: dtu-pay
     container_name: dtu-pay
+    environment:
+      - RABBITMQ_HOST=rabbitmq
     ports:
      - "8080:8080"
     depends_on:
