@@ -28,7 +28,7 @@ public class Account {
 	private UUID accountId;
 	private String firstname;
 	private String lastname;
-	private String bankAccountNumber;
+	private String bankAccountNum;
 	private boolean active = false;
 
 	@Setter(AccessLevel.NONE)
@@ -36,9 +36,9 @@ public class Account {
 
 	private Map<Class<? extends AccountEvent>, Consumer<AccountEvent>> handlers = new HashMap<>();
 
-	public static Account create(String firstName, String lastName, String bankAccountNumber) {
+	public static Account create(String firstName, String lastName, String bankAccountNum) {
 		UUID accountId = UUID.randomUUID();
-		AccountCreated event = new AccountCreated(accountId, firstName, lastName, bankAccountNumber);
+		AccountCreated event = new AccountCreated(accountId, firstName, lastName, bankAccountNum);
 		var account = new Account();
 		account.accountId = accountId;
 		account.appliedEvents.add(event);
@@ -66,8 +66,8 @@ public class Account {
 		handlers.put(AccountDeregistered.class, e -> apply((AccountDeregistered) e));
 	}
 
-	public static Account rehydrate(UUID id, String firstName, String lastName, String bankAccountNumber) {
-		AccountCreated created = new AccountCreated(id, firstName, lastName, bankAccountNumber);
+	public static Account rehydrate(UUID id, String firstName, String lastName, String bankAccountNum) {
+		AccountCreated created = new AccountCreated(id, firstName, lastName, bankAccountNum);
 		return Account.createFromEvents(Stream.of(created));
 	}
 
@@ -94,7 +94,7 @@ public class Account {
 		accountId = event.getAccountId();
 		firstname = event.getFirstName();
 		lastname = event.getLastName();
-		bankAccountNumber = event.getBankAccountNumber();
+		bankAccountNum = event.getBankAccountNum();
 		active = true;
 	}
 

@@ -2,7 +2,7 @@ package dtu;
 
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.repositories.AccountRepository;
-import dtu.repositories.AccountView;
+import dtu.repositories.User;
 import dtu.repositories.ReadAccountRepository;
 import dtu.services.NewAccountService;
 import io.cucumber.java.After;
@@ -28,31 +28,31 @@ public class NewAccountSteps {
   CorrelationId correlationId = CorrelationId.randomId();
 
   NewAccountService accountService = new NewAccountService(queueExternal, readRepo, writeRepo);
-  private AccountView account;
+  private User account;
   private UUID createdId;
 
   // First scenario steps
   @Given("a user with firstname {string} and lastname {string} and account number {string}")
   public void aUserWithFirstnameAndLastnameAndAccountNumber(String string, String string2, String string3) {
-    account = new AccountView(string, string2, string3);
+    account = new User(string, string2, string3);
 
   }
 
   @When("the user registers with DTU Pay")
   public void theUserRegistersWithDTUPay() {
     accountService.handleUserRegistration(new Event("UserRegistrationRequested", new Object[] { account, correlationId }));
-    createdId = readRepo.getAccountIdByBankAccountNumber(account.bankAccountNumber());
+    createdId = readRepo.getAccountIdByBankAccountNumber(account.bankAccountNum());
   }
 
   @Then("the user should be registered successfully and receive a UUID")
   public void theUserShouldBeRegisteredSuccessfullyAndReceiveAUUID() {
     assertNotNull(createdId);
-    assertTrue(readRepo.existsByBankAccountNumber(account.bankAccountNumber()));
+    assertTrue(readRepo.existsByBankAccountNumber(account.bankAccountNum()));
   }
 
   @Then("a {string} event should be published with uuid")
   public void aEventShouldBePublishedWithUuid(String eventName) {
-    UUID id = readRepo.getAccountIdByBankAccountNumber(account.bankAccountNumber());
+    UUID id = readRepo.getAccountIdByBankAccountNumber(account.bankAccountNum());
     Event expected = new Event(eventName, new Object[] { id, correlationId });
     verify(queueExternal).publish(expected);
   }

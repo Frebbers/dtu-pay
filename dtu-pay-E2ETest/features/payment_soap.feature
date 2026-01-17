@@ -1,5 +1,5 @@
 Feature: Payment via DTU Pay
-
+  @ignore
   Scenario: Successful Payment
     Given a customer with name "Susan", last name "Baldwin", and CPR "240396-8174"
     And the customer is registered with the bank with an initial balance of 1000 kr

@@ -19,7 +19,7 @@ import messaging.MessageQueue;
 @Repository
 public class ReadAccountRepository {
 
-  private final Map<UUID, AccountView> accounts = new ConcurrentHashMap<>();
+  private final Map<UUID, User> accounts = new ConcurrentHashMap<>();
 
   public ReadAccountRepository(MessageQueue eventQueue) {
     eventQueue.addHandler("AccountCreated", this::handleAccountCreatedEvent);
@@ -29,10 +29,10 @@ public class ReadAccountRepository {
   public void handleAccountCreatedEvent(Event e) {
     AccountCreated event = e.getArgument(0, AccountCreated.class);
 
-    accounts.put(event.getAccountId(), new AccountView(
+    accounts.put(event.getAccountId(), new User(
         event.getFirstName(),
         event.getLastName(),
-        event.getBankAccountNumber()));
+        event.getBankAccountNum()));
   }
 
   public void handleAccountDeregisteredEvent(Event e) {
@@ -41,18 +41,18 @@ public class ReadAccountRepository {
     System.out.println(accounts.size());
   }
 
-  public UUID getAccountIdByBankAccountNumber(String bankAccountNumber) {
+  public UUID getAccountIdByBankAccountNumber(String bankAccountNum) {
     System.out.println("Accounts in read repo: " + accounts);
     System.out.println("Account size: " + accounts.size());
     return accounts.entrySet().stream()
-        .filter(e -> e.getValue().bankAccountNumber().equals(bankAccountNumber))
+        .filter(e -> e.getValue().bankAccountNum().equals(bankAccountNum))
         .map(Map.Entry::getKey)
         .findFirst()
         .orElse(null);
   }
 
-  public boolean existsByBankAccountNumber(String bankAccountNumber) {
-    return accounts.values().stream().anyMatch(account -> account.bankAccountNumber().equals(bankAccountNumber));
+  public boolean existsByBankAccountNumber(String bankAccountNum) {
+    return accounts.values().stream().anyMatch(account -> account.bankAccountNum().equals(bankAccountNum));
   }
 
   public void deleteAll() {

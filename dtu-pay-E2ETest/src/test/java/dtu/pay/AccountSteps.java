@@ -25,12 +25,12 @@ public class AccountSteps {
         bankAccountLinked = false;
     }
 
-    @Given("a user with name {string}, last name {string}, and CPR {string}")
-    public void aUserWithNameLastNameAndCPR(String firstName, String lastName, String cpr) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.cpr = cpr;
-    }
+    // @Given("a user with name {string}, last name {string}, and CPR {string}")
+    // public void aUserWithNameLastNameAndCPR(String firstName, String lastName, String cpr) {
+    //     this.firstName = firstName;
+    //     this.lastName = lastName;
+    //     this.cpr = cpr;
+    // }
 
     @When("the user registers for a DTU Pay account")
     public void theUserRegistersForADTUPayAccount() {

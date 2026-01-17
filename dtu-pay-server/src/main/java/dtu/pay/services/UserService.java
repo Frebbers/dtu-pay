@@ -2,11 +2,12 @@ package dtu.pay.services;
 
 import dtu.pay.Payment;
 import dtu.pay.models.User;
+
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
 
-import java.util.List;
+
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,11 +22,11 @@ public class UserService {
         mq.addHandler("UserNotRegistered", this::handleUserNotRegistered);
     }
 
-    public String register(User user) throws Exception, UserAlreadyExistsException {
+    public String register(User merchant) throws Exception, UserAlreadyExistsException {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
             correlations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event("UserRegistrationRequested", new Object[]{user, correlationId});
+            Event event = new Event("UserRegistrationRequested", new Object[]{merchant, correlationId});
             mq.publish(event);
             // TODO: check if joining timeout
             return correlations.get(correlationId).join();

@@ -10,12 +10,11 @@ import dtu.Exceptions.AccountAlreadyExistsException;
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import dtu.repositories.AccountRepository;
-import dtu.repositories.AccountView;
+import dtu.repositories.User;
 import dtu.repositories.ReadAccountRepository;
-
+import dtu.repositories.User;
 import messaging.Event;
 import messaging.MessageQueue;
-
 
 public class NewAccountService {
   private static final Logger logger = Logger.getLogger(NewAccountService.class.getName());
@@ -33,7 +32,8 @@ public class NewAccountService {
     mq.addHandler("UserDeregisterRequested", this::handleUserDeregistration);
   }
 
-  public UUID createAccount(String firstName, String lastName, String bankAccountNumber) throws AccountAlreadyExistsException {
+  public UUID createAccount(String firstName, String lastName, String bankAccountNumber)
+      throws AccountAlreadyExistsException {
     if (readRepo.existsByBankAccountNumber(bankAccountNumber))
       throw new AccountAlreadyExistsException("Account with bank number " + bankAccountNumber + " already exists");
     Account account = Account.create(firstName, lastName, bankAccountNumber);
@@ -51,16 +51,19 @@ public class NewAccountService {
 
   public void handleUserRegistration(Event e) {
     logger.info("Received user registration event:" + e.getTopic());
-    var account = e.getArgument(0, AccountView.class);
+    var account = e.getArgument(0, User.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-    try{
-      UUID id = createAccount(account.firstName(), account.lastName(), account.bankAccountNumber());
-      Event responseEvent = new Event("UserRegistered", id, correlationId);
+    try {
+      UUID id = createAccount(account.firstName(), account.lastName(), account.bankAccountNum());
+      Event responseEvent = new Event("UserRegistered", new Object[] { id.toString(), correlationId });
       mq.publish(responseEvent);
     } catch (AccountAlreadyExistsException ex) {
       logger.warning("Account registration failed: " + ex.getMessage());
-      Event responseEvent = new Event("UserRegistrationFailed", ex.getMessage(), correlationId);
+      Event responseEvent = new Event("UserNotRegistered", new Object[] { ex.getMessage(), correlationId });
       mq.publish(responseEvent);
+    } catch (Exception exe) {
+      logger.severe("Registration crashed: " + exe);
+      mq.publish(new Event("UserNotRegistered", new Object[] { exe.toString(), correlationId }));
     }
   }
 
@@ -68,9 +71,9 @@ public class NewAccountService {
     logger.info("Received user deregistration event:" + e.getTopic());
     UUID id = e.getArgument(0, UUID.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-    try{
+    try {
       deregisterAccount(id);
-      mq.publish(new Event("UserDeregistered", id, correlationId));
+      mq.publish(new Event("UserDeregistered", new Object[] { id.toString(), correlationId }));
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account deregistration failed: " + ex.getMessage());
       Event responseEvent = new Event("UserDeregistrationFailed", ex.getMessage(), correlationId);

@@ -4,9 +4,9 @@ import dtu.pay.services.UserService;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
 
-
 public class UserServiceFactory {
     private final MessageQueue mq;
+
     public UserServiceFactory() {
         String host = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
         mq = new RabbitMqQueue(host);
