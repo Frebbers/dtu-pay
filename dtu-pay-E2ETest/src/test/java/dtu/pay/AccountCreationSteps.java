@@ -13,6 +13,7 @@ import dtu.ws.fastmoney.BankServiceException_Exception;
 
 import dtu.ws.fastmoney.User;
 import io.cucumber.java.After;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -92,5 +93,19 @@ public class AccountCreationSteps {
       bank.retireAccount(bankApiKey, acc.getId());
     }
     catch (BankServiceException_Exception ignored) {}
+  }
+
+  @When("the merchant is registered with Simple DTU Pay using their bank account")
+  public void theMerchantIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
+    latestError = null;
+    DTUPayAccountId = null;
+
+    dtu.pay.User request = new dtu.pay.User(customer.firstName(), customer.lastName(), createdUserBankAccNumber, null);
+
+    try {
+      DTUPayAccountId = dtupay.registerDTUPayMerchant(request);
+    } catch (Throwable t) {
+    latestError = t;
+   }
   }
 }
