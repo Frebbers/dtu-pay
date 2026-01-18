@@ -16,5 +16,6 @@
         <module>reporting-service</module>
         <module>token-service</module>
         <module>utilities/messaging-utilities</module>
+        <module>Shared-Models</module>
     </modules>
 </project>

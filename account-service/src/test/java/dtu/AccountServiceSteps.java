@@ -1,11 +1,9 @@
 package dtu;
 
-import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.User;
 import dtu.repositories.ReadAccountRepository;
 import dtu.services.AccountService;
-import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

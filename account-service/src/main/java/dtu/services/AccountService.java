@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 import dtu.CorrelationId;
 import dtu.Exceptions.AccountAlreadyExistsException;
-import dtu.Exceptions.AccountDoesNotExistsException;
+import dtu.Exceptions.AccountDoesNotExistException;
 import dtu.aggregate.Account;
 import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.User;
@@ -39,9 +39,9 @@ public class AccountService {
     return account.getAccountId();
   }
 
-  public void deregisterAccount(UUID accountId) throws AccountDoesNotExistsException {
+  public void deregisterAccount(UUID accountId) throws AccountDoesNotExistException {
     if (writeRepo.getById(accountId) == null)
-      throw new AccountDoesNotExistsException("Account with id " + accountId + " does not exist");
+      throw new AccountDoesNotExistException("Account with id " + accountId + " does not exist");
     Account account = writeRepo.getById(accountId);
     account.deregister();
     writeRepo.save(account);
@@ -72,7 +72,7 @@ public class AccountService {
     try {
       deregisterAccount(id);
       mq.publish(new Event("UserDeregistered", new Object[] { id.toString(), correlationId }));
-    } catch (AccountDoesNotExistsException ex) {
+    } catch (AccountDoesNotExistException ex) {
       logger.warning("Account deregistration failed: " + ex.getMessage());
       Event responseEvent = new Event("UserDeregistrationFailed", ex.getMessage(), correlationId);
       mq.publish(responseEvent);

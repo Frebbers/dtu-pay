@@ -1,4 +1,4 @@
-package dtu.pay;
+package dtu.pay.records;
 
 import dtu.pay.models.User;
 
