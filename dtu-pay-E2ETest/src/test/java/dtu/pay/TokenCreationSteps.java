@@ -9,6 +9,9 @@ import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
 
 import dtu.ws.fastmoney.User;
+import jakarta.ws.rs.core.Response;
+import org.junit.jupiter.api.Assertions;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +38,11 @@ public class TokenCreationSteps {
         this.context = context;
     }
 
+    @Given("the customer has {int} unused tokens")
+    public void theCustomerHasUnusedTokens(int amount) {
+        context.tokens = dtupay.requestTokens(context.DTUPayAccountId, amount);
+    }
+
     @When("the customer requests {int} tokens")
     public void theCustomerRequestsTokens(int amount) {
         context.tokens = dtupay.requestTokens(context.DTUPayAccountId, amount);
@@ -45,6 +53,17 @@ public class TokenCreationSteps {
         assertNotNull(context.tokens);
         assertEquals(expectedAmount, context.tokens.size());
         assertEquals(expectedAmount, context.tokens.stream().distinct().count());
+    }
+
+    @Then("the customer doesn't get tokens")
+    public void theCustomerDoesnTGetTokens() {
+        Response response = dtupay.getLastResponse();
+
+        assertNotNull(response, "No HTTP response received");
+        assertTrue(
+                response.getStatus() == 400 || response.getStatus() == 409,
+                "Expected token request to be rejected, but got status " + response.getStatus()
+        );
     }
 
     @After
