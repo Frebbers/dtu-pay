@@ -84,13 +84,58 @@ public class PaymentStepdefs {
 
     @And("the customerBankAccNum is fetched via AccountService")
     public void theCustomerBankAccNumIsFetchedViaAccountService() {
-        customerBankAccNum = "user_bank_num_1"; 
+        // 1. Verify the service requested the bank account
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        // We expect this to be the second event published (first was Token request)
+        verify(queue, timeout(5000).times(2)).publish(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getAllValues().get(1);
+        Assertions.assertEquals(service.GET_BANK_ACCOUNT_REQUESTED, publishedEvent.getTopic());
+
+        String requestedUserId = publishedEvent.getArgument(0, String.class);
+        CorrelationId correlationId = publishedEvent.getArgument(1, CorrelationId.class);
+
+        Assertions.assertEquals(customerId, requestedUserId);
+
+        // 2. Simulate the AccountService replying
+        ArgumentCaptor<Consumer<Event>> handlerCaptor = ArgumentCaptor.forClass(Consumer.class);
+        verify(queue).addHandler(eq(service.BANK_ACCOUNT_RETRIEVED), handlerCaptor.capture());
+        Consumer<Event> bankAccountRetrievedHandler = handlerCaptor.getValue();
+
+        // Create the reply event
+        customerBankAccNum = "customer_bank_account_1";
+        Event replyEvent = new Event(service.BANK_ACCOUNT_RETRIEVED, new Object[]{customerBankAccNum, correlationId});
+
+        // Invoke the handler to unblock the service
+        bankAccountRetrievedHandler.accept(replyEvent);
     }
 
     @And("the merchantBankAccNum is fetched via AccountService")
     public void theMerchantBankAccNumIsFetchedViaAccountService() {
-         // Currently hardcoded in the service
-         merchantBankAccNum = "user_bank_num_1";
+        // 1. Verify the service requested the bank account
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        // Third event published (Token, CustomerAcc, MerchantAcc)
+        verify(queue, timeout(5000).times(3)).publish(eventCaptor.capture());
+
+        Event publishedEvent = eventCaptor.getAllValues().get(2);
+        Assertions.assertEquals(service.GET_BANK_ACCOUNT_REQUESTED, publishedEvent.getTopic());
+
+        String requestedUserId = publishedEvent.getArgument(0, String.class);
+        CorrelationId correlationId = publishedEvent.getArgument(1, CorrelationId.class);
+
+        Assertions.assertEquals(paymentReq.merchantId(), requestedUserId);
+
+        // 2. Reuse the already captured handler (registered in constructor, so same handler instance)
+        ArgumentCaptor<Consumer<Event>> handlerCaptor = ArgumentCaptor.forClass(Consumer.class);
+        verify(queue).addHandler(eq(service.BANK_ACCOUNT_RETRIEVED), handlerCaptor.capture());
+        Consumer<Event> bankAccountRetrievedHandler = handlerCaptor.getValue();
+
+        // Create the reply event
+        merchantBankAccNum = "merchant_bank_account_1";
+        Event replyEvent = new Event(service.BANK_ACCOUNT_RETRIEVED, new Object[]{merchantBankAccNum, correlationId});
+
+        // Invoke the handler to unblock the service
+        bankAccountRetrievedHandler.accept(replyEvent);
     }
 
     @When("the bank processes the payment successfully")
@@ -106,11 +151,15 @@ public class PaymentStepdefs {
 
         // Verify the success event
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        // We expect 2 publish calls: 1 for Token, 1 for PaymentSuccess
-        verify(queue, times(2)).publish(eventCaptor.capture());
+        // We expect 4 publish calls: 
+        // 1. ConsumeTokenRequested
+        // 2. GetBankAccount (Customer)
+        // 3. GetBankAccount (Merchant)
+        // 4. PaymentProcessSuccess
+        verify(queue, times(4)).publish(eventCaptor.capture());
         
         // Get the last event
-        Event successEvent = eventCaptor.getAllValues().get(1);
+        Event successEvent = eventCaptor.getAllValues().get(3);
         Assertions.assertEquals("PaymentProcessSuccess", successEvent.getTopic());
         
         PaymentRecord record = successEvent.getArgument(0, PaymentRecord.class);

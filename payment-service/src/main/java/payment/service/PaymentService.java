@@ -3,12 +3,8 @@ package payment.service;
 import dtu.ws.fastmoney.*;
 import messaging.Event;
 import messaging.MessageQueue;
-import payment.service.models.ConsumeTokenRequested;
-import payment.service.models.PaymentRecord;
-import payment.service.models.PaymentReq;
-import payment.service.models.TokenConsumed;
+import payment.service.models.*;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -21,16 +17,22 @@ public class PaymentService {
     Map<UUID, PaymentReq> paymentHashMap = new HashMap<>();
 
     // Event names
+    String PAYMENT_REQUESTED = "PaymentRequested";
+    String PAYMENT_PROCESSED = "PaymentProcessed";
     String CONSUME_TOKEN_REQUESTED = "token.commands.ConsumeTokenRequested";
     String TOKEN_CONSUMED = "token.events.TokenConsumed";
+    String GET_BANK_ACCOUNT_REQUESTED = "accounts.commands.GetBankAccount";
+    String BANK_ACCOUNT_RETRIEVED = "accounts.events.BankAccountRetrieved";
 
     // Get customerId by token
-    private Map<String, CompletableFuture<String>> getCustomerIdCorrelations = new ConcurrentHashMap<>();
+    private final Map<String, CompletableFuture<String>> getCustomerIdCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<String>> getBankAccCorrelations = new ConcurrentHashMap<>();
 
     public PaymentService(MessageQueue q) {
         this.queue = q;
-        queue.addHandler("PaymentRequested", this::policyPaymentRequested);
+        queue.addHandler(PAYMENT_REQUESTED, this::policyPaymentRequested);
         queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed);
+        queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumReply);
     }
 
     /* Policies */
@@ -58,6 +60,12 @@ public class PaymentService {
         getCustomerIdCorrelations.get(correlationId).complete(tokenConsumed.customerId());
     }
 
+    public void handleBankAccNumReply(Event event) {
+        String bankAccNum = event.getArgument(0, String.class);
+        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+        getBankAccCorrelations.get(correlationId).complete(bankAccNum);
+    }
+
 
     /* Commands */
 
@@ -72,9 +80,13 @@ public class PaymentService {
     }
 
     public String getUserBankNumById(String userId) {
-        // TODO: Use userId to get customer/merchant bank account number by
-        //  sending GetBankAccNumReq events to AccountService
-        return "user_bank_num_1";
+        // Use userId to get customer/merchant bank account number by
+        //  sending REQUEST_BANKACCNUM_BY_USER_ID events to AccountService
+        CorrelationId correlationId = CorrelationId.randomId();
+        getBankAccCorrelations.put(correlationId, new CompletableFuture<>());
+        queue.publish(new Event(GET_BANK_ACCOUNT_REQUESTED, new Object[]{userId, correlationId}));
+
+        return getBankAccCorrelations.get(correlationId).join();
     }
 
     public boolean processPayment(String customerBankAccNum, String merchantBankAccNum, int amount) {
