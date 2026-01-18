@@ -1,10 +1,10 @@
 package dtu;
 
 import dtu.Exceptions.AccountDoesNotExistsException;
-import dtu.repositories.AccountRepository;
+import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.User;
 import dtu.repositories.ReadAccountRepository;
-import dtu.services.NewAccountService;
+import dtu.services.AccountService;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -19,15 +19,15 @@ import static org.mockito.Mockito.verify;
 
 import java.util.UUID;
 
-public class NewAccountSteps {
+public class AccountServiceSteps {
 
   MessageQueue queue = new MessageQueueSync();
   MessageQueue queueExternal = mock(MessageQueue.class);
-  AccountRepository writeRepo = new AccountRepository(queue);
+  WriteAccountRepository writeRepo = new WriteAccountRepository(queue);
   ReadAccountRepository readRepo = new ReadAccountRepository(queue);
   CorrelationId correlationId = CorrelationId.randomId();
 
-  NewAccountService accountService = new NewAccountService(queueExternal, readRepo, writeRepo);
+  AccountService accountService = new AccountService(queueExternal, readRepo, writeRepo);
   private User account;
   private UUID createdId;
 
@@ -53,7 +53,7 @@ public class NewAccountSteps {
   @Then("a {string} event should be published with uuid")
   public void aEventShouldBePublishedWithUuid(String eventName) {
     UUID id = readRepo.getAccountIdByBankAccountNumber(account.bankAccountNum());
-    Event expected = new Event(eventName, new Object[] { id, correlationId });
+    Event expected = new Event(eventName, new Object[] { id.toString(), correlationId });
     verify(queueExternal).publish(expected);
   }
 

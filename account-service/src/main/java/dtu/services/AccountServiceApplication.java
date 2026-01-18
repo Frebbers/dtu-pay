@@ -4,7 +4,7 @@ import messaging.implementations.RabbitMqQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 
-import dtu.repositories.AccountRepository;
+import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.ReadAccountRepository;
 
 public class AccountServiceApplication {
@@ -17,8 +17,8 @@ public class AccountServiceApplication {
         long delayMs = readLongEnv("RABBITMQ_CONNECT_DELAY_MS", 2000L);
         RabbitMqQueue mq = connectWithRetry(rabbitHost, maxAttempts, delayMs);
         ReadAccountRepository readRepo = new ReadAccountRepository(mq);
-        AccountRepository writeRepo = new AccountRepository(mq);
-        new NewAccountService(mq, readRepo, writeRepo);
+        WriteAccountRepository writeRepo = new WriteAccountRepository(mq);
+        new AccountService(mq, readRepo, writeRepo);
         logger.info("Account service started. Waiting for events on RabbitMQ host: " + rabbitHost);
         new CountDownLatch(1).await();
     }

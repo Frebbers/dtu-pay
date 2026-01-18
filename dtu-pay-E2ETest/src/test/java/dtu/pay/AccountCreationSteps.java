@@ -20,9 +20,6 @@ import io.cucumber.java.en.When;
 
 public class AccountCreationSteps {
 
-  private String firstName;
-  private String lastName;
-  private String cpr;
   private final ScenarioContext context;
   private BankService bank = new BankService_Service().getBankServicePort();
   private String bankApiKey = "amber2460";
