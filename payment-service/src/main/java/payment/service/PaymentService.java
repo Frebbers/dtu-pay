@@ -18,11 +18,12 @@ public class PaymentService {
 
     // Event names
     String PAYMENT_REQUESTED = "PaymentRequested";
-    String PAYMENT_PROCESSED = "PaymentProcessed";
+    String PAYMENT_SUCCEEDED = "PaymentSucceeded";
     String CONSUME_TOKEN_REQUESTED = "token.commands.ConsumeTokenRequested";
     String TOKEN_CONSUMED = "token.events.TokenConsumed";
     String GET_BANK_ACCOUNT_REQUESTED = "accounts.commands.GetBankAccount";
     String BANK_ACCOUNT_RETRIEVED = "accounts.events.BankAccountRetrieved";
+    String BANK_TRANSFER_COMPLETED_SUCCESSFULLY = "BankTransferCompletedSuccessfully";
 
     // Get customerId by token
     private final Map<String, CompletableFuture<String>> getCustomerIdCorrelations = new ConcurrentHashMap<>();
@@ -39,6 +40,7 @@ public class PaymentService {
 
     public void policyPaymentRequested(Event event) {
         PaymentReq paymentReq = event.getArgument(0, PaymentReq.class);
+        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
 
         String customerId = getCustomerIdByToken(paymentReq.token());
 
@@ -48,9 +50,9 @@ public class PaymentService {
 
         var paymentSuccess = processPayment(customerBankAccNum, merchantBankAccNum, paymentReq.amount());
         if (paymentSuccess) {
-            notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount());
+            notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount(), correlationId);
         } else {
-            // TODO: Handle unsuccessful payments
+            notifyFailedPayment();
         }
     }
 
@@ -102,10 +104,17 @@ public class PaymentService {
         return true;
     }
 
-    public void notifySuccessfulPayment(String customerId, String merchantId, String token, int amount) {
+    public void notifySuccessfulPayment(String customerId, String merchantId, String token, int amount, CorrelationId correlationId) {
         // Send PaymentProcessSuccess event to ReportService
-        PaymentRecord record = new PaymentRecord(customerId, merchantId, token, amount);
+        PaymentRecord record = new PaymentRecord(amount, token, customerId, merchantId);
         // No correlationId since we don't expect response
-        queue.publish(new Event("PaymentProcessSuccess", new Object[] {record}));
+        queue.publish(new Event(BANK_TRANSFER_COMPLETED_SUCCESSFULLY, new Object[] {record}));
+
+        // Send PAYMENT_SUCCEEDED to DTU pay server
+        queue.publish(new Event(PAYMENT_SUCCEEDED, new Object[]{correlationId}));
+    }
+
+    public void notifyFailedPayment() {
+        // TODO: Notify unsuccessful payment
     }
 }

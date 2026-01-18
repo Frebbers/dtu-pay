@@ -1,5 +1,5 @@
 package payment.service.models;
 
-public record PaymentRecord(String customerId, String merchantId, String token, int amount)
+public record PaymentRecord(int amount, String token, String customerId, String merchantId)
 {
 }

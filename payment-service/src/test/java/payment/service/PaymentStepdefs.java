@@ -40,7 +40,8 @@ public class PaymentStepdefs {
 
         // 2. Create the event payload
         paymentReq = new PaymentReq("token_123", "merchant_123", 1000);
-        Event event = new Event("PaymentRequested", new Object[]{paymentReq});
+        CorrelationId correlationId = CorrelationId.randomId();
+        Event event = new Event("PaymentRequested", new Object[]{paymentReq, correlationId});
 
         // 3. Run the handler in a separate thread because the service blocks waiting for a reply
         new Thread(() -> {
@@ -140,8 +141,8 @@ public class PaymentStepdefs {
 
     @When("the bank processes the payment successfully")
     public void theBankProcessesThePaymentSuccessfully() {
-        var bankTransferResult = service.processPayment(customerBankAccNum, merchantBankAccNum, amount);
-        Assertions.assertTrue(bankTransferResult);
+        // The service logic is running in the background thread and will call processPayment internally.
+        // We do not need to invoke it manually here. 
     }
 
     @Then("the payment request is processed successfully")
@@ -151,16 +152,17 @@ public class PaymentStepdefs {
 
         // Verify the success event
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        // We expect 4 publish calls: 
+        // We expect 5 publish calls: 
         // 1. ConsumeTokenRequested
         // 2. GetBankAccount (Customer)
         // 3. GetBankAccount (Merchant)
         // 4. PaymentProcessSuccess
-        verify(queue, times(4)).publish(eventCaptor.capture());
+        // 5. PaymentSucceeded (to DTU Pay Server)
+        verify(queue, times(5)).publish(eventCaptor.capture());
         
-        // Get the last event
+        // Get the PaymentProcessSuccess event (index 3, starting from 0)
         Event successEvent = eventCaptor.getAllValues().get(3);
-        Assertions.assertEquals("PaymentProcessSuccess", successEvent.getTopic());
+        Assertions.assertEquals(service.BANK_TRANSFER_COMPLETED_SUCCESSFULLY, successEvent.getTopic());
         
         PaymentRecord record = successEvent.getArgument(0, PaymentRecord.class);
         Assertions.assertEquals(paymentReq.amount(), record.amount());
