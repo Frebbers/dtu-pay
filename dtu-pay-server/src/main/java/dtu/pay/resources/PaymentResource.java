@@ -2,7 +2,6 @@ package dtu.pay.resources;
 
 import dtu.pay.factories.PaymentServiceFactory;
 import dtu.pay.models.PaymentRequest;
-import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import dtu.pay.services.PaymentService;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;

@@ -1,4 +1,4 @@
-package dtu.pay.tokens;
+package dtu.pay.records.tokens.events;
 
 import java.util.List;
 
