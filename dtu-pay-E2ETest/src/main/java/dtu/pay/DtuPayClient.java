@@ -14,9 +14,14 @@ import java.util.ArrayList;
 
 public class DtuPayClient {
 
+    private Response lastResponse;
     private final Client client;
     private final WebTarget base;
     private String latestError;
+
+    public Response getLastResponse() {
+        return lastResponse;
+    }
 
     public DtuPayClient() {
         this.client = ClientBuilder.newClient();
@@ -88,22 +93,19 @@ public class DtuPayClient {
     public List<String> requestTokens(String customerId, int amount) {
         TokenRequest request = new TokenRequest(amount);
 
-        try (Response r = base.path("customers")
+        lastResponse = base.path("customers")
                 .path(customerId)
                 .path("tokens")
                 .request()
-                .post(Entity.json(request))) {
+                .post(Entity.json(request));
 
-            if (r.getStatus() == 200) {
-                return r.readEntity(new GenericType<List<String>>() {});
-            }
-
-            throw new RuntimeException(
-                    "Token request failed (" + r.getStatus() + "): " +
-                            r.readEntity(String.class)
-            );
+        if (lastResponse.getStatus() == 200) {
+            return lastResponse.readEntity(new GenericType<List<String>>() {});
         }
+
+        return null; // rejection case handled in steps
     }
+
 
 
 
