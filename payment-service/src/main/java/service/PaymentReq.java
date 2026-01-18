@@ -1,6 +1,6 @@
 package service;
 
-public record Payment(String token
+public record PaymentReq(String token
         , String merchantId
         , int amount) {
 }

@@ -55,6 +55,16 @@ services:
     networks:
      - dtu-net
 
+  payment-service:
+    image: payment-service
+    container_name: payment-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - dtu-net
+
+
 networks:
   dtu-net:
     driver: bridge

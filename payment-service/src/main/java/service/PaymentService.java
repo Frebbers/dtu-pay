@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public class PaymentService {
     MessageQueue queue;
-    Map<UUID, Payment> paymentHashMap = new HashMap<>();
+    Map<UUID, PaymentReq> paymentHashMap = new HashMap<>();
 
     public PaymentService(MessageQueue q) {
         this.queue = q;
@@ -19,7 +19,9 @@ public class PaymentService {
     /* Policies */
 
     public void policyPaymentRequested(Event event) {
-        Payment payment = event.getArgument(0, Payment.class);
+        PaymentReq paymentReq = event.getArgument(0, PaymentReq.class);
+        // public record Payment(String token, String merchantId, int amount)
+
         // TODO: Validate the payment.token and fetch the customerId
         //      by sending TokenValidateRequest events to TokenService
 
@@ -29,13 +31,13 @@ public class PaymentService {
         // TODO: Use merchantId to get merchant bank account number by
         //  sending GetBankAccNumReq events to AccountService
 
-        processPayment(payment);
+        processPayment(paymentReq);
     }
 
 
     /* Commands */
 
-    public void processPayment(Payment payment) {
+    public void processPayment(PaymentReq payment) {
         // TODO: Call the SOAP bank service to process payment:
         //  bank.transferMoneyFromTo(customer.bankAccountNum(), merchant.bankAccountNum(), BigDecimal.valueOf(amount), "Payment");
 
