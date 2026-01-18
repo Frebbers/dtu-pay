@@ -3,12 +3,17 @@ package dtu.reporting.services;
 import dtu.reporting.events.ReportEvent;
 import dtu.reporting.models.*;
 import dtu.reporting.repositories.ReportRepository;
+import dtu.reporting.repositories.ReportRepositoryImpl;
 import messaging.Event;
 import messaging.MessageQueue;
 
 public class ReportingService {
     private final MessageQueue mq;
     private final ReportRepository reportRepository;
+
+    public ReportingService(MessageQueue mq) {
+        this(mq, new ReportRepositoryImpl());
+    }
 
     public ReportingService(MessageQueue mq, ReportRepository reportRepository) {
         this.mq = mq;
