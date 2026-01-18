@@ -1,22 +1,19 @@
-package dtu.aggregate;
+package dtu.pay.accountService.aggregate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.jmolecules.ddd.annotation.AggregateRoot;
 import org.jmolecules.ddd.annotation.Entity;
 
-import dtu.Event.AccountCreated;
-import dtu.Event.AccountDeregistered;
-import dtu.Event.AccountEvent;
+import dtu.pay.accountService.models.events.AccountCreated;
+import dtu.pay.accountService.models.events.AccountDeregistered;
+import dtu.pay.accountService.models.events.AccountEvent;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

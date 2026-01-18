@@ -1,11 +1,11 @@
-package dtu.services;
+package dtu.pay.accountService;
 
+import dtu.pay.accountService.repositories.ReadAccountRepository;
+import dtu.pay.accountService.repositories.WriteAccountRepository;
+import dtu.pay.accountService.services.AccountService;
 import messaging.implementations.RabbitMqQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
-
-import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.ReadAccountRepository;
 
 public class AccountServiceApplication {
     private static final Logger logger = Logger.getLogger(AccountServiceApplication.class.getName());

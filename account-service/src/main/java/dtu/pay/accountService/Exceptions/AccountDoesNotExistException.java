@@ -1,4 +1,4 @@
-package dtu.Exceptions;
+package dtu.pay.accountService.Exceptions;
 
 public class AccountDoesNotExistException extends Exception {
     public AccountDoesNotExistException(String message) {

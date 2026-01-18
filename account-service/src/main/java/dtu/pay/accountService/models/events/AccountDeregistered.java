@@ -1,4 +1,4 @@
-package dtu.Event;
+package dtu.pay.accountService.models.events;
 
 import java.util.UUID;
 

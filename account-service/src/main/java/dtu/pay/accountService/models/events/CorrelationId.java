@@ -1,4 +1,4 @@
-package dtu;
+package dtu.pay.accountService.models.events;
 
 import lombok.Value;
 import java.util.UUID;

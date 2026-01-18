@@ -1,17 +1,13 @@
-package dtu.repositories;
+package dtu.pay.accountService.repositories;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
+import dtu.pay.accountService.models.User;
+import dtu.pay.accountService.models.events.AccountCreated;
+import dtu.pay.accountService.models.events.AccountDeregistered;
 import org.jmolecules.ddd.annotation.Repository;
-
-import dtu.Event.AccountCreated;
-import dtu.Event.AccountDeregistered;
 
 import messaging.Event;
 import messaging.MessageQueue;

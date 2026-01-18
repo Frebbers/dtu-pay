@@ -1,4 +1,4 @@
-package dtu.repositories;
+package dtu.pay.accountService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,13 +6,22 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+
+import dtu.pay.accountService.models.events.AccountCreated;
+import dtu.pay.accountService.models.events.AccountDeregistered;
+import dtu.pay.accountService.models.events.AccountEvent;
 import messaging.Event;
-import dtu.Event.AccountCreated;
-import dtu.Event.AccountDeregistered;
-import dtu.Event.AccountEvent;
 import lombok.NonNull;
 import messaging.MessageQueue;
 
+
+/**
+ * @author Fadl Matar
+ * In-memory event store for account aggregates.
+ * Stores {@link dtu.pay.accountService.models.events.AccountEvent}s per account id and
+ * publishes corresponding integration events on the provided {@link messaging.MessageQueue}.
+ * Used to reconstruct aggregates by replaying their event stream.
+ */
 public class EventStore {
 
 	private Map<UUID, List<AccountEvent>> store = new ConcurrentHashMap<>();

@@ -1,9 +1,10 @@
 package dtu;
 
-import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.User;
-import dtu.repositories.ReadAccountRepository;
-import dtu.services.AccountService;
+import dtu.pay.accountService.models.User;
+import dtu.pay.accountService.models.events.CorrelationId;
+import dtu.pay.accountService.repositories.ReadAccountRepository;
+import dtu.pay.accountService.repositories.WriteAccountRepository;
+import dtu.pay.accountService.services.AccountService;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

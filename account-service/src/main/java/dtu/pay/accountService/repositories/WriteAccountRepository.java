@@ -1,6 +1,7 @@
-package dtu.repositories;
+package dtu.pay.accountService.repositories;
 
-import dtu.aggregate.Account;
+import dtu.pay.accountService.EventStore;
+import dtu.pay.accountService.aggregate.Account;
 import messaging.MessageQueue;
 
 public class WriteAccountRepository {

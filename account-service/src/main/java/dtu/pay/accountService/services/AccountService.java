@@ -1,16 +1,16 @@
-package dtu.services;
+package dtu.pay.accountService.services;
 
 
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import dtu.CorrelationId;
-import dtu.Exceptions.AccountAlreadyExistsException;
-import dtu.Exceptions.AccountDoesNotExistException;
-import dtu.aggregate.Account;
-import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.User;
-import dtu.repositories.ReadAccountRepository;
+import dtu.pay.accountService.Exceptions.AccountAlreadyExistsException;
+import dtu.pay.accountService.Exceptions.AccountDoesNotExistException;
+import dtu.pay.accountService.aggregate.Account;
+import dtu.pay.accountService.models.User;
+import dtu.pay.accountService.models.events.CorrelationId;
+import dtu.pay.accountService.repositories.ReadAccountRepository;
+import dtu.pay.accountService.repositories.WriteAccountRepository;
 import messaging.Event;
 import messaging.MessageQueue;
 
