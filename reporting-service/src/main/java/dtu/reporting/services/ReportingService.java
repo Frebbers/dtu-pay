@@ -2,6 +2,9 @@ package dtu.reporting.services;
 
 import dtu.reporting.events.ReportEvent;
 import dtu.reporting.models.*;
+import dtu.reporting.models.report.CustomerReport;
+import dtu.reporting.models.report.ManagerReport;
+import dtu.reporting.models.report.MerchantReport;
 import dtu.reporting.repositories.ReportRepository;
 import dtu.reporting.repositories.ReportRepositoryImpl;
 import messaging.Event;

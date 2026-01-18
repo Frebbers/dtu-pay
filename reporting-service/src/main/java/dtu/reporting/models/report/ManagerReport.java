@@ -1,15 +1,14 @@
-package dtu.reporting.models;
+package dtu.reporting.models.report;
 
-import java.util.ArrayList;
-import java.util.List;
+import dtu.reporting.models.Payment;
+
 import java.util.Objects;
 
-public class ManagerReport {
-    private final List<Payment> payments = new ArrayList<>();
+public class ManagerReport extends Report<ManagerReportEntry> {
     private int totalMoneyTransferred = 0;
 
     public void add(Payment payment) {
-        payments.add(payment);
+        super.addEntry(ManagerReportEntry.fromPayment(payment));
         totalMoneyTransferred += payment.amount();
     }
 
@@ -17,13 +16,13 @@ public class ManagerReport {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         ManagerReport that = (ManagerReport) o;
-        if (totalMoneyTransferred != that.totalMoneyTransferred) return false;
-        return Objects.equals(payments, that.payments);
+        return totalMoneyTransferred == that.totalMoneyTransferred;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(payments, totalMoneyTransferred);
+        return Objects.hash(super.hashCode(), totalMoneyTransferred);
     }
 }

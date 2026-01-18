@@ -1,7 +1,7 @@
 package dtu.pay.resources;
 
 import dtu.pay.factories.ReportingServiceFactory;
-import dtu.pay.models.ManagerReport;
+import dtu.pay.models.report.ManagerReport;
 import dtu.pay.services.ReportingService;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

@@ -1,8 +1,7 @@
 package dtu.pay.services;
 
 import dtu.pay.events.ReportEvent;
-import dtu.pay.factories.ReportingServiceFactory;
-import dtu.pay.models.*;
+import dtu.pay.models.report.*;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.junit.jupiter.api.AfterEach;
@@ -55,8 +54,8 @@ class ReportingServiceTest {
 
         CustomerReport expectedResponse = new CustomerReport(
                 List.of(
-                        new Payment(1, "token1", "merchantId1"),
-                        new Payment(2, "token2", "merchantId2")
+                        new CustomerReportEntry(1, "token1", "merchantId1"),
+                        new CustomerReportEntry(2, "token2", "merchantId2")
                 )
         );
         reportingService.handleCustomerReport(new Event(ReportEvent.CUSTOMER_REPORT_RETURNED, expectedResponse, correlationId));
@@ -78,8 +77,8 @@ class ReportingServiceTest {
 
         MerchantReport expectedResponse = new MerchantReport(
                 List.of(
-                        new MerchantPayment(1, "token1"),
-                        new MerchantPayment(2, "token2")
+                        new MerchantReportEntry(1, "token1"),
+                        new MerchantReportEntry(2, "token2")
                 )
         );
         reportingService.handleMerchantReport(new Event(ReportEvent.MERCHANT_REPORT_RETURNED, expectedResponse, correlationId));
@@ -100,8 +99,8 @@ class ReportingServiceTest {
 
         ManagerReport expectedResponse = new ManagerReport(
                 List.of(
-                        new Payment(1, "token1", "merchantId1"),
-                        new Payment(2, "token2", "merchantId2")
+                        new ManagerReportEntry(1, "token1", "merchantId1", "customerId1"),
+                        new ManagerReportEntry(2, "token2", "merchantId2", "customerId2")
                 ),
                 3
         );

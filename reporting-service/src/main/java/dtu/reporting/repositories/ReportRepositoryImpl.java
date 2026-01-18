@@ -1,6 +1,9 @@
 package dtu.reporting.repositories;
 
-import dtu.reporting.models.*;
+import dtu.reporting.models.Payment;
+import dtu.reporting.models.report.CustomerReport;
+import dtu.reporting.models.report.ManagerReport;
+import dtu.reporting.models.report.MerchantReport;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,13 +17,11 @@ public class ReportRepositoryImpl implements ReportRepository {
 
     @Override
     public void createReport(Payment payment) {
-        MerchantReportPayment merchantReportPayment = MerchantReportPayment.fromPayment(payment);
-
         CustomerReport customerReport = customerReportMap.getOrDefault(payment.customerId(), new CustomerReport());
         customerReport.add(payment);
 
         MerchantReport merchantReport = merchantReportMap.getOrDefault(payment.merchantId(), new MerchantReport());
-        merchantReport.add(merchantReportPayment);
+        merchantReport.add(payment);
 
         customerReportMap.put(payment.customerId(), customerReport);
         merchantReportMap.put(payment.merchantId(), merchantReport);

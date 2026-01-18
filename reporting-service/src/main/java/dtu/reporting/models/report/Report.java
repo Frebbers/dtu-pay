@@ -1,21 +1,21 @@
-package dtu.reporting.models;
+package dtu.reporting.models.report;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class CustomerReport {
-    private final List<Payment> payments = new ArrayList<>();
+public class Report<T extends ReportEntry> {
+    private final List<T> payments = new ArrayList<>();
 
-    public void add(Payment payment) {
-        payments.add(payment);
+    public void addEntry(T entry) {
+        payments.add(entry);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CustomerReport that = (CustomerReport) o;
+        Report<?> that = (Report<?>) o;
         return Objects.equals(payments, that.payments);
     }
 

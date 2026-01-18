@@ -1,9 +1,9 @@
 package dtu.reporting.repositories;
 
-import dtu.reporting.models.CustomerReport;
-import dtu.reporting.models.ManagerReport;
-import dtu.reporting.models.MerchantReport;
 import dtu.reporting.models.Payment;
+import dtu.reporting.models.report.CustomerReport;
+import dtu.reporting.models.report.ManagerReport;
+import dtu.reporting.models.report.MerchantReport;
 
 public interface ReportRepository {
     void createReport(Payment payment);

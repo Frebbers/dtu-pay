@@ -1,7 +1,11 @@
 package dtu.reporting;
 
 import dtu.reporting.events.ReportEvent;
-import dtu.reporting.models.*;
+import dtu.reporting.models.CorrelationId;
+import dtu.reporting.models.Payment;
+import dtu.reporting.models.report.CustomerReport;
+import dtu.reporting.models.report.ManagerReport;
+import dtu.reporting.models.report.MerchantReport;
 import dtu.reporting.repositories.ReportRepository;
 import dtu.reporting.repositories.ReportRepositoryImpl;
 import dtu.reporting.services.ReportingService;
@@ -83,8 +87,8 @@ public class ReportingServiceSteps {
         }
     }
 
-    @Then("the {string} event is published")
-    public void theEventIsPublished(String expectedEventType) {
+    @Then("the {string} event is published and the report is returned to the customer")
+    public void theEventIsPublishedAndTheReportIsReturnedToTheCustomer(String expectedEventType) {
         Event lastEvent = mq.getLastPublished();
         assertNotNull(lastEvent, "No published events");
         assertEquals(expectedEventType, lastEvent.getTopic());
@@ -92,29 +96,42 @@ public class ReportingServiceSteps {
         CorrelationId actualCorrelationId = lastEvent.getArgument(1, CorrelationId.class);
         assertEquals(correlationId, actualCorrelationId);
 
-        switch (lastEvent.getTopic()) {
-            case ReportEvent.CUSTOMER_REPORT_RETURNED -> {
-                CustomerReport expectedReport = new CustomerReport();
-                expectedReport.add(payment);
-                CustomerReport report = lastEvent.getArgument(0, CustomerReport.class);
-                assertNotNull(report);
-                assertEquals(expectedReport, report);
-            }
-            case ReportEvent.MERCHANT_REPORT_RETURNED -> {
-                MerchantReport expectedReport = new MerchantReport();
-                expectedReport.add(MerchantReportPayment.fromPayment(payment));
-                MerchantReport report = lastEvent.getArgument(0, MerchantReport.class);
-                assertNotNull(report);
-                assertEquals(expectedReport, report);
-            }
-            case ReportEvent.MANAGER_REPORT_RETURNED -> {
+        CustomerReport expectedReport = new CustomerReport();
+        expectedReport.add(payment);
+        CustomerReport report = lastEvent.getArgument(0, CustomerReport.class);
+        assertNotNull(report);
+        assertEquals(expectedReport, report);
+    }
 
-                ManagerReport expectedReport = new ManagerReport();
-                expectedReport.add(payment);
-                ManagerReport report = lastEvent.getArgument(0, ManagerReport.class);
-                assertNotNull(report);
-                assertEquals(expectedReport, report);
-            }
-        }
+    @Then("the {string} event is published and the report is returned to the merchant")
+    public void theEventIsPublishedAndTheReportIsReturnedToTheMerchant(String expectedEventType) {
+        Event lastEvent = mq.getLastPublished();
+        assertNotNull(lastEvent, "No published events");
+        assertEquals(expectedEventType, lastEvent.getTopic());
+
+        CorrelationId actualCorrelationId = lastEvent.getArgument(1, CorrelationId.class);
+        assertEquals(correlationId, actualCorrelationId);
+
+        MerchantReport expectedReport = new MerchantReport();
+        expectedReport.add(payment);
+        MerchantReport report = lastEvent.getArgument(0, MerchantReport.class);
+        assertNotNull(report);
+        assertEquals(expectedReport, report);
+    }
+
+    @Then("the {string} event is published and the report is returned to the manager")
+    public void theEventIsPublishedAndTheReportIsReturnedToTheManager(String expectedEventType) {
+        Event lastEvent = mq.getLastPublished();
+        assertNotNull(lastEvent, "No published events");
+        assertEquals(expectedEventType, lastEvent.getTopic());
+
+        CorrelationId actualCorrelationId = lastEvent.getArgument(1, CorrelationId.class);
+        assertEquals(correlationId, actualCorrelationId);
+
+        ManagerReport expectedReport = new ManagerReport();
+        expectedReport.add(payment);
+        ManagerReport report = lastEvent.getArgument(0, ManagerReport.class);
+        assertNotNull(report);
+        assertEquals(expectedReport, report);
     }
 }

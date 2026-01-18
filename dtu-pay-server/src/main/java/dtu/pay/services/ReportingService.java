@@ -1,21 +1,23 @@
 package dtu.pay.services;
 
 import dtu.pay.events.ReportEvent;
-import dtu.pay.models.CustomerReport;
-import dtu.pay.models.ManagerReport;
-import dtu.pay.models.MerchantReport;
+import dtu.pay.models.report.CustomerReport;
+import dtu.pay.models.report.ManagerReport;
+import dtu.pay.models.report.MerchantReport;
+import dtu.pay.models.report.Report;
 import messaging.Event;
 import messaging.MessageQueue;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 public class ReportingService {
     private final MessageQueue mq;
-    private final Map<CorrelationId, CompletableFuture<CustomerReport>> customerCorrelations = new ConcurrentHashMap<>();
-    private final Map<CorrelationId, CompletableFuture<MerchantReport>> merchantCorrelations = new ConcurrentHashMap<>();
-    private final Map<CorrelationId, CompletableFuture<ManagerReport>> managerCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<CustomerReport>> customerCorrelationMap = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<MerchantReport>> merchantCorrelationMap = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<ManagerReport>> managerCorrelationMap = new ConcurrentHashMap<>();
 
     public ReportingService(MessageQueue mq) {
         this.mq = mq;
@@ -24,60 +26,60 @@ public class ReportingService {
         mq.addHandler(ReportEvent.MANAGER_REPORT_RETURNED, this::handleManagerReport);
     }
 
-    public CustomerReport getCustomerReport(String customerId) {
+
+    private <T extends Report> T requestReport(
+            Map<CorrelationId, CompletableFuture<T>> correlationMap,
+            Function<CorrelationId, Event> eventFactory
+    ) {
         try {
-            CorrelationId correlationId = CorrelationId.randomId();
-            customerCorrelations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event(ReportEvent.CUSTOMER_REPORT_REQUESTED, customerId, correlationId);
+            var correlationId = CorrelationId.randomId();
+            var future = new CompletableFuture<T>();
+            correlationMap.put(correlationId, future);
+            Event event = eventFactory.apply(correlationId);
             mq.publish(event);
             // TODO: check if joining timeout
-            return customerCorrelations.get(correlationId).join();
+            return future.join();
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    public CustomerReport getCustomerReport(String customerId) {
+        return requestReport(
+                customerCorrelationMap,
+                corrId -> new Event(ReportEvent.CUSTOMER_REPORT_REQUESTED, customerId, corrId)
+        );
     }
 
     public MerchantReport getMerchantReport(String merchantId) {
-        try {
-            CorrelationId correlationId = CorrelationId.randomId();
-            merchantCorrelations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event(ReportEvent.MERCHANT_REPORT_REQUESTED, merchantId, correlationId);
-            mq.publish(event);
-            // TODO: check if joining timeout
-            return merchantCorrelations.get(correlationId).join();
-        } catch (Exception e) {
-            throw e;
-        }
+        return requestReport(
+                merchantCorrelationMap,
+                corrId -> new Event(ReportEvent.MERCHANT_REPORT_REQUESTED, merchantId, corrId)
+        );
     }
 
     public ManagerReport getManagerReport() {
-        try {
-            CorrelationId correlationId = CorrelationId.randomId();
-            managerCorrelations.put(correlationId, new CompletableFuture<>());
-            Event event = new Event(ReportEvent.MANAGER_REPORT_REQUESTED, correlationId);
-            mq.publish(event);
-            // TODO: check if joining timeout
-            return managerCorrelations.get(correlationId).join();
-        } catch (Exception e) {
-            throw e;
-        }
+        return requestReport(
+                managerCorrelationMap,
+                corrId -> new Event(ReportEvent.MANAGER_REPORT_REQUESTED, corrId)
+        );
     }
 
     public void handleCustomerReport(Event e) {
         CustomerReport report = e.getArgument(0, CustomerReport.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        customerCorrelations.get(correlationId).complete(report);
+        customerCorrelationMap.get(correlationId).complete(report);
     }
 
     public void handleMerchantReport(Event e) {
         MerchantReport report = e.getArgument(0, MerchantReport.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        merchantCorrelations.get(correlationId).complete(report);
+        merchantCorrelationMap.get(correlationId).complete(report);
     }
 
     public void handleManagerReport(Event e) {
         ManagerReport report = e.getArgument(0, ManagerReport.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        managerCorrelations.get(correlationId).complete(report);
+        managerCorrelationMap.get(correlationId).complete(report);
     }
 }

@@ -3,7 +3,7 @@ package dtu.pay.resources;
 import dtu.pay.factories.ReportingServiceFactory;
 import dtu.pay.factories.TokenServiceFactory;
 import dtu.pay.factories.UserServiceFactory;
-import dtu.pay.models.CustomerReport;
+import dtu.pay.models.report.CustomerReport;
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import dtu.pay.services.ReportingService;
