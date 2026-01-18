@@ -1,6 +1,8 @@
 package dtu.pay.services;
 
 import dtu.pay.models.PaymentRequest;
+import dtu.pay.models.User;
+import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.junit.jupiter.api.AfterEach;

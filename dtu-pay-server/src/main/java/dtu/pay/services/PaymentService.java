@@ -2,6 +2,7 @@ package dtu.pay.services;
 
 import dtu.pay.models.Payment;
 import dtu.pay.models.PaymentRequest;
+import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
 

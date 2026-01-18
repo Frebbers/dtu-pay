@@ -1,4 +1,4 @@
-package dtu.pay.records.tokens.events;
+package dtu.pay.tokens;
 
 public record TokenRequestRejected(String commandId, String customerId, String reason, long rejectedAt) {
 }
