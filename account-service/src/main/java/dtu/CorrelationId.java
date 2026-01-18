@@ -1,4 +1,4 @@
-package dtu.pay.services;
+package dtu;
 
 import lombok.Value;
 import java.util.UUID;

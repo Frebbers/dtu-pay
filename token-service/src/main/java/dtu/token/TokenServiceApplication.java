@@ -1,25 +1,19 @@
-package dtu.services;
+package dtu.token;
 
-import messaging.implementations.RabbitMqQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
+import messaging.implementations.RabbitMqQueue;
 
-import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.ReadAccountRepository;
-
-public class AccountServiceApplication {
-    private static final Logger logger = Logger.getLogger(AccountServiceApplication.class.getName());
-    
+public class TokenServiceApplication {
+    private static final Logger logger = Logger.getLogger(TokenServiceApplication.class.getName());
 
     public static void main(String[] args) throws InterruptedException {
-        String rabbitHost = System.getenv().getOrDefault("RABBITMQ_HOST", "localhost");
+        String rabbitHost = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
         int maxAttempts = readIntEnv("RABBITMQ_CONNECT_RETRIES", 30);
         long delayMs = readLongEnv("RABBITMQ_CONNECT_DELAY_MS", 2000L);
         RabbitMqQueue mq = connectWithRetry(rabbitHost, maxAttempts, delayMs);
-        ReadAccountRepository readRepo = new ReadAccountRepository(mq);
-        WriteAccountRepository writeRepo = new WriteAccountRepository(mq);
-        new AccountService(mq, readRepo, writeRepo);
-        logger.info("Account service started. Waiting for events on RabbitMQ host: " + rabbitHost);
+        new TokenService(mq);
+        logger.info("Token service started. Waiting for events on RabbitMQ host: " + rabbitHost);
         new CountDownLatch(1).await();
     }
 

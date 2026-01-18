@@ -11,51 +11,50 @@ import java.util.stream.Collectors;
 import org.jmolecules.ddd.annotation.Repository;
 
 import dtu.Event.AccountCreated;
-import dtu.aggregate.Account;
+import dtu.Event.AccountDeregistered;
+
 import messaging.Event;
 import messaging.MessageQueue;
 
 @Repository
 public class ReadAccountRepository {
 
-  private final Map<UUID, String> bankAccountNumbers = new HashMap<>();
-
-  private final Map<UUID, Account> accounts = new HashMap<>();
-  private final Map<UUID, Account> customers = new ConcurrentHashMap<>(); // key: uuid, value: Customer
-  private final Map<UUID, Account> merchants = new ConcurrentHashMap<>(); // key: uuid, value: Merchant
+  private final Map<UUID, User> accounts = new ConcurrentHashMap<>();
 
   public ReadAccountRepository(MessageQueue eventQueue) {
     eventQueue.addHandler("AccountCreated", this::handleAccountCreatedEvent);
+    eventQueue.addHandler("AccountDeregistered", this::handleAccountDeregisteredEvent);
   }
 
-  public void handleAccountCreatedEvent(Event event) {
-    UUID id = UUID.fromString(event.getArgument(0, String.class));
-    String firstName = event.getArgument(1, String.class);
-    String lastName = event.getArgument(2, String.class);
-    String cpr = event.getArgument(3, String.class);
-    String bankAcc = event.getArgument(4, String.class);
+  public void handleAccountCreatedEvent(Event e) {
+    AccountCreated event = e.getArgument(0, AccountCreated.class);
 
-    Account account = Account.rehydrate(id, firstName, lastName, bankAcc);
-   
-    accounts.put(id, account); 
+    accounts.put(event.getAccountId(), new User(
+        event.getFirstName(),
+        event.getLastName(),
+        event.getBankAccountNum()));
   }
 
-  public Account getCustomerById(UUID id) {
-    return customers.get(id);
+  public void handleAccountDeregisteredEvent(Event e) {
+    AccountDeregistered event = e.getArgument(0, AccountDeregistered.class);
+    accounts.remove(event.getAccountId());
+    System.out.println(accounts.size());
   }
 
-  public Account getMerchantById(UUID id) {
-    return merchants.get(id);
+  public UUID getAccountIdByBankAccountNumber(String bankAccountNum) {
+    System.out.println("Accounts in read repo: " + accounts);
+    System.out.println("Account size: " + accounts.size());
+    return accounts.entrySet().stream()
+        .filter(e -> e.getValue().bankAccountNum().equals(bankAccountNum))
+        .map(Map.Entry::getKey)
+        .findFirst()
+        .orElse(null);
   }
 
-  public boolean existsByBankAccountNumber(String bankAccountNumber) {
-    return bankAccountNumbers.values().contains(bankAccountNumber);
+  public boolean existsByBankAccountNumber(String bankAccountNum) {
+    return accounts.values().stream().anyMatch(account -> account.bankAccountNum().equals(bankAccountNum));
   }
 
-  // public void handleAccountCreatedEvent(messaging.Event event) {
-  // AccountCreated accountCreatedEvent = event.getArgument(0,
-  // AccountCreated.class);
-  // bankAccountNumbers.put(accountCreatedEvent.getAccountId(),
-  // accountCreatedEvent.getBankAccountNumber());
-  // }
+ 
+
 }

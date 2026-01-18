@@ -8,10 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import messaging.Event;
 import dtu.Event.AccountCreated;
+import dtu.Event.AccountDeregistered;
 import dtu.Event.AccountEvent;
 import lombok.NonNull;
 import messaging.MessageQueue;
-
 
 public class EventStore {
 
@@ -27,18 +27,19 @@ public class EventStore {
 		if (!store.containsKey(id)) {
 			store.put(id, new ArrayList<AccountEvent>());
 		}
-    store.get(id).add(e);
-    eventBus.publish(e);
+		store.get(id).add(e);
 
-    // Event event = null;
+		Event event = null;
 
-    //     if(e instanceof AccountCreated) {
-    //         event = new Event("AccountRegisteredEvent", new Object[] { event });
-    //     }
+		if (e instanceof AccountCreated) {
+			event = new Event("AccountCreated", e);
+		} else if (e instanceof AccountDeregistered) {
+			event = new Event("AccountDeregistered", e);
+		}
 
-    //     eventBus.publish(event);
+		eventBus.publish(event);
 	}
-	
+
 	public Stream<AccountEvent> getEventsFor(UUID id) {
 		if (!store.containsKey(id)) {
 			store.put(id, new ArrayList<AccountEvent>());
