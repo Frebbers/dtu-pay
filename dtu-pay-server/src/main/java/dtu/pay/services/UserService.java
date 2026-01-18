@@ -1,6 +1,5 @@
 package dtu.pay.services;
 
-import dtu.pay.Payment;
 import dtu.pay.models.User;
 
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
