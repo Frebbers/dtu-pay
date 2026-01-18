@@ -17,6 +17,5 @@
         <module>token-service</module>
         <module>utilities/messaging-utilities</module>
         <module>payment-service</module>
-        <module>Shared-Models</module>
     </modules>
 </project>
