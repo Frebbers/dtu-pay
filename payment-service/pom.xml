@@ -77,13 +77,14 @@
         <dependency>
             <groupId>dk.dtu.hubert</groupId>
             <artifactId>messaging-utilities</artifactId>
-            <version>3.4.2</version>
-        </dependency>
-        <dependency>
-            <groupId>dk.dtu.hubert</groupId>
-            <artifactId>messaging-utilities</artifactId>
             <version>3.4.3</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-ri</artifactId>
+            <version>4.0.3</version>
+            <type>pom</type>
         </dependency>
     </dependencies>
 
@@ -112,7 +113,7 @@
                         <index>true</index>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>startup.App</mainClass>
+                            <mainClass>payment.service.startup.App</mainClass>
                             <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
                     </archive>
@@ -145,6 +146,30 @@
                     <!-- Optional: set to true to skip docker build -->
                     <skip>false</skip>
                     <verbose>true</verbose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.sun.xml.ws</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>4.0.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <wsdlUrls>
+                        <wsdlUrl>http://fm-00.compute.dtu.dk/services/BankService?wsdl</wsdlUrl>
+                    </wsdlUrls>
+                    <keep>true</keep>
+                    <packageName>dtu.ws.fastmoney</packageName>
+                    <sourceDestDir>src/main/java</sourceDestDir>
+                    <vmArgs>
+                        <vmArg>-Duser.language=en</vmArg>
+                        <vmArg>-Duser.country=US</vmArg>
+                    </vmArgs>
                 </configuration>
             </plugin>
         </plugins>

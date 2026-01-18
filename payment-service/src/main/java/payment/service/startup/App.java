@@ -1,7 +1,7 @@
-package startup;
+package payment.service.startup;
 
 import messaging.implementations.RabbitMqQueue;
-import service.PaymentService;
+import payment.service.PaymentService;
 
 /**
  * Hello world!

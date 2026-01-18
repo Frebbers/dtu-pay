@@ -1,0 +1,121 @@
+package payment.service;
+
+import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import messaging.Event;
+import messaging.MessageQueue;
+import org.junit.jupiter.api.Assertions;
+import org.mockito.ArgumentCaptor;
+import payment.service.models.*;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+
+import static org.mockito.Mockito.*;
+
+public class PaymentStepdefs {
+    private MessageQueue queue = mock(MessageQueue.class);
+    // Service is instantiated with the mock queue
+    private PaymentService service = new PaymentService(queue);
+    
+    private PaymentReq paymentReq;
+    private String customerId;
+    private int amount;
+    private String customerBankAccNum;
+    private String merchantBankAccNum;
+    
+    // Thread management for the async service call
+    private CompletableFuture<Boolean> paymentStatus = new CompletableFuture<>();
+
+    @Given("a {string} event is received")
+    public void aEventIsReceived(String eventName) {
+        Assertions.assertEquals("PaymentRequested", eventName);
+        
+        // 1. Capture the handler that the service registered
+        ArgumentCaptor<Consumer<Event>> captor = ArgumentCaptor.forClass(Consumer.class);
+        verify(queue).addHandler(eq("PaymentRequested"), captor.capture());
+        Consumer<Event> paymentRequestedHandler = captor.getValue();
+
+        // 2. Create the event payload
+        paymentReq = new PaymentReq("token_123", "merchant_123", 1000);
+        Event event = new Event("PaymentRequested", new Object[]{paymentReq});
+
+        // 3. Run the handler in a separate thread because the service blocks waiting for a reply
+        new Thread(() -> {
+            try {
+                paymentRequestedHandler.accept(event);
+                // If we get here without exception, we assume success for this simple test structure
+                paymentStatus.complete(true); 
+            } catch (Exception e) {
+                paymentStatus.completeExceptionally(e);
+            }
+        }).start();
+    }
+
+    @And("the customerId is fetched via TokenService")
+    public void theCustomerIdIsFetchedViaTokenService() {
+        // 1. Verify the service requested the token consumption
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        verify(queue, timeout(5000)).publish(eventCaptor.capture());
+        
+        Event publishedEvent = eventCaptor.getValue();
+        Assertions.assertEquals(service.CONSUME_TOKEN_REQUESTED, publishedEvent.getTopic());
+        
+        ConsumeTokenRequested req = publishedEvent.getArgument(0, ConsumeTokenRequested.class);
+        String correlationId = req.commandId();
+        amount = req.amount();
+
+        // 2. Simulate the TokenService replying
+        // First, we need to capture the handler for TokenConsumed
+        ArgumentCaptor<Consumer<Event>> handlerCaptor = ArgumentCaptor.forClass(Consumer.class);
+        verify(queue).addHandler(eq(service.TOKEN_CONSUMED), handlerCaptor.capture());
+        Consumer<Event> tokenConsumedHandler = handlerCaptor.getValue();
+
+        // Create the reply event
+        customerId = "customer_123"; // The expected customer ID
+        TokenConsumed tokenConsumed = new TokenConsumed(correlationId, paymentReq.token(), customerId, 0);
+        Event replyEvent = new Event(service.TOKEN_CONSUMED, new Object[]{tokenConsumed});
+
+        // Invoke the handler to unblock the service
+        tokenConsumedHandler.accept(replyEvent);
+    }
+
+    @And("the customerBankAccNum is fetched via AccountService")
+    public void theCustomerBankAccNumIsFetchedViaAccountService() {
+        customerBankAccNum = "user_bank_num_1"; 
+    }
+
+    @And("the merchantBankAccNum is fetched via AccountService")
+    public void theMerchantBankAccNumIsFetchedViaAccountService() {
+         // Currently hardcoded in the service
+         merchantBankAccNum = "user_bank_num_1";
+    }
+
+    @When("the bank processes the payment successfully")
+    public void theBankProcessesThePaymentSuccessfully() {
+        var bankTransferResult = service.processPayment(customerBankAccNum, merchantBankAccNum, amount);
+        Assertions.assertTrue(bankTransferResult);
+    }
+
+    @Then("the payment request is processed successfully")
+    public void thePaymentRequestIsProcessedSuccessfully() {
+        // Wait for the async process to finish
+        paymentStatus.join();
+
+        // Verify the success event
+        ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+        // We expect 2 publish calls: 1 for Token, 1 for PaymentSuccess
+        verify(queue, times(2)).publish(eventCaptor.capture());
+        
+        // Get the last event
+        Event successEvent = eventCaptor.getAllValues().get(1);
+        Assertions.assertEquals("PaymentProcessSuccess", successEvent.getTopic());
+        
+        PaymentRecord record = successEvent.getArgument(0, PaymentRecord.class);
+        Assertions.assertEquals(paymentReq.amount(), record.amount());
+        Assertions.assertEquals(customerId, record.customerId());
+        Assertions.assertEquals(paymentReq.merchantId(), record.merchantId());
+    }
+}
