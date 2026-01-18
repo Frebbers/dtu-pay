@@ -48,4 +48,8 @@ public class PaymentService {
 
         queue.publish(new Event("PaymentSuccessful", new Object[] {paymentId}));
     }
+    public void handleTokenConsumed(Event TokenConsumed){
+        TokenConsumed consumed = lastPublished.getArgument(0, TokenConsumed.class);
+        customerId = consumed.customerId();
+    }
 }
