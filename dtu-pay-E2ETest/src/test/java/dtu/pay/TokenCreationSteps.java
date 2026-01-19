@@ -40,12 +40,18 @@ public class TokenCreationSteps {
 
     @Given("the customer has {int} unused tokens")
     public void theCustomerHasUnusedTokens(int amount) {
-        context.tokens = dtupay.requestTokens(context.DTUPayAccountId, amount);
+        context.tokens = dtupay.requestTokens(context.customerId, amount);
+        if (context.tokens == null) {
+            context.latestError = new RuntimeException("Token request failed: " + dtupay.getLatestError());
+        }
     }
 
     @When("the customer requests {int} tokens")
     public void theCustomerRequestsTokens(int amount) {
-        context.tokens = dtupay.requestTokens(context.DTUPayAccountId, amount);
+        context.tokens = dtupay.requestTokens(context.customerId, amount);
+        if (context.tokens == null) {
+            context.latestError = new RuntimeException("Token request failed: " + dtupay.getLatestError());
+        }
     }
 
     @Then("the customer receives exactly {int} unique tokens")

@@ -4,8 +4,8 @@ Feature: Registration
   Scenario: User registration with valid details
     Given a user with firstname "Alice" and lastname "Doe" and CPR "0000-0000" and account number "acc123"
     When the user registers with DTU Pay
-    Then the user should be registered successfully and receive a UUID
-    And a "UserRegistered" event should be published with uuid
+    Then the user should be registered successfully and receive a CPR
+    And a "UserRegistered" event should be published with cpr
   # Scenario: Duplicate registration publishes UserRegistrationFailed with same correlation id
   #   Given an existing account with firstname "Akhi" lastname "Louis" account "DK123"
   #   And a registration request for firstname "Akhi" lastname "Louis" account "DK123" with correlation id "c-2"

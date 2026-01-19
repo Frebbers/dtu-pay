@@ -13,13 +13,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PaymentService {
-    BankService bank = new BankService_Service().getBankServicePort();
+    BankService bank;
     MessageQueue queue;
     Map<UUID, PaymentReq> paymentHashMap = new HashMap<>();
 
     // Event names
     String PAYMENT_REQUESTED = "PaymentRequested";
-    String PAYMENT_SUCCEEDED = "PaymentSucceeded";
+    String PAYMENT_SUCCEEDED = "PaymentSuccessful";
+    String PAYMENT_FAILED = "PaymentFailed";
     String CONSUME_TOKEN_REQUESTED = "token.commands.ConsumeTokenRequested";
     String TOKEN_CONSUMED = "token.events.TokenConsumed";
     String GET_BANK_ACCOUNT_REQUESTED = "accounts.commands.GetBankAccount";
@@ -31,7 +32,12 @@ public class PaymentService {
     private final Map<CorrelationId, CompletableFuture<String>> getBankAccCorrelations = new ConcurrentHashMap<>();
 
     public PaymentService(MessageQueue q) {
+        this(q, new BankService_Service().getBankServicePort());
+    }
+
+    public PaymentService(MessageQueue q, BankService bank) {
         this.queue = q;
+        this.bank = bank;
         queue.addHandler(PAYMENT_REQUESTED, this::policyPaymentRequested);
         queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed);
         queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumberRetrieved);
@@ -53,7 +59,7 @@ public class PaymentService {
         if (paymentSuccess) {
             notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount(), correlationId);
         } else {
-            notifyFailedPayment();
+            notifyFailedPayment(correlationId, "Bank transfer failed");
         }
     }
 
@@ -92,26 +98,26 @@ public class PaymentService {
         return getBankAccCorrelations.get(correlationId).join();
     }
 
-    public boolean processPayment(String customerBankAccNum, String merchantBankAccNum, int amount) {
+    public boolean processPayment(String customerBankAccNum, String merchantBankAccNum, BigDecimal amount) {
         try {
             System.out.println("Processing payment of " + amount + " from " + customerBankAccNum + " to " + merchantBankAccNum);
-            bank.transferMoneyFromTo(customerBankAccNum, merchantBankAccNum, BigDecimal.valueOf(amount), "Payment");
+            bank.transferMoneyFromTo(customerBankAccNum, merchantBankAccNum, amount, "Payment");
             return true;
         }
         catch (BankServiceException_Exception e) {return false;}
     }
 
-    public void notifySuccessfulPayment(String customerId, String merchantId, String token, int amount, CorrelationId correlationId) {
+    public void notifySuccessfulPayment(String customerId, String merchantId, String token, BigDecimal amount, CorrelationId correlationId) {
         // Send PaymentProcessSuccess event to ReportService
         PaymentRecord record = new PaymentRecord(amount, token, customerId, merchantId);
         // No correlationId since we don't expect response
         queue.publish(new Event(BANK_TRANSFER_COMPLETED_SUCCESSFULLY, new Object[] {record}));
 
         // Send PAYMENT_SUCCEEDED to DTU pay server
-        queue.publish(new Event(PAYMENT_SUCCEEDED, new Object[]{correlationId}));
+        queue.publish(new Event(PAYMENT_SUCCEEDED, new Object[]{"OK", correlationId}));
     }
 
-    public void notifyFailedPayment() {
-        // TODO: Notify unsuccessful payment
+    public void notifyFailedPayment(CorrelationId correlationId, String error) {
+        queue.publish(new Event(PAYMENT_FAILED, new Object[]{error, correlationId}));
     }
 }

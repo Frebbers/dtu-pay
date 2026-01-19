@@ -1,5 +1,6 @@
 package payment.service;
 
+import dtu.ws.fastmoney.BankService;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.mockito.ArgumentCaptor;
 import payment.service.models.*;
 
+import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -17,8 +19,9 @@ import static org.mockito.Mockito.*;
 
 public class PaymentStepdefs {
     private MessageQueue queue = mock(MessageQueue.class);
-    // Service is instantiated with the mock queue
-    private PaymentService service = new PaymentService(queue);
+    private BankService bank = mock(BankService.class);
+    // Service is instantiated with the mock queue and bank
+    private PaymentService service = new PaymentService(queue, bank);
     
     private PaymentReq paymentReq;
     private String customerId;
@@ -39,7 +42,7 @@ public class PaymentStepdefs {
         Consumer<Event> paymentRequestedHandler = captor.getValue();
 
         // 2. Create the event payload
-        paymentReq = new PaymentReq("token_123", "merchant_123", 1000);
+        paymentReq = new PaymentReq("token_123", "merchant_123", BigDecimal.valueOf(1000));
         CorrelationId correlationId = CorrelationId.randomId();
         Event event = new Event("PaymentRequested", new Object[]{paymentReq, correlationId});
 

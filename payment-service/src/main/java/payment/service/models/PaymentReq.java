@@ -1,6 +1,5 @@
 package payment.service.models;
 
-public record PaymentReq(String token
-        , String merchantId
-        , int amount) {
-}
+import java.math.BigDecimal;
+
+public record PaymentReq(String token, String merchantId, BigDecimal amount) {}

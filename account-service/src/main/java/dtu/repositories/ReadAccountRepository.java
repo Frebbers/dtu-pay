@@ -29,7 +29,7 @@ public class ReadAccountRepository {
   public void handleAccountCreatedEvent(Event e) {
     AccountCreated event = e.getArgument(0, AccountCreated.class);
 
-    accounts.put(event.getAccountId(), new User(
+    accounts.put(event.getCpr(), new User(
         event.getFirstName(),
         event.getLastName(),
         event.getCpr(),
@@ -40,12 +40,12 @@ public class ReadAccountRepository {
 
   public void handleAccountDeregisteredEvent(Event e) {
     AccountDeregistered event = e.getArgument(0, AccountDeregistered.class);
-    accounts.remove(event.getAccountId());
+    accounts.remove(event.getCpr());
     System.out.println("Accounts in read repo: " + accounts);
     System.out.println("Account size: " + accounts.size());
   }
 
-  public String getAccountId(String bankAccountNum) {
+  public String getCprByBankAccount(String bankAccountNum) {
     System.out.println("Accounts in read repo: " + accounts);
     System.out.println("Account size: " + accounts.size());
     return accounts.entrySet().stream()
@@ -55,8 +55,8 @@ public class ReadAccountRepository {
         .orElse(null);
   }
 
-  public String getBankAccount(String accountId) throws AccountDoesNotExistsException {
-    User u = accounts.get(accountId);
+  public String getBankAccount(String cpr) throws AccountDoesNotExistsException {
+    User u = accounts.get(cpr);
     if(u.bankAccountNum() == null) throw new AccountDoesNotExistsException("Account does not exist");
     System.out.println("Accounts in read repo: " + accounts);
     System.out.println("Account size: " + accounts.size());

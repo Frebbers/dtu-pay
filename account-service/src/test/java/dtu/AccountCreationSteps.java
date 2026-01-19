@@ -37,21 +37,21 @@ public class AccountCreationSteps {
             new Object[]{ context.account, correlationId })
     );
 
-    context.createdId = context.readRepo.getAccountId(context.account.bankAccountNum());
+    context.createdCpr = context.readRepo.getCprByBankAccount(context.account.bankAccountNum());
   }
 
-  @Then("the user should be registered successfully and receive a UUID")
-  public void theUserShouldBeRegisteredSuccessfullyAndReceiveAUUID() {
-    assertNotNull(context.createdId);
+  @Then("the user should be registered successfully and receive a CPR")
+  public void theUserShouldBeRegisteredSuccessfullyAndReceiveACPR() {
+    assertNotNull(context.createdCpr);
     assertTrue(context.readRepo.existsByBankAccountNumber(context.account.bankAccountNum()));
   }
 
-  @Then("a {string} event should be published with uuid")
-  public void aEventShouldBePublishedWithUuid(String eventName) {
-    String id = context.readRepo.getAccountId(context.account.bankAccountNum());
+  @Then("a {string} event should be published with cpr")
+  public void aEventShouldBePublishedWithCpr(String eventName) {
+    String cpr = context.readRepo.getCprByBankAccount(context.account.bankAccountNum());
 
     verify(context.queueExternal).publish(
-        new Event(eventName, new Object[]{ id, correlationId })
+        new Event(eventName, new Object[]{ cpr, correlationId })
     );
   }
 
@@ -60,7 +60,7 @@ public class AccountCreationSteps {
   public void aRegisteredUserFirstnameLastnameAndCprAndBankAccount(
       String firstName, String lastName, String cpr, String bankAccountNum) throws AccountAlreadyExistsException {
 
-    context.createdId = context.accountService.createAccount(firstName, lastName, cpr, bankAccountNum);
+    context.createdCpr = context.accountService.createAccount(firstName, lastName, cpr, bankAccountNum);
     context.bankAccount = bankAccountNum;
   }
 
@@ -70,7 +70,7 @@ public class AccountCreationSteps {
 
     context.deregistrationEvent = new Event(
         AccountServiceTopics.USER_DEREGISTERED_REQUESTED,
-        new Object[]{ context.createdId, correlationId }
+        new Object[]{ context.createdCpr, correlationId }
     );
   }
 
@@ -82,7 +82,7 @@ public class AccountCreationSteps {
   @Then("a {string} event is published")
   public void aEventIsPublished(String eventName) {
     verify(context.queueExternal).publish(
-        new Event(eventName, new Object[]{ context.createdId, correlationId })
+        new Event(eventName, new Object[]{ context.createdCpr, correlationId })
     );
   }
 
