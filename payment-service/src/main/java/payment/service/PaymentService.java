@@ -34,7 +34,7 @@ public class PaymentService {
         this.queue = q;
         queue.addHandler(PAYMENT_REQUESTED, this::policyPaymentRequested);
         queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed);
-        queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumReply);
+        queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumberRetrieved);
     }
 
     /* Policies */
@@ -63,7 +63,7 @@ public class PaymentService {
         getCustomerIdCorrelations.get(correlationId).complete(tokenConsumed.customerId());
     }
 
-    public void handleBankAccNumReply(Event event) {
+    public void handleBankAccNumberRetrieved(Event event) {
         String bankAccNum = event.getArgument(0, String.class);
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         getBankAccCorrelations.get(correlationId).complete(bankAccNum);
@@ -94,6 +94,7 @@ public class PaymentService {
 
     public boolean processPayment(String customerBankAccNum, String merchantBankAccNum, int amount) {
         try {
+            System.out.println("Processing payment of " + amount + " from " + customerBankAccNum + " to " + merchantBankAccNum);
             bank.transferMoneyFromTo(customerBankAccNum, merchantBankAccNum, BigDecimal.valueOf(amount), "Payment");
             return true;
         }
