@@ -41,7 +41,7 @@ public class CommonUserSteps {
 
     @Given("a user with name {string}, last name {string}, and CPR {string}")
     public void aUserWithNameLastNameAndCpr(String first, String last, String cpr) {
-        context.user = new dtu.pay.User(first, last, null, cpr);
+        context.user = new dtu.pay.User(first, last, cpr, null);
     }
 
     @Given("the user is registered with the bank with an initial balance of {int} kr")
@@ -53,6 +53,9 @@ public class CommonUserSteps {
 
         context.bankAccountId =
                 bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(balance));
+        if (context.bankAccountId == null || context.bankAccountId.isBlank()) {
+            throw new AssertionError("Bank account id is missing after bank registration");
+        }
     }
 
     @Given("the customer is registered with Simple DTU Pay using their bank account")
@@ -60,10 +63,15 @@ public class CommonUserSteps {
         var request = new dtu.pay.User(
                 context.user.firstName(),
                 context.user.lastName(),
-                context.bankAccountId,
-                null
+                context.user.cprNumber(),
+                context.bankAccountId
         );
-        context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+        context.customerId = new DtuPayClient().registerDTUPayCustomer(request);
+        if (context.customerId == null || context.customerId.isBlank()) {
+            throw new AssertionError("DTU Pay customer id is missing after registration");
+        }
+        context.DTUPayAccountId = context.customerId;
+        context.customer = context.user;
     }
 
     @Given("the merchant is registered with Simple DTU Pay using their bank account")
@@ -71,10 +79,14 @@ public class CommonUserSteps {
         var request = new dtu.pay.User(
                 context.user.firstName(),
                 context.user.lastName(),
-                context.bankAccountId,
-                null
+                context.user.cprNumber(),
+                context.bankAccountId
         );
-        context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+        context.merchantId = dtupay.registerDTUPayMerchant(request);
+        if (context.merchantId == null || context.merchantId.isBlank()) {
+            throw new AssertionError("DTU Pay merchant id is missing after registration");
+        }
+        context.DTUPayAccountId = context.merchantId;
+        context.merchant = context.user;
     }
 }
-

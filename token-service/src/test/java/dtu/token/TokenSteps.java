@@ -55,10 +55,10 @@ public class TokenSteps {
         requestTokens(count);
     }
 
-    @When("the customer consumes a token")
-    public void theCustomerConsumesAToken() {
+    @When("the customer uses a token")
+    public void theCustomerUsesAToken() {
         Assertions.assertFalse(issuedTokens.isEmpty(), "No tokens available to consume");
-        String token = issuedTokens.get(0);
+        String token = issuedTokens.getFirst();
         lastConsumedToken = token;
         ConsumeTokenRequested command = new ConsumeTokenRequested(UUID.randomUUID().toString(), token, null, null,
                 System.currentTimeMillis());

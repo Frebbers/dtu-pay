@@ -12,6 +12,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import messaging.Event;
 import messaging.MessageQueue;
 
@@ -35,7 +38,21 @@ public class TokenServiceClient {
         TokenRequestSubmitted command = new TokenRequestSubmitted(commandId, customerId, requestedCount,
                 System.currentTimeMillis());
         mq.publish(new Event(TokenTopics.TOKEN_REQUEST_SUBMITTED, command));
-        return future.join();
+        try {
+            return future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            tokenRequests.remove(commandId);
+            throw new RuntimeException("Token request timed out for commandId " + commandId, e);
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new RuntimeException(cause == null ? e : cause);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Token request interrupted for commandId " + commandId, e);
+        }
     }
 
     public String consumeToken(String token, String merchantId, Integer amount) {
@@ -45,7 +62,21 @@ public class TokenServiceClient {
         ConsumeTokenRequested command = new ConsumeTokenRequested(commandId, token, merchantId, amount,
                 System.currentTimeMillis());
         mq.publish(new Event(TokenTopics.CONSUME_TOKEN_REQUESTED, command));
-        return future.join();
+        try {
+            return future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            tokenConsumptions.remove(commandId);
+            throw new RuntimeException("Token consumption timed out for commandId " + commandId, e);
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException runtimeException) {
+                throw runtimeException;
+            }
+            throw new RuntimeException(cause == null ? e : cause);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Token consumption interrupted for commandId " + commandId, e);
+        }
     }
 
     private void handleTokensIssued(Event event) {

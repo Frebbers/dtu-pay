@@ -8,6 +8,8 @@ public class ScenarioContext {
     public dtu.pay.User merchant;
     public String bankAccountId;
     public String DTUPayAccountId;
+    public String customerId;
+    public String merchantId;
     public List<String> tokens;
     public Throwable latestError;
 }

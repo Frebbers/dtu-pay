@@ -1,6 +1,5 @@
 package dtu.pay.services;
 
-import dtu.pay.Payment;
 import dtu.pay.models.User;
 
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
@@ -9,6 +8,7 @@ import messaging.MessageQueue;
 
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,16 +20,18 @@ public class UserService {
         this.mq = mq;
         mq.addHandler("UserRegistered", this::handleUserRegistered);
         mq.addHandler("UserNotRegistered", this::handleUserNotRegistered);
+        mq.addHandler("UserRegisteredFailed", this::handleUserNotRegistered);
     }
 
     public String register(User merchant) throws Exception, UserAlreadyExistsException {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
-            correlations.put(correlationId, new CompletableFuture<>());
+            CompletableFuture<String> future = new CompletableFuture<>();
+            correlations.put(correlationId, future);
             Event event = new Event("UserRegistrationRequested", new Object[]{merchant, correlationId});
             mq.publish(event);
             // TODO: check if joining timeout
-            return correlations.get(correlationId).join();
+            return future.orTimeout(5, TimeUnit.SECONDS).join();
         } catch (Exception e) {
             throw e;
         }
@@ -38,16 +40,24 @@ public class UserService {
     public void handleUserRegistered(Event e){
         String user = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        correlations.get(correlationId).complete(user);
+        CompletableFuture<String> future = correlations.remove(correlationId);
+        if (future != null) {
+            future.complete(user);
+        }
     }
 
     public void handleUserNotRegistered(Event e) {
         String error = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        if(error.toLowerCase().contains("already exists")) {
-            correlations.get(correlationId).completeExceptionally(new UserAlreadyExistsException());
+        CompletableFuture<String> future = correlations.remove(correlationId);
+        if (future == null) {
+            return;
         }
-        correlations.get(correlationId).completeExceptionally(new Exception(error));
+        if (error.toLowerCase().contains("already exists")) {
+            future.completeExceptionally(new UserAlreadyExistsException());
+        } else {
+            future.completeExceptionally(new Exception(error));
+        }
     }
 
     public void unregisterUserById(String id) {
