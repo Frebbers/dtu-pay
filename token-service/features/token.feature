@@ -28,4 +28,3 @@ Feature: Token service
     And the same token is consumed again
     Then the token consumption is rejected
 
-  Scenario: Token
