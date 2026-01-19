@@ -10,6 +10,7 @@ import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.User;
+import dtu.repositories.AccountServiceTopics;
 import dtu.repositories.ReadAccountRepository;
 import messaging.Event;
 import messaging.MessageQueue;
@@ -26,20 +27,21 @@ public class AccountService {
     this.writeRepo = writeRepo;
 
     // Subscribe to registration events
-    mq.addHandler("UserRegistrationRequested", this::handleUserRegistration);
-    mq.addHandler("UserDeregisterRequested", this::handleUserDeregistration);
+    mq.addHandler(AccountServiceTopics.USER_REGISTRATION_REQUESTED, this::handleUserRegistration);
+    mq.addHandler(AccountServiceTopics.USER_DEREGISTERED_REQUESTED, this::handleUserDeregistration);
+    mq.addHandler(AccountServiceTopics.BANK_ACCOUNT_REQUESTED, this::handleBankAccountNumberRequested);
   }
 
-  public UUID createAccount(String firstName, String lastName, String bankAccountNumber)
+  public String createAccount(String firstName, String lastName, String cpr, String bankAccountNumber)
       throws AccountAlreadyExistsException {
     if (readRepo.existsByBankAccountNumber(bankAccountNumber))
       throw new AccountAlreadyExistsException("Account with bank number " + bankAccountNumber + " already exists");
-    Account account = Account.create(firstName, lastName, bankAccountNumber);
+    Account account = Account.create(firstName, lastName, cpr, bankAccountNumber);
     writeRepo.save(account);
     return account.getAccountId();
   }
 
-  public void deregisterAccount(UUID accountId) throws AccountDoesNotExistsException {
+  public void deregisterAccount(String accountId) throws AccountDoesNotExistsException {
     if (writeRepo.getById(accountId) == null)
       throw new AccountDoesNotExistsException("Account with id " + accountId + " does not exist");
     Account account = writeRepo.getById(accountId);
@@ -47,34 +49,53 @@ public class AccountService {
     writeRepo.save(account);
   }
 
+  public String getBankAccountNumber(String accountId) throws AccountDoesNotExistsException{
+    return readRepo.getBankAccount(accountId);
+  }
+
+
   public void handleUserRegistration(Event e) {
     logger.info("Received user registration event:" + e.getTopic());
     var account = e.getArgument(0, User.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
-      UUID id = createAccount(account.firstName(), account.lastName(), account.bankAccountNum());
-      Event responseEvent = new Event("UserRegistered", new Object[] { id.toString(), correlationId });
+      String id = createAccount(account.firstName(), account.lastName(), account.cprNumber(), account.bankAccountNum());
+      Event responseEvent = new Event(AccountServiceTopics.USER_REGISTERED, new Object[] { id, correlationId });
       mq.publish(responseEvent);
     } catch (AccountAlreadyExistsException ex) {
       logger.warning("Account registration failed: " + ex.getMessage());
-      Event responseEvent = new Event("UserNotRegistered", new Object[] { ex.getMessage(), correlationId });
+      Event responseEvent = new Event(AccountServiceTopics.USER_REGISTRATION_FAILED, new Object[] { ex.getMessage(), correlationId });
       mq.publish(responseEvent);
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
-      mq.publish(new Event("UserNotRegistered", new Object[] { exe.getMessage(), correlationId }));
+      mq.publish(new Event(AccountServiceTopics.USER_REGISTRATION_FAILED, new Object[] { exe.getMessage(), correlationId }));
     }
   }
 
   public void handleUserDeregistration(Event e) {
     logger.info("Received user deregistration event:" + e.getTopic());
-    UUID id = e.getArgument(0, UUID.class);
+    String id = e.getArgument(0, String.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       deregisterAccount(id);
-      mq.publish(new Event("UserDeregistered", new Object[] { id.toString(), correlationId }));
+      mq.publish(new Event(AccountServiceTopics.USER_DEREGISTERED, new Object[] { id, correlationId }));
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account deregistration failed: " + ex.getMessage());
-      Event responseEvent = new Event("UserDeregistrationFailed", ex.getMessage(), correlationId);
+      Event responseEvent = new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED, ex.getMessage(), correlationId);
+      mq.publish(responseEvent);
+    }
+  }
+
+  public void handleBankAccountNumberRequested (Event e) {
+    logger.info("Recieved bank account number request event:" + e.getTopic());
+    String accountId = e.getArgument(0, String.class);
+    CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+    try{
+      String bankAccountNumber = getBankAccountNumber(accountId);
+      mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED, bankAccountNumber, correlationId));
+    } catch(AccountDoesNotExistsException ex){
+      logger.warning("Account with " + accountId + " does not exist");
+      Event responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED, ex.getMessage(), correlationId);
       mq.publish(responseEvent);
     }
   }

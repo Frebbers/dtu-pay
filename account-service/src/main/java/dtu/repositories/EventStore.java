@@ -15,7 +15,7 @@ import messaging.MessageQueue;
 
 public class EventStore {
 
-	private Map<UUID, List<AccountEvent>> store = new ConcurrentHashMap<>();
+	private Map<String, List<AccountEvent>> store = new ConcurrentHashMap<>();
 
 	private MessageQueue eventBus;
 
@@ -23,7 +23,7 @@ public class EventStore {
 		this.eventBus = bus;
 	}
 
-	public void addEvent(UUID id, AccountEvent e) {
+	public void addEvent(String id, AccountEvent e) {
 		if (!store.containsKey(id)) {
 			store.put(id, new ArrayList<AccountEvent>());
 		}
@@ -40,14 +40,14 @@ public class EventStore {
 		eventBus.publish(event);
 	}
 
-	public Stream<AccountEvent> getEventsFor(UUID id) {
+	public Stream<AccountEvent> getEventsFor(String id) {
 		if (!store.containsKey(id)) {
 			store.put(id, new ArrayList<AccountEvent>());
 		}
 		return store.get(id).stream();
 	}
 
-	public void addEvents(@NonNull UUID id, List<AccountEvent> appliedEvents) {
+	public void addEvents(@NonNull String id, List<AccountEvent> appliedEvents) {
 		appliedEvents.stream().forEach(e -> addEvent(id, e));
 	}
 
