@@ -71,8 +71,8 @@ public class PaymentService {
 
     /* Commands */
 
+    /// Fetch the customerId by sending CONSUME_TOKEN_REQUESTED events to TokenService
     public String getCustomerIdByToken(String token) {
-        // Fetch the customerId by sending CONSUME_TOKEN_REQUESTED events to TokenService
         String correlationId = UUID.randomUUID().toString();
         getCustomerIdCorrelations.put(correlationId, new CompletableFuture<>());
         ConsumeTokenRequested consumeTokenReq = new ConsumeTokenRequested(correlationId, token, "", 0, System.currentTimeMillis());
@@ -101,7 +101,8 @@ public class PaymentService {
 //        catch (BankServiceException_Exception e) {
 //            return false;
 //        }
-        return true;
+
+        return false;
     }
 
     public void notifySuccessfulPayment(String customerId, String merchantId, String token, int amount, CorrelationId correlationId) {
