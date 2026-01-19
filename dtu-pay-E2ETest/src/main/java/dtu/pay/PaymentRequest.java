@@ -2,5 +2,5 @@ package dtu.pay;
 
 import java.math.BigDecimal;
 
-public record PaymentRequest(BigDecimal amount, String token, String mid) {}
+public record PaymentRequest(String token,String mid,BigDecimal amount) {}
 

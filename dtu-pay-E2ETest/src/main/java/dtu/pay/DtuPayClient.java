@@ -44,8 +44,8 @@ public class DtuPayClient {
             }
     }
 
-    public boolean pay(BigDecimal amount, String token, String merchantId) {
-        PaymentRequest req = new PaymentRequest(amount, token, merchantId);
+    public boolean pay(String token, String merchantId, BigDecimal amount) {
+        PaymentRequest req = new PaymentRequest(token, merchantId, amount);
         try (Response r = base.path("payments").request()
                 .post(Entity.entity(req, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == 200) {
