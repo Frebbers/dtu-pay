@@ -17,7 +17,6 @@ import java.util.List;
 @Path("")
 public class CustomerResource {
 
-    //    SimpleDtuPayService service = new SimpleDtuPayService();
     UserService service = new UserServiceFactory().getService();
     ReportService reportService = new ReportServiceFactory().getService();
     TokenServiceClient tokenService = new TokenServiceFactory().getService();
@@ -27,15 +26,29 @@ public class CustomerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerCustomer(User customer) {
+
+        return getResponse(customer, service);
+    }
+
+    static Response getResponse(User user, UserService service) {
         String id;
+        if (user.cprNumber() == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Missing cprNumber")
+                    .type(MediaType.TEXT_PLAIN).build();
+        }
+        if (user.bankAccountNum() == null){
+            return Response.status(Response.Status.BAD_REQUEST).entity("Missing bankAccountNum")
+                    .type(MediaType.TEXT_PLAIN).build();
+        }
         try {
-            id = service.register(customer);
+            id = service.register(user);
+            return Response.ok(id).build();
         } catch (UserAlreadyExistsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
+            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!")
+                    .type(MediaType.TEXT_PLAIN).build();
         } catch (Exception e) {
             return Response.serverError().build();
         }
-        return Response.ok(id).build();
     }
 
     @DELETE

@@ -4,6 +4,7 @@ import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankService_Service;
 import io.cucumber.java.en.Given;
+import org.junit.Assert;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -51,8 +52,10 @@ public class CommonUserSteps {
         user.setLastName(context.user.lastName());
         user.setCprNumber(context.user.cprNumber());
 
-        context.bankAccountId =
-                bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(balance));
+//        context.bankAccountId =
+        var accountid = bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(balance));
+        Assert.assertNotNull(accountid);
+        context.bankAccountId = accountid;
     }
 
     @Given("the customer is registered with Simple DTU Pay using their bank account")

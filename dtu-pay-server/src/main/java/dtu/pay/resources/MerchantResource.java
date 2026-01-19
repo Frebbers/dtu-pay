@@ -8,6 +8,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import static dtu.pay.resources.CustomerResource.getResponse;
+
 @Path("")
 public class MerchantResource {
     private final UserService service = new UserServiceFactory().getService();
@@ -18,14 +20,7 @@ public class MerchantResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerMerchant(User merchant) {
         String id;
-        try {id = service.register(merchant);}
-        catch (UserAlreadyExistsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
-        }
-        catch (Exception e) {
-            return Response.serverError().build();
-        }
-        return Response.ok(id).build();
+        return getResponse(merchant, service);
     }
 
     @DELETE
