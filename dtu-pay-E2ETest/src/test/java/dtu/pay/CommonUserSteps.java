@@ -39,42 +39,58 @@ public class CommonUserSteps {
         this.context = context;
     }
 
-    @Given("a user with name {string}, last name {string}, and CPR {string}")
-    public void aUserWithNameLastNameAndCpr(String first, String last, String cpr) {
-        context.user = new dtu.pay.User(first, last, null, cpr);
+    @Given("a customer with name {string}, last name {string}, and CPR {string}")
+    public void aCustomerWithNameLastNameAndCpr(String first, String last, String cpr) {
+        context.customer = new dtu.pay.User(first, last, null, cpr);
     }
 
-    @Given("the user is registered with the bank with an initial balance of {int} kr")
-    public void registerInBank(int balance) throws BankServiceException_Exception {
+    @Given("the customer is registered with the bank with an initial balance of {int} kr")
+    public void registerCustomerInBank(int balance) throws BankServiceException_Exception {
         var user = new dtu.ws.fastmoney.User();
-        user.setFirstName(context.user.firstName());
-        user.setLastName(context.user.lastName());
-        user.setCprNumber(context.user.cprNumber());
+        user.setFirstName(context.customer.firstName());
+        user.setLastName(context.customer.lastName());
+        user.setCprNumber(context.customer.cprNumber());
 
         context.bankAccountId =
                 bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(balance));
     }
 
     @Given("the customer is registered with Simple DTU Pay using their bank account")
-    public void registerInDtuPay() {
+    public void registerCustomerInDtuPay() {
         var request = new dtu.pay.User(
-                context.user.firstName(),
-                context.user.lastName(),
+                context.customer.firstName(),
+                context.customer.lastName(),
                 context.bankAccountId,
                 null
         );
-        context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+        context.DTUPayAccountId = new DtuPayClient().registerDTUPayAccount(request, "customers");
+    }
+
+    @Given("a merchant with name {string}, last name {string}, and CPR {string}")
+    public void aMerchantWithNameLastNameAndCpr(String first, String last, String cpr) {
+        context.merchant = new dtu.pay.User(first, last, null, cpr);
+    }
+
+    @Given("the merchant is registered with the bank with an initial balance of {int} kr")
+    public void registerMerchantInBank(int balance) throws BankServiceException_Exception {
+        var user = new dtu.ws.fastmoney.User();
+        user.setFirstName(context.merchant.firstName());
+        user.setLastName(context.merchant.lastName());
+        user.setCprNumber(context.merchant.cprNumber());
+
+        context.bankAccountId =
+                bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(balance));
     }
 
     @Given("the merchant is registered with Simple DTU Pay using their bank account")
     public void theMerchantIsRegisteredWithSimpleDTUPayUsingTheirBankAccount() {
         var request = new dtu.pay.User(
-                context.user.firstName(),
-                context.user.lastName(),
+                context.merchant.firstName(),
+                context.merchant.lastName(),
                 context.bankAccountId,
                 null
         );
-        context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+        context.DTUPayAccountId = new DtuPayClient().registerDTUPayAccount(request,"merchants");
     }
 }
 

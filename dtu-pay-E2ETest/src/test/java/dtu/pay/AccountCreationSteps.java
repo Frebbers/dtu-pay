@@ -1,6 +1,8 @@
 package dtu.pay;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import jakarta.ws.rs.core.Response;
 
 public class AccountCreationSteps {
 
@@ -34,6 +37,18 @@ public class AccountCreationSteps {
     this.context = context;
   }
 
+  @When("the customer attempts to register again with Simple DTU Pay using the same bank account")
+  public void theUserAttemptsToRegisterAgainWithSimpleDTUPayUsingTheSameBankAccount() {
+    var request = new dtu.pay.User(
+            context.customer.firstName(),
+            context.customer.lastName(),
+            context.bankAccountId,
+            null
+    );
+
+    context.DTUPayAccountId = dtupay.registerDTUPayAccount(request, "customers");
+  }
+
   @Then("the DTU Pay registration is successful")
   public void theDTUPayRegistrationIsSuccessful() {
     if (latestError != null) {
@@ -45,6 +60,23 @@ public class AccountCreationSteps {
   public void aNonEmptyStringUserIdIsReturned() {
     assertNotNull("Returned user id should not be null", context.DTUPayAccountId);
     assertFalse("Returned user id should not be empty", context.DTUPayAccountId.trim().isEmpty());
+  }
+
+  @Then("the DTU Pay registration fails with error {string}")
+  public void theDTUPayRegistrationFailsWithError(String expectedMessage) {
+    Response response = dtupay.getLastResponse();
+
+    assertNotNull(response, "No HTTP response received");
+    assertTrue(
+            response.getStatus() == 400 || response.getStatus() == 409,
+            "Unexpected status: " + response.getStatus()
+    );
+
+    String body = response.readEntity(String.class);
+    assertTrue(
+            body.contains(expectedMessage),
+            "Expected error message not found. Body was: " + body
+    );
   }
 
   @After
