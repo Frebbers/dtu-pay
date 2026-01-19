@@ -5,6 +5,7 @@ import messaging.Event;
 import messaging.MessageQueue;
 import payment.service.models.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -92,17 +93,11 @@ public class PaymentService {
     }
 
     public boolean processPayment(String customerBankAccNum, String merchantBankAccNum, int amount) {
-        // Comment out the following code when other parts are ready.
-        // Call the SOAP bank service to process payment:
-//        try {
-//            bank.transferMoneyFromTo(customerBankAccNum, merchantBankAccNum, BigDecimal.valueOf(amount), "Payment");
-//            return true;
-//        }
-//        catch (BankServiceException_Exception e) {
-//            return false;
-//        }
-
-        return false;
+        try {
+            bank.transferMoneyFromTo(customerBankAccNum, merchantBankAccNum, BigDecimal.valueOf(amount), "Payment");
+            return true;
+        }
+        catch (BankServiceException_Exception e) {return false;}
     }
 
     public void notifySuccessfulPayment(String customerId, String merchantId, String token, int amount, CorrelationId correlationId) {
