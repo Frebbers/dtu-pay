@@ -10,7 +10,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
+//TODO this should probably be part of the merchant resource
 public class PaymentResource {
     private final PaymentService service = new PaymentServiceFactory().getService();
 
