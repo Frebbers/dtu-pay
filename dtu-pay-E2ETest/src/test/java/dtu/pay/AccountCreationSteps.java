@@ -46,7 +46,11 @@ public class AccountCreationSteps {
             null
     );
 
-    context.DTUPayAccountId = dtupay.registerDTUPayAccount(request, "customers");
+    try {
+      context.DTUPayAccountId = dtupay.registerDTUPayAccount(request, "customers");
+    } catch (Exception e) {
+      context.latestError = e;
+    }
   }
 
   @Then("the DTU Pay registration is successful")
@@ -64,19 +68,9 @@ public class AccountCreationSteps {
 
   @Then("the DTU Pay registration fails with error {string}")
   public void theDTUPayRegistrationFailsWithError(String expectedMessage) {
-    Response response = dtupay.getLastResponse();
+    var latestError1 = context.latestError;
 
-    assertNotNull(response, "No HTTP response received");
-    assertTrue(
-            response.getStatus() == 400 || response.getStatus() == 409,
-            "Unexpected status: " + response.getStatus()
-    );
-
-    String body = response.readEntity(String.class);
-    assertTrue(
-            body.contains(expectedMessage),
-            "Expected error message not found. Body was: " + body
-    );
+    assertEquals(context.latestError, expectedMessage);
   }
 
   @After
