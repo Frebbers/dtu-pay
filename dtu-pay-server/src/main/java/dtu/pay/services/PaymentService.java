@@ -21,6 +21,8 @@ public class PaymentService {
         mq.addHandler("PaymentFailed", this::handlePaymentFailed);
     }
 
+    /// Forward payment request to message queue
+    /// @param paymentRequest the request for payment containing a merchant id, an amount and a token
     public String pay(PaymentRequest paymentRequest) throws Exception {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
@@ -43,6 +45,6 @@ public class PaymentService {
     public void handlePaymentFailed(Event e) {
         String error = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-        correlations.get(correlationId).completeExceptionally(new Exception(error)); // TODO
+        correlations.get(correlationId).completeExceptionally(new Exception(error)); // TODO better exception handling
     }
 }
