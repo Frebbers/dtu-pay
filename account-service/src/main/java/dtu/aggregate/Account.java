@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,7 +24,6 @@ import lombok.Setter;
 @Entity
 @Getter
 public class Account {
-	private String accountId;
 	private String firstname;
 	private String lastname;
 	private String cpr;
@@ -38,10 +36,9 @@ public class Account {
 	private Map<Class<? extends AccountEvent>, Consumer<AccountEvent>> handlers = new HashMap<>();
 
 	public static Account create(String firstName, String lastName, String cpr, String bankAccountNum) {
-		String accountId = UUID.randomUUID().toString();
-		AccountCreated event = new AccountCreated(accountId, firstName, lastName, cpr, bankAccountNum);
+		AccountCreated event = new AccountCreated(firstName, lastName, cpr, bankAccountNum);
 		var account = new Account();
-		account.accountId = accountId;
+		account.cpr = cpr;
 		account.appliedEvents.add(event);
 		return account;
 	}
@@ -53,7 +50,7 @@ public class Account {
 	}
 
 	public void deregister() {
-		AccountDeregistered event = new AccountDeregistered(accountId);
+		AccountDeregistered event = new AccountDeregistered(cpr);
 		this.appliedEvents.add(event);
 	}
 
@@ -73,7 +70,7 @@ public class Account {
 		events.forEachOrdered(e -> {
 			this.applyEvent(e);
 		});
-		if(this.accountId == null) {
+		if(this.cpr == null) {
 			throw new Error("Account does not exist");
 		}
 	}
@@ -87,9 +84,9 @@ public class Account {
 	}
 
 	private void apply(AccountCreated event) {
-		accountId = event.getAccountId();
 		firstname = event.getFirstName();
 		lastname = event.getLastName();
+		cpr = event.getCpr();
 		bankAccountNum = event.getBankAccountNum();
 		active = true;
 	}

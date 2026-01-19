@@ -17,7 +17,7 @@ public class SharedContext {
   public ReadAccountRepository readRepo;
   public AccountService accountService;
   public User account;
-  public String createdId;
+  public String createdCpr;
   public String bankAccount;
   public CorrelationId correlationId;
   public Event deregistrationEvent;

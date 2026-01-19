@@ -1,3 +1,13 @@
 package dtu.pay.models;
 
-public record PaymentRequest(String token, String merchantId, int amount) {}
+import java.math.BigDecimal;
+
+public record PaymentRequest(String token, String merchantId, BigDecimal amount) {
+
+    public PaymentRequest(String token, String merchantId, BigDecimal amount) {
+        this.token = token;
+        this.merchantId = merchantId;
+        this.amount = amount;
+    }
+
+}

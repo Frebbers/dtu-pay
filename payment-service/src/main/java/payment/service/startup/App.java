@@ -10,6 +10,7 @@ import payment.service.PaymentService;
 public class App
 {
     public static void main(String[] args) throws Exception {
-        new PaymentService(new RabbitMqQueue("rabbitMq"));
+        String host = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
+        new PaymentService(new RabbitMqQueue(host));
     }
 }

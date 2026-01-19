@@ -25,7 +25,7 @@ public class BankAccountSteps {
 
     context.bankAccountRequestedEvent = new Event(
         AccountServiceTopics.BANK_ACCOUNT_REQUESTED,
-        context.createdId,
+        context.createdCpr,
         context.correlationId);
   }
 

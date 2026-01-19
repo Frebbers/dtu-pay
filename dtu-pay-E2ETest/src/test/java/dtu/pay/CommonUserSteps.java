@@ -53,6 +53,9 @@ public class CommonUserSteps {
 
         context.bankAccountId =
                 bank.createAccountWithBalance(bankApiKey, user, new BigDecimal(balance));
+        if (context.bankAccountId == null || context.bankAccountId.isBlank()) {
+            throw new AssertionError("Bank account id is missing after bank registration");
+        }
     }
 
     @Given("the customer is registered with Simple DTU Pay using their bank account")
@@ -63,7 +66,11 @@ public class CommonUserSteps {
                 context.user.cprNumber(),
                 context.bankAccountId
         );
-        context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+        context.customerId = new DtuPayClient().registerDTUPayCustomer(request);
+        if (context.customerId == null || context.customerId.isBlank()) {
+            throw new AssertionError("DTU Pay customer id is missing after registration");
+        }
+        context.DTUPayAccountId = context.customerId;
         context.customer = context.user;
     }
 
@@ -75,8 +82,11 @@ public class CommonUserSteps {
                 context.user.cprNumber(),
                 context.bankAccountId
         );
-        context.DTUPayAccountId =  dtupay.registerDTUPayCustomer(request);
+        context.merchantId = dtupay.registerDTUPayMerchant(request);
+        if (context.merchantId == null || context.merchantId.isBlank()) {
+            throw new AssertionError("DTU Pay merchant id is missing after registration");
+        }
+        context.DTUPayAccountId = context.merchantId;
         context.merchant = context.user;
     }
 }
-

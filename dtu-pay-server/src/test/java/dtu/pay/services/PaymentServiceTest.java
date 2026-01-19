@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
@@ -23,8 +24,10 @@ public class PaymentServiceTest {
         public void publish(Event event) {
             publishedEvent.complete(event);
         }
+
         @Override
-        public void addHandler(String eventType, Consumer<Event> handler) {}
+        public void addHandler(String eventType, Consumer<Event> handler) {
+        }
     };
 
     @BeforeEach
@@ -40,7 +43,7 @@ public class PaymentServiceTest {
 
     @Test
     void registerSuccessfully() throws Exception {
-        PaymentRequest paymentReq = new PaymentRequest("random_token_here", "merchantId_here", 1000);
+        PaymentRequest paymentReq = new PaymentRequest("random_token_here", "merchantId_here", BigDecimal.valueOf(1000));
         publishedEvent = new CompletableFuture<>();
 
         CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> {
@@ -59,8 +62,7 @@ public class PaymentServiceTest {
         String expectedResponse = "Success!";
         paymentService.handlePaymentSuccessful(new Event(
                 "PaymentSuccessful",
-                new Object[] { expectedResponse, correlationId }
-        ));
+                new Object[] { expectedResponse, correlationId }));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
