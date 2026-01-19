@@ -23,7 +23,7 @@ public class PaymentSteps {
 
     @When("the merchant initiates a payment for {int} kr by the customer")
     public void theMerchantInitiatesAPaymentForKrByTheCustomer(int cost) {
-        try{
+        try{ //todo check if this is failing to report errors correctly
         dtupay.pay(context.tokens.getFirst(), context.merchant.bankAccountNum(), new BigDecimal(cost));}
         catch (Exception e){
             context.latestError = e;

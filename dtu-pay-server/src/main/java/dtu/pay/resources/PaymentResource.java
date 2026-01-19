@@ -11,6 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 //TODO this should probably be part of the merchant resource
+@Path("")
 public class PaymentResource {
     private final PaymentService service = new PaymentServiceFactory().getService();
 
@@ -22,6 +23,7 @@ public class PaymentResource {
         String returnedInfo;
         try {
             returnedInfo = service.pay(paymentReq);
+
         }
 //        catch (UserAlreadyExistsException e) {
 //            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
@@ -30,6 +32,7 @@ public class PaymentResource {
         catch (Exception e) {
             return Response.serverError().build();
         }
+        System.out.println("Payment service returns: " + returnedInfo);
         return Response.ok(returnedInfo).build();
     }
 
