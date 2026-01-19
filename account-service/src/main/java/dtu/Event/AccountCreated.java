@@ -13,8 +13,9 @@ import lombok.Value;
 public class AccountCreated extends AccountEvent {
 
 	private static final long serialVersionUID = -1599019626118724482L;
-	private UUID accountId;
+	private String accountId;
     private String firstName;
     private String lastName;
+    private String cpr;
     private String bankAccountNum;
 }

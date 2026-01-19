@@ -51,7 +51,7 @@ class UserServiceTest {
 
     @Test
     void registerSuccessfully() throws Exception {
-        User user = new User("John", "Doe", "12345678");
+        User user = new User("John", "Doe", "000000-0000", "12345678");
         publishedEvent = new CompletableFuture<>();
 
         CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> {

@@ -25,9 +25,10 @@ import lombok.Setter;
 @Entity
 @Getter
 public class Account {
-	private UUID accountId;
+	private String accountId;
 	private String firstname;
 	private String lastname;
+	private String cpr;
 	private String bankAccountNum;
 	private boolean active = false;
 
@@ -36,9 +37,9 @@ public class Account {
 
 	private Map<Class<? extends AccountEvent>, Consumer<AccountEvent>> handlers = new HashMap<>();
 
-	public static Account create(String firstName, String lastName, String bankAccountNum) {
-		UUID accountId = UUID.randomUUID();
-		AccountCreated event = new AccountCreated(accountId, firstName, lastName, bankAccountNum);
+	public static Account create(String firstName, String lastName, String cpr, String bankAccountNum) {
+		String accountId = UUID.randomUUID().toString();
+		AccountCreated event = new AccountCreated(accountId, firstName, lastName, cpr, bankAccountNum);
 		var account = new Account();
 		account.accountId = accountId;
 		account.appliedEvents.add(event);
@@ -64,11 +65,6 @@ public class Account {
 	private void registerEventHandlers() {
 		handlers.put(AccountCreated.class, e -> apply((AccountCreated) e));
 		handlers.put(AccountDeregistered.class, e -> apply((AccountDeregistered) e));
-	}
-
-	public static Account rehydrate(UUID id, String firstName, String lastName, String bankAccountNum) {
-		AccountCreated created = new AccountCreated(id, firstName, lastName, bankAccountNum);
-		return Account.createFromEvents(Stream.of(created));
 	}
 
 	/* Event Handling */

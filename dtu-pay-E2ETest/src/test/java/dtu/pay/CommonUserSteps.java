@@ -41,7 +41,7 @@ public class CommonUserSteps {
 
     @Given("a user with name {string}, last name {string}, and CPR {string}")
     public void aUserWithNameLastNameAndCpr(String first, String last, String cpr) {
-        context.user = new dtu.pay.User(first, last, null, cpr);
+        context.user = new dtu.pay.User(first, last, cpr, null);
     }
 
     @Given("the user is registered with the bank with an initial balance of {int} kr")
@@ -60,8 +60,8 @@ public class CommonUserSteps {
         var request = new dtu.pay.User(
                 context.user.firstName(),
                 context.user.lastName(),
-                context.bankAccountId,
-                null
+                context.user.cprNumber(),
+                context.bankAccountId
         );
         context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
     }
@@ -71,8 +71,8 @@ public class CommonUserSteps {
         var request = new dtu.pay.User(
                 context.user.firstName(),
                 context.user.lastName(),
-                context.bankAccountId,
-                null
+                context.user.cprNumber(),
+                context.bankAccountId
         );
         context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
     }

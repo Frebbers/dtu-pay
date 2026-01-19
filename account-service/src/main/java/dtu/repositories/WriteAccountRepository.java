@@ -11,7 +11,7 @@ public class WriteAccountRepository {
 		eventStore = new EventStore(bus);
 	}
 
-	public Account getById(java.util.UUID accountId) {
+	public Account getById(String accountId) {
 		return Account.createFromEvents(eventStore.getEventsFor(accountId));
 	}
 	

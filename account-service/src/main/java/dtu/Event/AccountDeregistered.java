@@ -13,6 +13,6 @@ import lombok.Value;
 public class AccountDeregistered extends AccountEvent {
     private static final long serialVersionUID = 1596683920706802940L;
 
-    private UUID accountId;
+    private String accountId;
     
 }
