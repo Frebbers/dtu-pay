@@ -48,7 +48,7 @@ public class PaymentSteps {
         } catch (BankServiceException_Exception e) {
             throw new RuntimeException(e);
         }
-        Assert.assertEquals(account.getBalance(), new BigDecimal(expectedCustomerBalance));
+        Assert.assertEquals(new BigDecimal(expectedCustomerBalance),account.getBalance());
     }
 
     @And("the balance of the merchant at the bank is {int} kr")
