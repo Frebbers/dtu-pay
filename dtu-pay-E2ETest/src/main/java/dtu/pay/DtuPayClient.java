@@ -44,16 +44,15 @@ public class DtuPayClient {
             }
     }
 
-    public boolean pay(String token, String merchantId, BigDecimal amount) {
+    public void pay(String token, String merchantId, BigDecimal amount) {
         PaymentRequest req = new PaymentRequest(token, merchantId, amount);
         try (Response r = base.path("payments").request()
                 .post(Entity.entity(req, MediaType.APPLICATION_JSON))) {
             if (r.getStatus() == 200) {
                 latestError = null;
-                return true;
+                return;
             }
-            latestError = r.readEntity(String.class);
-            return false;
+            throw new RuntimeException(r.readEntity(String.class));
         }
     }
 
