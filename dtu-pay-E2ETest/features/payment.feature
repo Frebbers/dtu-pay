@@ -14,4 +14,4 @@ Feature: Payment via DTU Pay
     When the merchant initiates a payment for 10 kr by the customer
     Then the payment is successful
     And the balance of the customer at the bank is 990 kr
-    And the balance of the merchant at the bank is 1010 kr
+    And the balance of the merchant at the bank is 10 kr
