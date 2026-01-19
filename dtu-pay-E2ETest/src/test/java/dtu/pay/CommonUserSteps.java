@@ -61,9 +61,10 @@ public class CommonUserSteps {
                 context.user.firstName(),
                 context.user.lastName(),
                 context.bankAccountId,
-                null
+                context.user.cprNumber()
         );
         context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+        context.customer = context.user;
     }
 
     @Given("the merchant is registered with Simple DTU Pay using their bank account")
@@ -72,9 +73,10 @@ public class CommonUserSteps {
                 context.user.firstName(),
                 context.user.lastName(),
                 context.bankAccountId,
-                null
+                context.user.cprNumber()
         );
-        context.DTUPayAccountId = new DtuPayClient().registerDTUPayCustomer(request);
+        context.DTUPayAccountId =  dtupay.registerDTUPayCustomer(request);
+        context.merchant = context.user;
     }
 }
 
