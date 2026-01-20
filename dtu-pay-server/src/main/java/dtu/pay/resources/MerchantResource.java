@@ -21,22 +21,22 @@ public class MerchantResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerMerchant(User merchant) {
-        String id;
-        try {id = userService.register(merchant);}
-        catch (UserAlreadyExistsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
-        }
-        catch (Exception e) {
-            return Response.serverError().build();
-        }
+        String id = userService.register(merchant);
         return Response.ok(id).build();
     }
 
     @DELETE
     @Path("merchants/{id}")
     public Response deleteMerchant(@PathParam("id") String id) {
-        userService.unregisterUserById(id);
-        return Response.noContent().build();
+        try {
+            userService.unregisterUserById(id);
+            return Response.noContent().build(); // 204
+        } catch (jakarta.ws.rs.NotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND) // 404
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
     }
 
     @GET

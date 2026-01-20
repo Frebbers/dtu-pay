@@ -89,7 +89,7 @@ public class AccountCreationSteps {
   public void theRegistrationFailureMessageIs(String expectedMessage) {
     verify(context.queueExternal).publish(
         new Event(
-            AccountServiceTopics.USER_REGISTRATION_FAILED,
+            AccountServiceTopics.USER_ALREADY_REGISTERED,
             new Object[] { expectedMessage, context.correlationId }));
   }
 
@@ -107,7 +107,7 @@ public class AccountCreationSteps {
   public void theDeregistrationFailureMessageIs(String expectedMessage) {
     verify(context.queueExternal).publish(
         new Event(
-            AccountServiceTopics.USER_DEREGISTRATION_FAILED,
+            AccountServiceTopics.USER_DOES_NOT_EXIST,
             new Object[] { expectedMessage, context.correlationId }));
   }
 }

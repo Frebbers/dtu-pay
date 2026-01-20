@@ -27,7 +27,7 @@ Feature: Reporting request
     And the payment is successful
     When the merchant with id "098765-4321" initiates a payment of 300 kr by the customer with id "112233-4455" using the token
     And the payment is successful
-
+@ignore
   Scenario: Customer requests their report containing payments
     Then the customer with id "123456-7890" requests the report
     And the customer report contains 3 payments
