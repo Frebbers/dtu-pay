@@ -7,6 +7,7 @@ public final class TokenTopics {
     public static final String TOKEN_REQUEST_REJECTED = "token.events.TokenRequestRejected";
     public static final String TOKEN_CONSUMED = "token.events.TokenConsumed";
     public static final String TOKEN_CONSUMPTION_REJECTED = "token.events.TokenConsumptionRejected";
+    public static final String TOKEN_INVALIDATION_REQUESTED = "token.events.TokenInvalidationRequested";
 
     private TokenTopics() {
     }

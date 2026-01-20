@@ -64,4 +64,16 @@ public class TokenStore {
         random.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
+
+    public void invalidateTokens(String userId) {
+        try {
+            Set<String> tokens = tokensByCustomer.get(userId);
+            if (!tokens.isEmpty()) {
+                for (String token : tokens) {
+                    tokensByValue.remove(token);
+                }
+                tokensByCustomer.remove(userId);
+            }
+        } catch (Exception ignored) {}
+    }
 }

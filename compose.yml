@@ -17,8 +17,19 @@ services:
   account-service:
     build: ./account-service
     image: account-service
-    ports:
-     - "8081:8081"
+    environment:
+     - RABBITMQ_HOST=rabbitmq
+    depends_on:
+     rabbitmq:
+       condition: service_healthy
+    networks:
+     - dtu-net
+
+  reporting-service:
+    build:
+      context: .
+      dockerfile: reporting-service/Dockerfile
+    image: reporting-service
     environment:
      - RABBITMQ_HOST=rabbitmq
     depends_on:
@@ -58,6 +69,8 @@ services:
   payment-service:
     build: ./payment-service
     image: payment-service
+    environment:
+      - RABBITMQ_HOST=rabbitmq
     container_name: payment-service
     depends_on:
       rabbitmq:
