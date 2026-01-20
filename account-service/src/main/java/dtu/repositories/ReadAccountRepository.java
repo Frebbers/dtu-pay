@@ -57,7 +57,7 @@ public class ReadAccountRepository {
 
   public String getBankAccount(String cpr) throws AccountDoesNotExistsException {
     User u = accounts.get(cpr);
-    if(u.bankAccountNum() == null) throw new AccountDoesNotExistsException("Account does not exist");
+    if(u == null) throw new AccountDoesNotExistsException("Account with CPR" + cpr + " does not exist");
     System.out.println("Accounts in read repo: " + accounts);
     System.out.println("Account size: " + accounts.size());
     return u.bankAccountNum();
