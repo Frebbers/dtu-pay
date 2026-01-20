@@ -59,8 +59,9 @@ public class UserService {
         }
     }
 
-    public void unregisterUserById(String id) {
-
+    public void unregisterUserById(String cpr) {
+        //TODO: implement unregister user
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     public boolean userExists(String id) {

@@ -41,15 +41,17 @@ public class CustomerResource {
     @DELETE
     @Path("customers/{id}")
     public Response deleteCustomer(@PathParam("id") String id) {
-        service.unregisterUserById(id);
-        return Response.noContent().build();
+       try {service.unregisterUserById(id);} catch (Exception e) {
+           return Response.serverError().build();
+       }
+       return Response.ok().build();
     }
 
     @GET
     @Path("customers/{id}")
     public Response customerExists(@PathParam("id") String id) {
-        service.userExists(id);
-        return Response.noContent().build();
+        Boolean exists = service.userExists(id);
+        return Response.ok(exists).build();
     }
 
     @GET
@@ -70,21 +72,6 @@ public class CustomerResource {
             return Response.ok(tokens).build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(e.getMessage())
-                    .type(MediaType.TEXT_PLAIN)
-                    .build();
-        }
-    }
-    @DELETE
-    @Path("customers/{id}/tokens")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response invalidateTokens(@PathParam("id") String customerId) {
-        try {
-            tokenService.invalidateTokens(customerId);
-            return Response.noContent().build();
-        } catch (RuntimeException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(e.getMessage())
                     .type(MediaType.TEXT_PLAIN)
                     .build();

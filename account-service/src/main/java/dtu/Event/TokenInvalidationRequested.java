@@ -1,3 +1,3 @@
-package dtu.pay.tokens;
+package dtu.Event;
 
 public record TokenInvalidationRequested (String userId, long requestedAt) {}

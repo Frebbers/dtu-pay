@@ -12,4 +12,5 @@ public class AccountServiceTopics {
   public static final String ACCOUNT_DEREGISTERED = "AccountDeregistered";
   public static final String USER_DEREGISTRATION_FAILED = "UserDeregistrationFailed";
   public static final String USER_REGISTRATION_FAILED = "UserRegistrationFailed";
+  public static final String TOKEN_INVALIDATION_REQUESTED = "token.events.TokenInvalidationRequested";
 }
