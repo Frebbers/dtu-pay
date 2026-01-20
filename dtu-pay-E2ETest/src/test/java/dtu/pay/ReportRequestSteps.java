@@ -6,6 +6,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,42 +26,61 @@ public class ReportRequestSteps {
     // TODO: Temporary functions waiting for payment e2e tests implementation
 
     @When("the merchant with id {string} initiates a payment of {int} kr by the customer with id {string} using the token")
-    public void theMerchantWithIdInitiatesAPaymentOfKrByTheCustomerWithIdUsingTheToken(String arg0, int arg1, String arg2) {}
-
-    @And("the payment is successful")
-    public void thePaymentIsSuccessful() {
-        customerReport = new CustomerReport(
-                List.of(
-                        new CustomerReportEntry(100, "", "098765-4321"),
-                        new CustomerReportEntry(200, "", "098765-4321"),
-                        new CustomerReportEntry(500, "", "010101-2323")
-                )
-        );
-        merchantReport = new MerchantReport(
-                List.of(
-                        new MerchantReportEntry(100, ""),
-                        new MerchantReportEntry(200, ""),
-                        new MerchantReportEntry(300, "")
-                )
-        );
-        managerReport = new ManagerReport(
-                List.of(
-                        new ManagerReportEntry(100, "", "098765-4321", "123456-7890"),
-                        new ManagerReportEntry(200, "", "098765-4321", "123456-7890"),
-                        new ManagerReportEntry(500, "", "010101-2323", "123456-7890"),
-                        new ManagerReportEntry(300, "", "098765-4321", "112233-4455")
-                ),
-                1100
-        );
+    public void theMerchantWithIdInitiatesAPaymentOfKrByTheCustomerWithIdUsingTheToken(String merchantId, int cost, String customerId) {
+        try {
+            List<String> tokens = context.tokensMap.get(customerId);
+            if (tokens == null) {
+                throw new RuntimeException(customerId + " doesn't have tokens (map: " + context.tokensMap + ")");
+            }
+            String tokenToUse = tokens.getFirst();
+            tokens.removeFirst();
+            dtuPayClient.pay(tokenToUse, merchantId, new BigDecimal(cost));
+        } catch (Exception e) {
+            context.latestError = e;
+        }
     }
 
+    @And("the customer with id {string} has {int} unused tokens")
+    public void theCustomerWithIdHasUnusedTokens(String customerId, int tokens) {
+        context.tokensMap.put(customerId, dtuPayClient.requestTokens(customerId, tokens));
+        if (context.tokensMap == null) {
+            context.latestError = new RuntimeException("Token request failed: " + dtuPayClient.getLatestError());
+        }
+    }
+
+//    @And("the payment is successful")
+//    public void thePaymentIsSuccessful() {
+//        customerReport = new CustomerReport(
+//                List.of(
+//                        new CustomerReportEntry(100, "", "098765-4321"),
+//                        new CustomerReportEntry(200, "", "098765-4321"),
+//                        new CustomerReportEntry(500, "", "010101-2323")
+//                )
+//        );
+//        merchantReport = new MerchantReport(
+//                List.of(
+//                        new MerchantReportEntry(100, ""),
+//                        new MerchantReportEntry(200, ""),
+//                        new MerchantReportEntry(300, "")
+//                )
+//        );
+//        managerReport = new ManagerReport(
+//                List.of(
+//                        new ManagerReportEntry(100, "", "098765-4321", "123456-7890"),
+//                        new ManagerReportEntry(200, "", "098765-4321", "123456-7890"),
+//                        new ManagerReportEntry(500, "", "010101-2323", "123456-7890"),
+//                        new ManagerReportEntry(300, "", "098765-4321", "112233-4455")
+//                ),
+//                1100
+//        );
+//    }
 
 
     // Customer
 
     @Then("the customer with id {string} requests the report")
     public void theCustomerWithIdRequestsTheReport(String customerId) {
-//        customerReport = dtuPayClient.getCustomerReport(customerId);
+        customerReport = dtuPayClient.getCustomerReport(customerId);
         assertNotNull(customerReport);
     }
 
@@ -87,7 +107,7 @@ public class ReportRequestSteps {
 
     @Then("the merchant with id {string} requests the report")
     public void theMerchantWithIdRequestsTheReport(String merchantId) {
-//        merchantReport = dtuPayClient.getMerchantReport(merchantId);
+        merchantReport = dtuPayClient.getMerchantReport(merchantId);
         assertNotNull(merchantReport);
     }
 
@@ -125,7 +145,7 @@ public class ReportRequestSteps {
 
     @Then("the manager requests the report")
     public void theManagerRequestsTheReport() {
-//        managerReport = dtuPayClient.getManagerReport();
+        managerReport = dtuPayClient.getManagerReport();
         assertNotNull(managerReport);
     }
 
