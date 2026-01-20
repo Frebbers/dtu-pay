@@ -1,11 +1,7 @@
 package dtu.token;
 
-import dtu.token.messages.ConsumeTokenRequested;
-import dtu.token.messages.TokenConsumed;
-import dtu.token.messages.TokenConsumptionRejected;
-import dtu.token.messages.TokenRequestRejected;
-import dtu.token.messages.TokenRequestSubmitted;
-import dtu.token.messages.TokensIssued;
+import dtu.token.messages.*;
+
 import java.util.List;
 import java.util.UUID;
 import messaging.Event;
