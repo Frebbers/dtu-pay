@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.Response;
 
 @Path("")
 public class MerchantResource {
-    private final UserService userService = new UserServiceFactory().getService();
+    private final UserService service = new UserServiceFactory().getService();
     private final ReportingService reportingService = new ReportingServiceFactory().getService();
 
     @POST
@@ -22,7 +22,7 @@ public class MerchantResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerMerchant(User merchant) {
         String id;
-        try {id = userService.register(merchant);}
+        try {id = service.register(merchant);}
         catch (UserAlreadyExistsException e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
         }
@@ -35,8 +35,10 @@ public class MerchantResource {
     @DELETE
     @Path("merchants/{id}")
     public Response deleteMerchant(@PathParam("id") String id) {
-        userService.unregisterUserById(id);
-        return Response.noContent().build();
+        try {service.unregisterUserById(id);} catch (Exception e) {
+            return Response.serverError().build();
+        }
+        return Response.ok().build();
     }
 
     @GET
