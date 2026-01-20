@@ -7,6 +7,7 @@ import dtu.token.messages.TokenRequestRejected;
 import dtu.token.messages.TokenRequestSubmitted;
 import dtu.token.messages.TokensIssued;
 import io.cucumber.java.Before;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -118,6 +119,18 @@ public class TokenSteps {
             TokensIssued issued = lastPublished.getArgument(0, TokensIssued.class);
             issuedTokens = new ArrayList<>(issued.tokens());
         }
+    }
+
+    @When("a token invalidation request is received for customer {string}")
+    public void aTokenInvalidationRequestIsReceivedForCustomer(String arg0) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
+    @Then("all tokens are invalidated for customer {string}")
+    public void allTokensAreInvalidatedForCustomer(String arg0) {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
     }
 
     private static class TestMessageQueue implements MessageQueue {
