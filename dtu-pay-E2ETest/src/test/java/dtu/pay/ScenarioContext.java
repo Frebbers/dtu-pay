@@ -1,6 +1,8 @@
 package dtu.pay;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ScenarioContext {
     public dtu.pay.User user;
@@ -11,5 +13,6 @@ public class ScenarioContext {
     public String customerId;
     public String merchantId;
     public List<String> tokens;
+    public Map<String, List<String>> tokensMap= new HashMap<>();
     public Throwable latestError;
 }

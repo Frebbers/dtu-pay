@@ -1,12 +1,7 @@
 package dtu.pay.services;
 
-import dtu.pay.tokens.ConsumeTokenRequested;
-import dtu.pay.tokens.TokenConsumed;
-import dtu.pay.tokens.TokenConsumptionRejected;
-import dtu.pay.tokens.TokenRequestRejected;
-import dtu.pay.tokens.TokenRequestSubmitted;
-import dtu.pay.tokens.TokenTopics;
-import dtu.pay.tokens.TokensIssued;
+import dtu.pay.tokens.*;
+
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -109,5 +104,12 @@ public class TokenServiceClient {
         if (future != null) {
             future.completeExceptionally(new RuntimeException(rejected.reason()));
         }
+    }
+
+    /// Fire and forget invalidation of all tokens for a customer
+    public void invalidateTokens(String customerId) {
+        TokenInvalidationRequested command = new TokenInvalidationRequested(customerId,
+                System.currentTimeMillis());
+        mq.publish(new Event(TokenTopics.TOKEN_INVALIDATION_REQUESTED, command));
     }
 }
