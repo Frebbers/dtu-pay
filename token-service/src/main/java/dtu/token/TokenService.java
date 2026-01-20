@@ -25,6 +25,13 @@ public class TokenService {
         this.store = store;
         mq.addHandler(TokenTopics.TOKEN_REQUEST_SUBMITTED, this::handleTokenRequestSubmitted);
         mq.addHandler(TokenTopics.CONSUME_TOKEN_REQUESTED, this::handleConsumeTokenRequested);
+        mq.addHandler(TokenTopics.TOKEN_INVALIDATION_REQUESTED, this::handleTokenInvalidationRequested);
+    }
+
+    private void handleTokenInvalidationRequested(Event event) {
+        TokenInvalidationRequested command = event.getArgument(0, TokenInvalidationRequested.class);
+        String userId = command.userId();
+        store.invalidateTokens(userId);
     }
 
     private void handleTokenRequestSubmitted(Event event) {

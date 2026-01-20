@@ -139,4 +139,12 @@ public class DtuPayClient {
         return null; // rejection case handled in steps
     }
 
+    /// Will always return 200 OK unless an exception occurs
+    public void invalidateTokens(String customerId) {
+        lastResponse = base.path("customers")
+                .path(customerId)
+                .path("tokens")
+                .request()
+                .delete();
+    }
 }
