@@ -1,4 +1,4 @@
-package dtu;
+package dtu.reporting;
 
 
 import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;

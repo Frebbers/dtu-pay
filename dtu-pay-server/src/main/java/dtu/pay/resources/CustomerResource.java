@@ -1,12 +1,12 @@
 package dtu.pay.resources;
 
-import dtu.pay.factories.ReportServiceFactory;
+import dtu.pay.factories.ReportingServiceFactory;
 import dtu.pay.factories.TokenServiceFactory;
 import dtu.pay.factories.UserServiceFactory;
-import dtu.pay.models.CustomerReport;
+import dtu.pay.models.report.CustomerReport;
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
-import dtu.pay.services.ReportService;
+import dtu.pay.services.ReportingService;
 import dtu.pay.services.TokenServiceClient;
 import dtu.pay.services.UserService;
 import jakarta.ws.rs.*;
@@ -19,7 +19,7 @@ public class CustomerResource {
 
     //    SimpleDtuPayService service = new SimpleDtuPayService();
     UserService service = new UserServiceFactory().getService();
-    ReportService reportService = new ReportServiceFactory().getService();
+    ReportingService reportingService = new ReportingServiceFactory().getService();
     TokenServiceClient tokenService = new TokenServiceFactory().getService();
 
     @POST
@@ -53,10 +53,10 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("payments")
+    @Path("customers/{customerId}/reports")
     @Produces(MediaType.APPLICATION_JSON)
-    public CustomerReport getPayments(int customerId) {
-        return reportService.getCustomerReport(customerId);
+    public CustomerReport getReport(@PathParam("customerId") String customerId) {
+        return reportingService.getCustomerReport(customerId);
     }
 
     @POST
@@ -75,5 +75,19 @@ public class CustomerResource {
                     .build();
         }
     }
-
+    @DELETE
+    @Path("customers/{id}/tokens")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response invalidateTokens(@PathParam("id") String customerId) {
+        try {
+            tokenService.invalidateTokens(customerId);
+            return Response.noContent().build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
+    }
 }
