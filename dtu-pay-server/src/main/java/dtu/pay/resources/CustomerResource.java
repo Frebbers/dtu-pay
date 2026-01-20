@@ -53,9 +53,9 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("reports")
+    @Path("customers/{customerId}/reports")
     @Produces(MediaType.APPLICATION_JSON)
-    public CustomerReport getReport(String customerId) {
+    public CustomerReport getReport(@PathParam("customerId") String customerId) {
         return reportingService.getCustomerReport(customerId);
     }
 

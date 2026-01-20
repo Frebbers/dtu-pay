@@ -40,9 +40,9 @@ public class MerchantResource {
     }
 
     @GET
-    @Path("reports")
+    @Path("merchants/{merchantId}/reports")
     @Produces(MediaType.APPLICATION_JSON)
-    public MerchantReport getReport(String merchantId) {
+    public MerchantReport getReport(@PathParam("merchantId") String merchantId) {
         return reportingService.getMerchantReport(merchantId);
     }
 }

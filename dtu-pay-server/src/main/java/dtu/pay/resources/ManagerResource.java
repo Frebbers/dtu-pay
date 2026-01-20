@@ -12,7 +12,7 @@ public class ManagerResource {
     private final ReportingService reportingService = new ReportingServiceFactory().getService();
 
     @GET
-    @Path("reports")
+    @Path("manager/reports")
     @Produces(MediaType.APPLICATION_JSON)
     public ManagerReport getReport() {
         return reportingService.getManagerReport();
