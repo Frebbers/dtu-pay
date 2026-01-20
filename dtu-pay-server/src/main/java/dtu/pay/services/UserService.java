@@ -18,8 +18,7 @@ public class UserService {
     public UserService(MessageQueue mq) {
         this.mq = mq;
         mq.addHandler("UserRegistered", this::handleUserRegistered);
-        mq.addHandler("UserNotRegistered", this::handleUserNotRegistered);
-        mq.addHandler("UserRegisteredFailed", this::handleUserNotRegistered);
+        mq.addHandler("UserRegistrationFailed", this::handleUserNotRegistered);
     }
 
     public String register(User merchant) throws Exception, UserAlreadyExistsException {
