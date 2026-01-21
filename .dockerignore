@@ -6,7 +6,6 @@
 !dtu-pay-server/compose.yml
 !token-service/Dockerfile
 !reporting-service/Dockerfile
-!payment-service/Dockerfile
 !compose.yml
 !README.md
 
@@ -29,8 +28,6 @@
 !token-service/**
 !reporting-service/
 !reporting-service/**
-!payment-service/
-!payment-service/**
 !utilities/
 !utilities/**
 
