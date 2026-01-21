@@ -2,12 +2,12 @@ package dtu.services;
 
 import java.util.logging.Logger;
 
-import dtu.CorrelationId;
+import dtu.tokens.CorrelationId;
 import dtu.Exceptions.AccountAlreadyExistsException;
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.User;
+import dtu.tokens.User;
 import dtu.tokens.AccountServiceTopics;
 import dtu.repositories.ReadAccountRepository;
 import messaging.Event;

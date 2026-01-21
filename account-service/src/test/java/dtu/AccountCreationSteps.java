@@ -2,7 +2,8 @@ package dtu;
 
 import dtu.Exceptions.AccountAlreadyExistsException;
 import dtu.tokens.AccountServiceTopics;
-import dtu.repositories.User;
+import dtu.tokens.User;
+import dtu.tokens.CorrelationId;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

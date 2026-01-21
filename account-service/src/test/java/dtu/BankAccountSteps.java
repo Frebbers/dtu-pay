@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.tokens.AccountServiceTopics;
+import dtu.tokens.CorrelationId;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

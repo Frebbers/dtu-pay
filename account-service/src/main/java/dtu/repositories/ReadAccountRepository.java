@@ -3,6 +3,7 @@ package dtu.repositories;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import dtu.tokens.User;
 import org.jmolecules.ddd.annotation.Repository;
 
 import dtu.tokens.AccountCreated;

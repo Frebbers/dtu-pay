@@ -1,4 +1,4 @@
-package dtu;
+package dtu.tokens;
 
 import java.util.UUID;
 
