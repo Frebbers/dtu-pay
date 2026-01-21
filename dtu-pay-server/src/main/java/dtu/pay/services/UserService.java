@@ -8,9 +8,11 @@ import messaging.MessageQueue;
 
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class UserService {
     private final MessageQueue mq;
@@ -30,8 +32,14 @@ public class UserService {
             correlations.put(correlationId, future);
             Event event = new Event("UserRegistrationRequested", new Object[]{merchant, correlationId});
             mq.publish(event);
-            // TODO: check if joining timeout
-            return future.orTimeout(5, TimeUnit.SECONDS).join();
+            try {
+                return future.orTimeout(5, TimeUnit.SECONDS).join();
+            } catch (CompletionException e) {
+                if (e.getCause() instanceof TimeoutException) {
+                    correlations.remove(correlationId);
+                }
+                throw e;
+            }
         } catch (Exception e) {
             throw e;
         }
