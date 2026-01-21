@@ -3,7 +3,10 @@ package dtu.token;
 import dtu.token.messages.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+
+import io.vertx.codegen.doc.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 
@@ -14,6 +17,10 @@ public class TokenService {
 
     public TokenService(MessageQueue mq) {
         this(mq, new TokenStore());
+    }
+    /// package private for testing only
+    TokenStore getTokenStoreForTest() {
+        return this.store;
     }
 
     public TokenService(MessageQueue mq, TokenStore store) {

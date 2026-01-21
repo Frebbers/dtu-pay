@@ -17,7 +17,7 @@ import java.util.List;
 @Path("")
 public class CustomerResource {
 
-    // SimpleDtuPayService service = new SimpleDtuPayService();
+    //    SimpleDtuPayService service = new SimpleDtuPayService();
     UserService service = new UserServiceFactory().getService();
     ReportingService reportingService = new ReportingServiceFactory().getService();
     TokenServiceClient tokenService = new TokenServiceFactory().getService();
@@ -48,8 +48,8 @@ public class CustomerResource {
     @GET
     @Path("customers/{id}")
     public Response customerExists(@PathParam("id") String id) {
-        service.userExists(id);
-        return Response.noContent().build();
+        Boolean exists = service.userExists(id);
+        return Response.ok(exists).build();
     }
 
     @GET

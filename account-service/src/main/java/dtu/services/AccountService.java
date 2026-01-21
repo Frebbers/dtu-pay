@@ -82,6 +82,8 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       deregisterAccount(id);
+      mq.publish(new Event(AccountServiceTopics.TOKEN_INVALIDATION_REQUESTED, new Object[]
+              { id, System.currentTimeMillis() })); // Fire and forget
       responseEvent = new Event(AccountServiceTopics.USER_DEREGISTERED, new Object[] { id, correlationId });
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {
