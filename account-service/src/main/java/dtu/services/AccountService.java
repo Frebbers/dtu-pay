@@ -82,19 +82,17 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       deregisterAccount(id);
-      mq.publish(new Event(AccountServiceTopics.TOKEN_INVALIDATION_REQUESTED, new Object[]
-              { id, System.currentTimeMillis() })); // Fire and forget
-      responseEvent = new Event(AccountServiceTopics.USER_DEREGISTERED, new Object[] { id, correlationId });
+      mq.publish(new Event(AccountServiceTopics.TOKEN_INVALIDATION_REQUESTED, id,
+              System.currentTimeMillis())); // Fire and forget
+      responseEvent = new Event(AccountServiceTopics.USER_DEREGISTERED, id, correlationId);
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account deregistration failed: " + ex.getMessage());
-      responseEvent = new Event(AccountServiceTopics.USER_DOES_NOT_EXIST,
-          new Object[] { ex.getMessage(), correlationId });
+      responseEvent = new Event(AccountServiceTopics.USER_DOES_NOT_EXIST, ex.getMessage(), correlationId);
       mq.publish(responseEvent);
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
-      responseEvent = new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED,
-          new Object[] { exe.getMessage(), correlationId });
+      responseEvent = new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED, exe.getMessage(), correlationId);
       mq.publish(responseEvent);
     }
   }
