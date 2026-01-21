@@ -168,4 +168,10 @@ public class DtuPayClient {
                 .request()
                 .delete();
     }
+
+    public void cleanAllPayments() {
+        lastResponse = base.path("manager/reports")
+                .request()
+                .delete();
+    }
 }

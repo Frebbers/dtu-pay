@@ -11,7 +11,7 @@ import java.util.Map;
 public class ReportRepositoryImpl implements ReportRepository {
     private final Map<String, CustomerReport> customerReportMap = new HashMap<>();
     private final Map<String, MerchantReport> merchantReportMap = new HashMap<>();
-    private final ManagerReport managerReport = new ManagerReport();
+    private ManagerReport managerReport = new ManagerReport();
 
     public ReportRepositoryImpl() {}
 
@@ -41,5 +41,12 @@ public class ReportRepositoryImpl implements ReportRepository {
     @Override
     public ManagerReport getManagerReport() {
         return managerReport;
+    }
+
+    @Override
+    public void deleteReport() {
+        customerReportMap.clear();
+        merchantReportMap.clear();
+        managerReport = new ManagerReport();
     }
 }
