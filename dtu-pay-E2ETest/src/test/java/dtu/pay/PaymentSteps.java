@@ -29,6 +29,24 @@ public class PaymentSteps {
         }
     }
 
+    @When("the merchant initiates a payment for {int} kr by the customer with an invalid token")
+    public void theMerchantInitiatesAPaymentForKrByTheCustomerWithAnInvalidToken(int amount) {
+        try {
+            dtupay.pay("<this_is_an_invalid_token>", context.merchantId, new BigDecimal(amount));
+        } catch (Exception e) {
+            context.latestError = e;
+        }
+    }
+
+    @When("the merchant initiates a payment for {int} kr by the customer with an invalid merchantId")
+    public void theMerchantInitiatesAPaymentForKrByTheCustomerWithAnInvalidMerchantId(int amount) {
+        try {
+            dtupay.pay(context.tokens.getFirst(), "<this_is_an_invalid_merchant_id>", new BigDecimal(amount));
+        } catch (Exception e) {
+            context.latestError = e;
+        }
+    }
+
     @Then("the payment is successful")
     public void thePaymentIsSuccessful() {
         String latestErrorMessage = null;
@@ -38,6 +56,13 @@ public class PaymentSteps {
         }
         Assert.assertNull("An error occurred during payment: "
                 + latestErrorMessage, latestErrorMessage);
+    }
+
+    @Then("the payment is unsuccessful")
+    public void thePaymentIsUnsuccessful() {
+        String latestErrorMessage = null;
+        latestErrorMessage = context.latestError.getMessage();
+        Assert.assertNotNull("An error occurred during payment: " + latestErrorMessage, latestErrorMessage);
     }
 
     @And("the balance of the customer at the bank is {int} kr")
