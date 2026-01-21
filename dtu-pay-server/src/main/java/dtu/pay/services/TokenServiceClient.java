@@ -89,7 +89,7 @@ public class TokenServiceClient {
             future.completeExceptionally(new RuntimeException(rejected.reason()));
         }
     }
-
+    // TODO we should probably delete this method as token consumption is not something our clients should care about
     private void handleTokenConsumed(Event event) {
         TokenConsumed consumed = event.getArgument(0, TokenConsumed.class);
         CompletableFuture<String> future = tokenConsumptions.remove(consumed.commandId());
@@ -98,6 +98,7 @@ public class TokenServiceClient {
         }
     }
 
+    // TODO we should probably delete this method as token consumption is not something our clients should care about
     private void handleTokenConsumptionRejected(Event event) {
         TokenConsumptionRejected rejected = event.getArgument(0, TokenConsumptionRejected.class);
         CompletableFuture<String> future = tokenConsumptions.remove(rejected.commandId());
