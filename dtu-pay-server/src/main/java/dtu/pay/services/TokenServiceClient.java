@@ -22,8 +22,6 @@ public class TokenServiceClient {
         this.mq = mq;
         mq.addHandler(TokenTopics.TOKENS_ISSUED, this::handleTokensIssued);
         mq.addHandler(TokenTopics.TOKEN_REQUEST_REJECTED, this::handleTokenRequestRejected);
-        mq.addHandler(TokenTopics.TOKEN_CONSUMED, this::handleTokenConsumed);
-        mq.addHandler(TokenTopics.TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected);
     }
 
     public List<String> requestTokens(String customerId, int requestedCount) {
@@ -85,23 +83,6 @@ public class TokenServiceClient {
     private void handleTokenRequestRejected(Event event) {
         TokenRequestRejected rejected = event.getArgument(0, TokenRequestRejected.class);
         CompletableFuture<List<String>> future = tokenRequests.remove(rejected.commandId());
-        if (future != null) {
-            future.completeExceptionally(new RuntimeException(rejected.reason()));
-        }
-    }
-    // TODO we should probably delete this method as token consumption is not something our clients should care about
-    private void handleTokenConsumed(Event event) {
-        TokenConsumed consumed = event.getArgument(0, TokenConsumed.class);
-        CompletableFuture<String> future = tokenConsumptions.remove(consumed.commandId());
-        if (future != null) {
-            future.complete(consumed.customerId());
-        }
-    }
-
-    // TODO we should probably delete this method as token consumption is not something our clients should care about
-    private void handleTokenConsumptionRejected(Event event) {
-        TokenConsumptionRejected rejected = event.getArgument(0, TokenConsumptionRejected.class);
-        CompletableFuture<String> future = tokenConsumptions.remove(rejected.commandId());
         if (future != null) {
             future.completeExceptionally(new RuntimeException(rejected.reason()));
         }

@@ -104,7 +104,7 @@ public class PaymentService {
         String correlationId = UUID.randomUUID().toString();
         getCustomerIdCorrelations.put(correlationId, new CompletableFuture<>());
         ConsumeTokenRequested consumeTokenReq = new ConsumeTokenRequested(correlationId, token, "", 0, System.currentTimeMillis());
-        queue.publish(new Event(CONSUME_TOKEN_REQUESTED, new Object[]{consumeTokenReq}));
+        queue.publish(new Event(CONSUME_TOKEN_REQUESTED, consumeTokenReq));
 
         return getCustomerIdCorrelations.get(correlationId).join();
     }
