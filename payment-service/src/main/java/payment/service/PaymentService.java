@@ -41,8 +41,8 @@ public class PaymentService {
         this.queue = q;
         this.bank = bank;
         queue.addHandler(PAYMENT_REQUESTED, this::policyPaymentRequested);
-        queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed);
-        queue.addHandler(TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected);
+        queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed); //TODO delete this!
+        queue.addHandler(TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected); //TODO delete this!
         queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumberRetrieved);
         queue.addHandler(BANK_ACCOUNT_RETRIEVAL_FAILED, this::handleBankAccNumRetrievalFailed);
     }
@@ -70,7 +70,7 @@ public class PaymentService {
             notifyFailedPayment(correlationId, e.getMessage());
         }
     }
-
+    //TODO delete this! Account service should handle it
     public void handleTokenConsumed(Event event) {
         TokenConsumed tokenConsumed = event.getArgument(0, TokenConsumed.class);
         String correlationId = tokenConsumed.commandId();

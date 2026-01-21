@@ -50,3 +50,4 @@ GEMINI.md
 # Auto-gen code
 src/main/java/dtu/ws/
 
+/payment-service/src/main/java/dtu/ws/fastmoney/
