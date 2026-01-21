@@ -23,14 +23,9 @@ public class PaymentResource {
         String returnedInfo;
         try {
             returnedInfo = service.pay(paymentReq);
-
         }
-//        catch (UserAlreadyExistsException e) {
-//            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
-//        }
-        // TODO: Handle different exceptions
         catch (Exception e) {
-            return Response.serverError().build();
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
         }
         System.out.println("Payment service returns: " + returnedInfo);
         return Response.ok(returnedInfo).build();
