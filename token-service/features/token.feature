@@ -1,4 +1,4 @@
-Feature: Token service
+Feature: Token generation and consumption
   Scenario: Customer can request tokens when none exist
     Given a customer id "cust-1"
     When the customer requests 3 tokens

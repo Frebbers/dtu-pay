@@ -1,5 +1,8 @@
 package dtu.repositories;
 
+import java.util.stream.Collectors;
+
+import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import messaging.MessageQueue;
 
@@ -11,8 +14,12 @@ public class WriteAccountRepository {
 		eventStore = new EventStore(bus);
 	}
 
-	public Account getById(String cpr) {
-		return Account.createFromEvents(eventStore.getEventsFor(cpr));
+	public Account getById(String cpr) throws AccountDoesNotExistsException {
+		var events = eventStore.getEventsFor(cpr).collect(Collectors.toList());
+		if (events.isEmpty()) {
+			throw new AccountDoesNotExistsException("Account with CPR number " + cpr + " does not exist");
+		}
+		return Account.createFromEvents(events.stream());
 	}
 
 	public void save(Account account) {

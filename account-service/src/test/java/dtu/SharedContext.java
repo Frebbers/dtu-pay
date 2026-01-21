@@ -20,8 +20,10 @@ public class SharedContext {
   public String createdCpr;
   public String bankAccount;
   public CorrelationId correlationId;
-  public Event deregistrationEvent;
+  public Event deregistrationRequestedEvent;
   public Event bankAccountRequestedEvent;
+  public Event bankAccountRetrievalFailedEvent;
+  public Event deregistrationFailedEvent;
 
   public SharedContext() {
    

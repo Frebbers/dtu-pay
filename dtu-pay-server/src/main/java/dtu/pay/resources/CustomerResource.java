@@ -27,29 +27,29 @@ public class CustomerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerCustomer(User customer) {
-        String id;
-        try {
-            id = service.register(customer);
-        } catch (UserAlreadyExistsException e) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("User already exists!").type(MediaType.TEXT_PLAIN).build();
-        } catch (Exception e) {
-            return Response.serverError().build();
-        }
+        String id = service.register(customer);
         return Response.ok(id).build();
     }
 
     @DELETE
     @Path("customers/{id}")
     public Response deleteCustomer(@PathParam("id") String id) {
-        service.unregisterUserById(id);
-        return Response.noContent().build();
+        try {
+            service.unregisterUserById(id);
+            return Response.noContent().build(); // 204
+        } catch (jakarta.ws.rs.NotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND) // 404
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
     }
 
     @GET
     @Path("customers/{id}")
     public Response customerExists(@PathParam("id") String id) {
-        service.userExists(id);
-        return Response.noContent().build();
+        Boolean exists = service.userExists(id);
+        return Response.ok(exists).build();
     }
 
     @GET
@@ -75,6 +75,7 @@ public class CustomerResource {
                     .build();
         }
     }
+
     @DELETE
     @Path("customers/{id}/tokens")
     @Consumes(MediaType.APPLICATION_JSON)
