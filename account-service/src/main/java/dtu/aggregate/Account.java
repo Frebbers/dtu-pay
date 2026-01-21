@@ -16,6 +16,7 @@ import org.jmolecules.ddd.annotation.Entity;
 import dtu.Event.AccountCreated;
 import dtu.Event.AccountDeregistered;
 import dtu.Event.AccountEvent;
+import dtu.Exceptions.AccountDoesNotExistsException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,7 +44,7 @@ public class Account {
 		return account;
 	}
 
-	public static Account createFromEvents(Stream<AccountEvent> events) {
+	public static Account createFromEvents(Stream<AccountEvent> events) throws AccountDoesNotExistsException {
 		Account account = new Account();
 		account.applyEvents(events);
 		return account;
@@ -66,13 +67,10 @@ public class Account {
 
 	/* Event Handling */
 
-	private void applyEvents(Stream<AccountEvent> events) throws Error {
+	private void applyEvents(Stream<AccountEvent> events) throws AccountDoesNotExistsException {
 		events.forEachOrdered(e -> {
 			this.applyEvent(e);
 		});
-		if(this.cpr == null) {
-			throw new Error("Account does not exist");
-		}
 	}
 
 	private void applyEvent(AccountEvent e) {

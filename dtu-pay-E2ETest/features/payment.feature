@@ -1,7 +1,10 @@
 Feature: Payment via DTU Pay
   Background: Bank account cleanup
     Given User with CPR "150390-2210" is not registered in the bank
+    And User with CPR "150390-2210" is not registered in DTU Pay
     And User with CPR "200581-1234" is not registered in the bank
+    And User with CPR "200581-1234" is not registered in DTU Pay
+
 
   Scenario: Successful Payment
     Given a user with name "Alice", last name "Ali", and CPR "150390-2210"

@@ -15,9 +15,6 @@ public class AccountCreationSteps {
 
   private final SharedContext context;
 
-  // keep correlationId local to this step class (fine)
-  private CorrelationId correlationId;
-
   public AccountCreationSteps(SharedContext context) {
     this.context = context;
   }
@@ -30,12 +27,11 @@ public class AccountCreationSteps {
 
   @When("the user registers with DTU Pay")
   public void theUserRegistersWithDTUPay() {
-    correlationId = CorrelationId.randomId();
+    context.correlationId = CorrelationId.randomId();
 
     context.accountService.handleUserRegistration(
         new Event(AccountServiceTopics.USER_REGISTRATION_REQUESTED,
-            new Object[]{ context.account, correlationId })
-    );
+            new Object[] { context.account, context.correlationId }));
 
     context.createdCpr = context.readRepo.getCprByBankAccount(context.account.bankAccountNum());
   }
@@ -51,8 +47,7 @@ public class AccountCreationSteps {
     String cpr = context.readRepo.getCprByBankAccount(context.account.bankAccountNum());
 
     verify(context.queueExternal).publish(
-        new Event(eventName, new Object[]{ cpr, correlationId })
-    );
+        new Event(eventName, new Object[] { cpr, context.correlationId }));
   }
 
   // Second scenario
@@ -66,28 +61,53 @@ public class AccountCreationSteps {
 
   @Given("a deregistration request is sent")
   public void aDeregistrationRequestIsSent() {
-    correlationId = CorrelationId.randomId();
+    context.correlationId = CorrelationId.randomId();
 
-    context.deregistrationEvent = new Event(
+    context.deregistrationRequestedEvent = new Event(
         AccountServiceTopics.USER_DEREGISTERED_REQUESTED,
-        new Object[]{ context.createdCpr, correlationId }
-    );
+        new Object[] { context.createdCpr, context.correlationId });
   }
 
   @When("the deregistration request is handled")
   public void theDeregistrationRequestIsHandled() {
-    context.accountService.handleUserDeregistration(context.deregistrationEvent);
+    context.accountService.handleUserDeregistration(context.deregistrationRequestedEvent);
   }
 
   @Then("a {string} event is published")
   public void aEventIsPublished(String eventName) {
     verify(context.queueExternal).publish(
-        new Event(eventName, new Object[]{ context.createdCpr, correlationId })
-    );
+        new Event(eventName, new Object[] { context.createdCpr, context.correlationId }));
   }
 
   @Then("the account is removed from the account list")
   public void theAccountIsRemovedFromTheAccountList() {
     assertFalse(context.readRepo.existsByBankAccountNumber(context.bankAccount));
+  }
+
+  // Third scenario
+  @Then("the registration failure message is {string}")
+  public void theRegistrationFailureMessageIs(String expectedMessage) {
+    verify(context.queueExternal).publish(
+        new Event(
+            AccountServiceTopics.USER_ALREADY_REGISTERED,
+            new Object[] { expectedMessage, context.correlationId }));
+  }
+
+  // Fourth scenario
+  @Given("a deregistration request is sent for CPR {string}")
+  public void aDeregistrationRequestIsSentForCPR(String cpr) {
+    context.createdCpr = cpr;
+    context.correlationId = CorrelationId.randomId();
+
+    context.deregistrationRequestedEvent = new Event(
+        AccountServiceTopics.USER_DEREGISTERED_REQUESTED,  new Object[] {context.createdCpr, context.correlationId});
+  }
+
+  @Then("the deregistration failure message is {string}")
+  public void theDeregistrationFailureMessageIs(String expectedMessage) {
+    verify(context.queueExternal).publish(
+        new Event(
+            AccountServiceTopics.USER_DOES_NOT_EXIST,
+            new Object[] { expectedMessage, context.correlationId }));
   }
 }
