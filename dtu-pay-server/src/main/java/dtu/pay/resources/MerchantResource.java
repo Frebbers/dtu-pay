@@ -2,6 +2,7 @@ package dtu.pay.resources;
 
 import dtu.pay.factories.PaymentServiceFactory;
 import dtu.pay.factories.UserServiceFactory;
+import dtu.pay.models.PaymentRequest;
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import dtu.pay.services.PaymentService;
@@ -48,5 +49,21 @@ public class MerchantResource {
     @Produces(MediaType.APPLICATION_JSON)
     public MerchantReport getReport(@PathParam("merchantId") String merchantId) {
         return reportingService.getMerchantReport(merchantId);
+    }
+
+    @POST
+    @Path("payments")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response pay(PaymentRequest paymentRequest) {
+        try {
+            String result = paymentService.pay(paymentRequest);
+            return Response.ok(result).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .type(MediaType.TEXT_PLAIN)
+                    .build();
+        }
     }
 }
