@@ -3,6 +3,7 @@ package dtu.pay;
 import dtu.pay.models.report.CustomerReport;
 import dtu.pay.models.report.ManagerReport;
 import dtu.pay.models.report.MerchantReport;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -10,10 +11,13 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.math.BigDecimal;
 
-public class DtuPayClient {
+public class DtuPayClient implements Closeable {
 
     private Response lastResponse;
     private final Client client;
@@ -38,13 +42,16 @@ public class DtuPayClient {
     }
 
     private String registerDTUPayAccount(User user, String endpoint) {
-        Response r = base.path(endpoint).request()
-                .post(Entity.entity(user, MediaType.APPLICATION_JSON));
+        try (Response r = base.path(endpoint).request()
+                .post(Entity.entity(user, MediaType.APPLICATION_JSON))) {
 
-        if (r.getStatus() == 200) {
-            return r.readEntity(String.class);
-        } else {
-            throw new RuntimeException(r.readEntity(String.class));
+            int status = r.getStatus();
+            String body = r.readEntity(String.class);
+
+            if (status == 200) {
+                return body;
+            }
+            throw new WebApplicationException(body, status);
         }
     }
 
@@ -66,8 +73,7 @@ public class DtuPayClient {
                 .path(customerId)
                 .path("reports")
                 .request()
-                .get()
-        ) {
+                .get()) {
             if (r.getStatus() == 200) {
                 return r.readEntity(CustomerReport.class);
             }
@@ -81,8 +87,7 @@ public class DtuPayClient {
                 .path(merchantId)
                 .path("reports")
                 .request()
-                .get()
-        ) {
+                .get()) {
             if (r.getStatus() == 200) {
                 return r.readEntity(MerchantReport.class);
             }
@@ -100,14 +105,33 @@ public class DtuPayClient {
     }
 
     public void unregisterCustomer(String id) {
-        if (id != null) {
-            base.path("customers").path(id).request().delete().close();
+        if (id == null)
+            return;
+
+        try (Response r = base.path("customers").path(id).request().delete()) {
+            int status = r.getStatus();
+            String body = r.hasEntity() ? r.readEntity(String.class) : null;
+
+            if (status == 204)
+                return;
+
+            
+            throw new WebApplicationException(body, status);
         }
     }
 
     public void unregisterMerchant(String id) {
-        if (id != null) {
-            base.path("merchants").path(id).request().delete().close();
+        if (id == null)
+            return;
+
+        try (Response r = base.path("merchants").path(id).request().delete()) {
+            int status = r.getStatus();
+            String body = r.hasEntity() ? r.readEntity(String.class) : null;
+
+            if (status == 204)
+                return;
+
+            throw new WebApplicationException(body, status);
         }
     }
 
@@ -146,5 +170,15 @@ public class DtuPayClient {
                 .path("tokens")
                 .request()
                 .delete();
+    }
+
+    public void cleanAllPayments() {
+        lastResponse = base.path("manager/reports")
+                .request()
+                .delete();
+    }
+    @Override
+    public void close() throws IOException {
+        client.close();
     }
 }

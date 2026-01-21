@@ -25,6 +25,7 @@ public class ReportingService {
         mq.addHandler(ReportEvent.CUSTOMER_REPORT_REQUESTED, this::handleCustomerReportRequest);
         mq.addHandler(ReportEvent.MERCHANT_REPORT_REQUESTED, this::handleMerchantReport);
         mq.addHandler(ReportEvent.MANAGER_REPORT_REQUESTED, this::handleManagerReport);
+        mq.addHandler(ReportEvent.DELETE_REPORT, this::deleteReport);
     }
 
     public void handleCompletedBankTransfer(Event event) {
@@ -53,5 +54,9 @@ public class ReportingService {
         ManagerReport managerReport = reportRepository.getManagerReport();
         Event event = new Event(ReportEvent.MANAGER_REPORT_RETURNED, managerReport, correlationId);
         mq.publish(event);
+    }
+
+    private void deleteReport(Event event) {
+        reportRepository.deleteReport();
     }
 }
