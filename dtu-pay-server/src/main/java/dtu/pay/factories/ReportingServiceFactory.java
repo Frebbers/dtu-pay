@@ -1,16 +1,18 @@
 package dtu.pay.factories;
 
-import dtu.pay.services.ReportService;
+import dtu.pay.services.ReportingService;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
 
-public class ReportServiceFactory {
+public class ReportingServiceFactory {
     private final MessageQueue mq;
-    public ReportServiceFactory() {
+
+    public ReportingServiceFactory() {
         String host = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
         mq = new RabbitMqQueue(host);
     }
-    public ReportService getService() {
-        return new ReportService(mq);
+
+    public ReportingService getService() {
+        return new ReportingService(mq);
     }
 }

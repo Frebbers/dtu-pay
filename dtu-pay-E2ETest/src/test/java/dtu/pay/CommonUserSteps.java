@@ -26,10 +26,9 @@ public class CommonUserSteps {
     private Throwable latestError;
 
     @Given("User with CPR {string} is not registered in the bank")
-    public void userWithCPRIsCleanedUp(String cpr) {
+    public void userWithCPRIsCleanedUpInTheBank(String cpr) {
 
-        try {
-            var acc = bank.getAccountByCprNumber(cpr);
+        try {var acc = bank.getAccountByCprNumber(cpr);
             bank.retireAccount(bankApiKey, acc.getId());
         }
         catch (BankServiceException_Exception ignored) {}

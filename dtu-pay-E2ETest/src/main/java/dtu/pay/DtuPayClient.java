@@ -1,5 +1,8 @@
 package dtu.pay;
 
+import dtu.pay.models.report.CustomerReport;
+import dtu.pay.models.report.ManagerReport;
+import dtu.pay.models.report.MerchantReport;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -9,7 +12,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 public class DtuPayClient {
 
@@ -58,13 +60,42 @@ public class DtuPayClient {
         }
     }
 
-    public List<Payment> getPayments() {
-        try (Response r = base.path("payments").request().get()) {
+    public CustomerReport getCustomerReport(String customerId) {
+        try (Response r = base
+                .path("customers")
+                .path(customerId)
+                .path("reports")
+                .request()
+                .get()
+        ) {
             if (r.getStatus() == 200) {
-                return r.readEntity(new GenericType<List<Payment>>() {
-                });
+                return r.readEntity(CustomerReport.class);
             }
-            return new ArrayList<>();
+            return new CustomerReport(List.of());
+        }
+    }
+
+    public MerchantReport getMerchantReport(String merchantId) {
+        try (Response r = base
+                .path("merchants")
+                .path(merchantId)
+                .path("reports")
+                .request()
+                .get()
+        ) {
+            if (r.getStatus() == 200) {
+                return r.readEntity(MerchantReport.class);
+            }
+            return new MerchantReport(List.of());
+        }
+    }
+
+    public ManagerReport getManagerReport() {
+        try (Response r = base.path("manager/reports").request().get()) {
+            if (r.getStatus() == 200) {
+                return r.readEntity(ManagerReport.class);
+            }
+            return new ManagerReport(List.of(), 0);
         }
     }
 
@@ -108,4 +139,12 @@ public class DtuPayClient {
         return null; // rejection case handled in steps
     }
 
+    /// Will always return 200 OK unless an exception occurs
+    public void invalidateTokens(String customerId) {
+        lastResponse = base.path("customers")
+                .path(customerId)
+                .path("tokens")
+                .request()
+                .delete();
+    }
 }

@@ -4,6 +4,7 @@ import dtu.ws.fastmoney.BankService;
 import dtu.ws.fastmoney.BankServiceException_Exception;
 import dtu.ws.fastmoney.BankService_Service;
 import io.cucumber.java.After;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.When;
 import io.cucumber.java.en.Then;
@@ -81,5 +82,15 @@ public class TokenCreationSteps {
                 System.out.println("Could not retire account: " + account);
             }
         }
+    }
+
+    @Given("User with CPR {string} is cleaned up")
+    public void userWithCPRIsCleanedUp(String cpr) {
+        try {dtupay.invalidateTokens(cpr);}
+        catch (Exception ignored) {}
+        try {var acc = bank.getAccountByCprNumber(cpr);
+            bank.retireAccount(bankApiKey, acc.getId());
+        }
+        catch (BankServiceException_Exception ignored) {}
     }
 }
