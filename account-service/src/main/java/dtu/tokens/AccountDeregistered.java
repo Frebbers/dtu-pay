@@ -1,4 +1,4 @@
-package dtu.Event;
+package dtu.tokens;
 
 
 import lombok.AllArgsConstructor;

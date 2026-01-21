@@ -1,10 +1,10 @@
-package dtu.repositories;
+package dtu.tokens;
 
 public class AccountServiceTopics {
   public static final String USER_REGISTRATION_REQUESTED = "UserRegistrationRequested";
   public static final String USER_DEREGISTERED_REQUESTED = "UserDeregistrationRequested";
   public static final String USER_REGISTERED = "UserRegistered";
-  public static final String USER_DEREGISTERED= "UserDeregistered";
+  public static final String USER_DEREGISTERED = "UserDeregistered";
   public static final String BANK_ACCOUNT_REQUESTED = "accounts.commands.GetBankAccount";
   public static final String BANK_ACCOUNT_RETRIEVED = "accounts.events.BankAccountRetrieved";
   public static final String BANK_ACCOUNT_RETRIEVAL_FAILED = "BankAccountRetrievalFailed";

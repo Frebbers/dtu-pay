@@ -8,7 +8,7 @@ import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.User;
-import dtu.repositories.AccountServiceTopics;
+import dtu.tokens.AccountServiceTopics;
 import dtu.repositories.ReadAccountRepository;
 import messaging.Event;
 import messaging.MessageQueue;

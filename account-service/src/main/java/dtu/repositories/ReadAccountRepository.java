@@ -1,17 +1,12 @@
 package dtu.repositories;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import org.jmolecules.ddd.annotation.Repository;
 
-import dtu.Event.AccountCreated;
-import dtu.Event.AccountDeregistered;
+import dtu.tokens.AccountCreated;
+import dtu.tokens.AccountDeregistered;
 import dtu.Exceptions.AccountDoesNotExistsException;
 import messaging.Event;
 import messaging.MessageQueue;

@@ -1,7 +1,7 @@
 package dtu;
 
 import dtu.Exceptions.AccountAlreadyExistsException;
-import dtu.repositories.AccountServiceTopics;
+import dtu.tokens.AccountServiceTopics;
 import dtu.repositories.User;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
