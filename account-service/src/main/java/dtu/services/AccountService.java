@@ -9,6 +9,7 @@ import dtu.aggregate.Account;
 import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.User;
 import dtu.repositories.AccountServiceTopics;
+import dtu.repositories.PaymentRequest;
 import dtu.repositories.ReadAccountRepository;
 import messaging.Event;
 import messaging.MessageQueue;
@@ -55,11 +56,6 @@ public class AccountService {
   public void handleUserRegistration(Event e) {
     logger.info("Received user registration event:" + e.getTopic());
     var account = e.getArgument(0, User.class);
-    System.out.println("Account-service received UserRegistrationRequested: "
-        + "first=" + account.firstName()
-        + " last=" + account.lastName()
-        + " cpr=" + account.cprNumber()
-        + " bank=" + account.bankAccountNum());
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       String id = createAccount(account.firstName(), account.lastName(), account.cprNumber(), account.bankAccountNum());
@@ -101,15 +97,15 @@ public class AccountService {
 
 
   public void handleMerchantBankAccount(Event e){
-    String cpr = e.getArgument(0, String.class);
+    PaymentRequest payment = e.getArgument(0, PaymentRequest.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
-      String bankAccountNumber = getBankAccountNumber(cpr);
+      String bankAccountNumber = getBankAccountNumber(payment.merchantId());
       responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
-          new Object[] { cpr, bankAccountNumber, correlationId });
+          new Object[] { payment.merchantId(), bankAccountNumber, correlationId });
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {
-      logger.warning("Account with " + cpr + " does not exist");
+      logger.warning("Account with " + payment.merchantId() + " does not exist");
       responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
           new Object[] { ex.getMessage(), correlationId });
       mq.publish(responseEvent);

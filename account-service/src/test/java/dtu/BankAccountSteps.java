@@ -24,20 +24,20 @@ public class BankAccountSteps {
     context.correlationId = CorrelationId.randomId();
 
     context.bankAccountRequestedEvent = new Event(
-        AccountServiceTopics.BANK_ACCOUNT_REQUESTED,
+        AccountServiceTopics.TOKEN_VALIDATED,
         context.createdCpr,
         context.correlationId);
   }
 
   @When("the bank account request is handled")
   public void theBankAccountRequestIsHandled() throws AccountDoesNotExistsException {
-    context.accountService.handleBankAccountNumberRequested(context.bankAccountRequestedEvent);
+    context.accountService.handleCustomerBankAccount(context.bankAccountRequestedEvent);
   }
 
   @Then("a {string} event is published with bank account {string}")
   public void aEventIsPublishedWithBankAccount(String eventName, String expectedBankAccount) {
     verify(context.queueExternal).publish(
-        new Event(eventName, expectedBankAccount, context.correlationId));
+        new Event(eventName, context.createdCpr ,expectedBankAccount, context.correlationId));
   }
 
   @Then("the stored bank account for that user is {string}")
@@ -51,7 +51,7 @@ public class BankAccountSteps {
     context.correlationId = CorrelationId.randomId();
 
     context.bankAccountRequestedEvent = new Event(
-        AccountServiceTopics.BANK_ACCOUNT_REQUESTED,
+        AccountServiceTopics.TOKEN_VALIDATED,
         context.createdCpr,
         context.correlationId);
   }
