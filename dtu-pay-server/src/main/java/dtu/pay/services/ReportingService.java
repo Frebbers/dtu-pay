@@ -82,4 +82,8 @@ public class ReportingService {
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         managerCorrelationMap.get(correlationId).complete(report);
     }
+
+    public void deleteReport() {
+        mq.publish(new Event(ReportEvent.DELETE_REPORT));
+    }
 }
