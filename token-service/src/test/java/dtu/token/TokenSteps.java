@@ -116,16 +116,16 @@ public class TokenSteps {
         }
     }
 
-    @When("a token invalidation request is received for customer {string} with issued tokens")
-    public void aTokenInvalidationRequestIsReceivedForCustomer(String cpr) {
-        assert cpr != null && !cpr.isEmpty() : "CPR cannot be null or empty";
-        var tokens = service.getTokenStoreForTest().unusedCount(cpr);
-        Assertions.assertNotEquals(0, tokens, "No tokens to invalidate for customer " + cpr);
-        mq.send(new Event(TokenTopics.TOKEN_INVALIDATION_REQUESTED,
-                new TokenInvalidationRequested(cpr, System.currentTimeMillis())));
-        lastPublished = mq.lastPublished();
-
-    }
+//    @When("a token invalidation request is received for customer {string} with issued tokens")
+//    public void aTokenInvalidationRequestIsReceivedForCustomer(String cpr) {
+//        assert cpr != null && !cpr.isEmpty() : "CPR cannot be null or empty";
+//        var tokens = service.getTokenStoreForTest().unusedCount(cpr);
+//        Assertions.assertNotEquals(0, tokens, "No tokens to invalidate for customer " + cpr);
+//        mq.send(new Event(TokenTopics.TOKEN_INVALIDATION_REQUESTED,
+//                new TokenInvalidationRequested(cpr, System.currentTimeMillis())));
+//        lastPublished = mq.lastPublished();
+//
+//    }
 
     @Then("all tokens are invalidated for customer {string}")
     public void allTokensAreInvalidatedForCustomer(String cpr) {

@@ -14,5 +14,5 @@ public class AccountServiceTopics {
   public static final String USER_DOES_NOT_EXIST = "UserDoesNotExist"; 
   public static final String USER_ALREADY_REGISTERED = "UserAlreadyRegistered";
   public static final String USER_REGISTRATION_FAILED = "UserRegistrationFailed";
-  public static final String TOKEN_INVALIDATION_REQUESTED = "token.events.TokenInvalidationRequested";
+//  public static final String TOKEN_INVALIDATION_REQUESTED = "token.events.TokenInvalidationRequested";
 }
