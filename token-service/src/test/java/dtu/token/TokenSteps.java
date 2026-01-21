@@ -56,18 +56,18 @@ public class TokenSteps {
         Assertions.assertFalse(issuedTokens.isEmpty(), "No tokens available to consume");
         String token = issuedTokens.getFirst();
         lastConsumedToken = token;
-        ConsumeTokenRequested command = new ConsumeTokenRequested(UUID.randomUUID().toString(), token, null, null,
-                System.currentTimeMillis());
-        mq.send(new Event(TokenTopics.CONSUME_TOKEN_REQUESTED, command));
+        PaymentRequest command = new PaymentRequest(token, null, null);
+        CorrelationId correlationId = new CorrelationId(UUID.randomUUID());
+        mq.send(new Event(TokenTopics.PAYMENT_REQUESTED, command, correlationId));
         lastPublished = mq.lastPublished();
     }
 
     @When("the same token is consumed again")
     public void theSameTokenIsConsumedAgain() {
         Assertions.assertNotNull(lastConsumedToken, "No consumed token available to reuse");
-        ConsumeTokenRequested command = new ConsumeTokenRequested(UUID.randomUUID().toString(), lastConsumedToken, null,
-                null, System.currentTimeMillis());
-        mq.send(new Event(TokenTopics.CONSUME_TOKEN_REQUESTED, command));
+        PaymentRequest command = new PaymentRequest(lastConsumedToken, null, null);
+        CorrelationId correlationId = new CorrelationId(UUID.randomUUID());
+        mq.send(new Event(TokenTopics.PAYMENT_REQUESTED, command, correlationId));
         lastPublished = mq.lastPublished();
     }
 
