@@ -2,13 +2,14 @@ package dtu.services;
 
 import java.util.logging.Logger;
 
+import dtu.tokens.AccountServiceTopics;
 import dtu.tokens.CorrelationId;
+import dtu.tokens.User;
 import dtu.Exceptions.AccountAlreadyExistsException;
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.User;
-import dtu.repositories.AccountServiceTopics;
+
 import dtu.repositories.PaymentRequest;
 import dtu.repositories.ReadAccountRepository;
 import messaging.Event;
