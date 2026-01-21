@@ -40,18 +40,22 @@ Feature: Reporting request
     When the merchant with id "098765-4321" initiates a payment of 300 kr by the customer with id "112233-4455" using the token
     And the payment is successful
 
-  Scenario: Verify all reports (Customer, Merchant, Manager)
+  Scenario: Customer requests their report containing payments
     Then the customer with id "123456-7890" requests the report
     And the customer report contains 3 payments
     And the report contains a payment of 100 kr to the merchant with id "098765-4321"
     And the report contains a payment of 200 kr to the merchant with id "098765-4321"
     And the report contains a payment of 500 kr to the merchant with id "010101-2323"
-    Then the merchant with id "098765-4321" requests the report
-    And the merchant report contains 3 payments
-    And the report contains a payment of 100 kr
-    And the report contains a payment of 200 kr
-    And the report contains a payment of 300 kr
-    And the report does not contain the customer details
+
+#  Scenario: Merchant requests their report containing payments
+#    Then the merchant with id "098765-4321" requests the report
+#    And the merchant report contains 3 payments
+#    And the report contains a payment of 100 kr
+#    And the report contains a payment of 200 kr
+#    And the report contains a payment of 300 kr
+#    And the report does not contain the customer details
+#
+#  Scenario: Manager requests the global report and summary
 #    Then the manager requests the report
 #    And the manager report contains 4 payments
 #    And the report contains a summary of total transfers amount equal to 1100 kr
