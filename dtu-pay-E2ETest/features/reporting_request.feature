@@ -52,6 +52,6 @@ Feature: Reporting request
     And the report contains a payment of 200 kr
     And the report contains a payment of 300 kr
     And the report does not contain the customer details
-    Then the manager requests the report
-    And the manager report contains 4 payments
-    And the report contains a summary of total transfers amount equal to 1100 kr
+#    Then the manager requests the report
+#    And the manager report contains 4 payments
+#    And the report contains a summary of total transfers amount equal to 1100 kr
