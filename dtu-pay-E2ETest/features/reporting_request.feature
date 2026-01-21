@@ -5,6 +5,8 @@ Feature: Reporting request
     And User with CPR "112233-4455" is cleaned up
     And User with CPR "098765-4321" is cleaned up
     And User with CPR "010101-2323" is cleaned up
+
+
     Given a user with name "John", last name "Snow", and CPR "123456-7890"
     And the user is registered with the bank with an initial balance of 1000 kr
     And the customer is registered with Simple DTU Pay using their bank account
@@ -27,7 +29,7 @@ Feature: Reporting request
     And the payment is successful
     When the merchant with id "098765-4321" initiates a payment of 300 kr by the customer with id "112233-4455" using the token
     And the payment is successful
-@ignore
+
   Scenario: Customer requests their report containing payments
     Then the customer with id "123456-7890" requests the report
     And the customer report contains 3 payments

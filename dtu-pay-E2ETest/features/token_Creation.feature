@@ -1,7 +1,11 @@
 Feature: Token management (E2E)
   Background: Bank account cleanup
+    # Given User with CPR "472910-4728" is not registered in the bank
+    # And User with CPR "591928-1235" is not registered in the bank
     Given User with CPR "472910-4728" is not registered in the bank
+    And User with CPR "472910-4728" is not registered in DTU Pay
     And User with CPR "591928-1235" is not registered in the bank
+    And User with CPR "591928-1235" is not registered in DTU Pay
 @ignore
   Scenario: Registered customer can request tokens
     Given a user with name "Poh", last name "Hob", and CPR "472910-4728"

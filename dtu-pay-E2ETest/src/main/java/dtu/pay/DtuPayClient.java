@@ -110,9 +110,9 @@ public class DtuPayClient {
             String body = r.hasEntity() ? r.readEntity(String.class) : null;
 
             if (status == 204)
-                return; // success
+                return;
 
-            // propagate HTTP semantics
+            
             throw new WebApplicationException(body, status);
         }
     }
