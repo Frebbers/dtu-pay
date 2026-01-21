@@ -3,14 +3,13 @@ package dtu;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 
-import org.mockito.ArgumentCaptor;
-
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.repositories.AccountServiceTopics;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
+
 
 public class BankAccountSteps {
 

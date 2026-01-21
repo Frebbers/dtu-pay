@@ -57,7 +57,7 @@ class UserServiceTest {
         CompletableFuture<String> resultFuture = CompletableFuture.supplyAsync(() -> {
             try {
                 return userService.register(user);
-            } catch (UserAlreadyExistsException | Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });

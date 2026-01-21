@@ -1,12 +1,8 @@
 package dtu.token;
 
-import dtu.token.messages.ConsumeTokenRequested;
-import dtu.token.messages.TokenConsumed;
-import dtu.token.messages.TokenConsumptionRejected;
-import dtu.token.messages.TokenRequestRejected;
-import dtu.token.messages.TokenRequestSubmitted;
-import dtu.token.messages.TokensIssued;
+import dtu.token.messages.*;
 import io.cucumber.java.Before;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -118,6 +114,25 @@ public class TokenSteps {
             TokensIssued issued = lastPublished.getArgument(0, TokensIssued.class);
             issuedTokens = new ArrayList<>(issued.tokens());
         }
+    }
+
+    @When("a token invalidation request is received for customer {string} with issued tokens")
+    public void aTokenInvalidationRequestIsReceivedForCustomer(String cpr) {
+        assert cpr != null && !cpr.isEmpty() : "CPR cannot be null or empty";
+        var tokens = service.getTokenStoreForTest().unusedCount(cpr);
+        Assertions.assertNotEquals(0, tokens, "No tokens to invalidate for customer " + cpr);
+        mq.send(new Event(TokenTopics.TOKEN_INVALIDATION_REQUESTED,
+                new TokenInvalidationRequested(cpr, System.currentTimeMillis())));
+        lastPublished = mq.lastPublished();
+
+    }
+
+    @Then("all tokens are invalidated for customer {string}")
+    public void allTokensAreInvalidatedForCustomer(String cpr) {
+        // Write code here that turns the phrase above into concrete actions
+        Assertions.assertNotNull(lastPublished, "No event published");
+        var tokens = service.getTokenStoreForTest().unusedCount(cpr);
+        Assertions.assertEquals(0, tokens);
     }
 
     private static class TestMessageQueue implements MessageQueue {

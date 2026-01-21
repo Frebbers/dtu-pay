@@ -68,6 +68,6 @@ public class ReadAccountRepository {
   }
 
   public boolean existsByCpr(String cpr){
-    return accounts.values().stream().anyMatch(account -> account.cprNumber().equals(cpr));
+    return accounts.containsKey(cpr);
   }
 }

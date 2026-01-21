@@ -19,6 +19,7 @@ Feature: Registration
     When the user registers with DTU Pay
     Then the registration failure message is "Account with CPR number 000000-0000 already exists"
 
+
   Scenario: Deregistration fails for a non-existing user
     Given a deregistration request is sent for CPR "999-999"
     When the deregistration request is handled

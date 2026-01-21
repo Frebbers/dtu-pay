@@ -53,6 +53,11 @@ public class AccountService {
   public void handleUserRegistration(Event e) {
     logger.info("Received user registration event:" + e.getTopic());
     var account = e.getArgument(0, User.class);
+    System.out.println("Account-service received UserRegistrationRequested: "
+        + "first=" + account.firstName()
+        + " last=" + account.lastName()
+        + " cpr=" + account.cprNumber()
+        + " bank=" + account.bankAccountNum());
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       String id = createAccount(account.firstName(), account.lastName(), account.cprNumber(), account.bankAccountNum());
@@ -60,11 +65,13 @@ public class AccountService {
       mq.publish(responseEvent);
     } catch (AccountAlreadyExistsException ex) {
       logger.warning("Account registration failed: " + ex.getMessage());
-      responseEvent = new Event(AccountServiceTopics.USER_REGISTRATION_FAILED, new Object[] { ex.getMessage(), correlationId });
+      responseEvent = new Event(AccountServiceTopics.USER_ALREADY_REGISTERED,
+          new Object[] { ex.getMessage(), correlationId });
       mq.publish(responseEvent);
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
-      responseEvent = new Event(AccountServiceTopics.USER_REGISTRATION_FAILED, new Object[] { exe.getMessage(), correlationId });
+      responseEvent = new Event(AccountServiceTopics.USER_REGISTRATION_FAILED,
+          new Object[] { exe.getMessage(), correlationId });
       mq.publish(responseEvent);
     }
   }
@@ -75,15 +82,19 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       deregisterAccount(id);
+      mq.publish(new Event(AccountServiceTopics.TOKEN_INVALIDATION_REQUESTED, new Object[]
+              { id, System.currentTimeMillis() })); // Fire and forget
       responseEvent = new Event(AccountServiceTopics.USER_DEREGISTERED, new Object[] { id, correlationId });
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account deregistration failed: " + ex.getMessage());
-      responseEvent = new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED, new Object[] {ex.getMessage(), correlationId});
+      responseEvent = new Event(AccountServiceTopics.USER_DOES_NOT_EXIST,
+          new Object[] { ex.getMessage(), correlationId });
       mq.publish(responseEvent);
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
-      responseEvent = new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED, new Object[] { exe.getMessage(), correlationId });
+      responseEvent = new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED,
+          new Object[] { exe.getMessage(), correlationId });
       mq.publish(responseEvent);
     }
   }
@@ -94,15 +105,18 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       String bankAccountNumber = getBankAccountNumber(cpr);
-      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED, new Object[] { bankAccountNumber, correlationId});
+      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
+          new Object[] { bankAccountNumber, correlationId });
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account with " + cpr + " does not exist");
-      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED, new Object[] {ex.getMessage() , correlationId});
+      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
+          new Object[] { ex.getMessage(), correlationId });
       mq.publish(responseEvent);
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
-      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED, new Object[] { exe.getMessage(), correlationId });
+      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
+          new Object[] { exe.getMessage(), correlationId });
       mq.publish(responseEvent);
     }
   }
