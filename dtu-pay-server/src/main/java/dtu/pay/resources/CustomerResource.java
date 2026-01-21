@@ -36,9 +36,9 @@ public class CustomerResource {
     public Response deleteCustomer(@PathParam("id") String id) {
         try {
             service.unregisterUserById(id);
-            return Response.noContent().build(); // 204
+            return Response.noContent().build();
         } catch (jakarta.ws.rs.NotFoundException e) {
-            return Response.status(Response.Status.NOT_FOUND) // 404
+            return Response.status(Response.Status.NOT_FOUND) 
                     .entity(e.getMessage())
                     .type(MediaType.TEXT_PLAIN)
                     .build();
