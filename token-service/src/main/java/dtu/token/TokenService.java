@@ -119,40 +119,29 @@ public class TokenService {
                     "Invalid token request", now()));
             return;
         }
-
         String commandId = ensureId(command.commandId());
         String customerId = safe(command.customerId());
+        String reason = getErrorMessageIfAny(command);
+        if (reason != null) { // reject the request
+            publishTokenRequestRejected(new TokenRequestRejected(commandId, customerId, reason, now()));
+            return;
+        }
         int requestedCount = command.requestedCount();
-
-        if (customerId.isEmpty()) {
-            publishTokenRequestRejected(new TokenRequestRejected(commandId, null,
-                    "Customer id is required", now()));
-            return;
-        }
-
-        if (requestedCount < 1 || requestedCount > 5) {
-            publishTokenRequestRejected(new TokenRequestRejected(commandId, customerId,
-                    "Requested count must be between 1 and 5", now()));
-            return;
-        }
-
-        int unusedCount = store.unusedCount(customerId);
-        if (unusedCount > 1) {
-            publishTokenRequestRejected(new TokenRequestRejected(commandId, customerId,
-                    "Customer has more than one unused token", now()));
-            return;
-        }
-
-        if (unusedCount + requestedCount > 6) {
-            publishTokenRequestRejected(new TokenRequestRejected(commandId, customerId,
-                    "Requested tokens exceed unused token limit", now()));
-            return;
-        }
-
         List<String> tokens = store.issueTokens(customerId, requestedCount, now());
         publishTokensIssued(new TokensIssued(commandId, customerId, tokens.size(), tokens, now()));
     }
 
+    private String getErrorMessageIfAny(TokenRequestSubmitted command){
+        String customerId = safe(command.customerId());
+        int requestedCount = command.requestedCount();
+
+        if (customerId.isEmpty()) {return"Customer id is required";}
+        if (requestedCount < 1 || requestedCount > 5) {return "Requested count must be between 1 and 5";}
+        int unusedCount = store.unusedCount(customerId);
+        if (unusedCount > 1) {return "Customer has more than one unused token";}
+        if (unusedCount + requestedCount > 6) {return "Requested tokens exceed unused token limit";}
+        return null;
+    }
 
 
     private void publishTokensIssued(TokensIssued issued) {
