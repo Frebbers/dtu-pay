@@ -10,4 +10,5 @@ public interface ReportRepository {
     CustomerReport getCustomerReport(String customerId);
     MerchantReport getMerchantReport(String merchantId);
     ManagerReport getManagerReport();
+    void deleteReport();
 }

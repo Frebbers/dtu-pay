@@ -2,6 +2,7 @@ package dtu.pay;
 
 import dtu.pay.models.report.*;
 import io.cucumber.java.en.And;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
@@ -23,15 +24,16 @@ public class ReportRequestSteps {
     }
 
 
-    // TODO: Temporary functions waiting for payment e2e tests implementation
+    @Given("the global payment history is empty")
+    public void theGlobalPaymentHistoryIsEmpty() {
+        dtuPayClient.cleanAllPayments();
+    }
 
     @When("the merchant with id {string} initiates a payment of {int} kr by the customer with id {string} using the token")
     public void theMerchantWithIdInitiatesAPaymentOfKrByTheCustomerWithIdUsingTheToken(String merchantId, int cost, String customerId) {
         try {
             List<String> tokens = context.tokensMap.get(customerId);
-            if (tokens == null) {
-                throw new RuntimeException(customerId + " doesn't have tokens (map: " + context.tokensMap + ")");
-            }
+            if (tokens == null) throw new RuntimeException(customerId + " doesn't have tokens (map: " + context.tokensMap + ")");
             String tokenToUse = tokens.getFirst();
             tokens.removeFirst();
             dtuPayClient.pay(tokenToUse, merchantId, new BigDecimal(cost));
@@ -47,33 +49,6 @@ public class ReportRequestSteps {
             context.latestError = new RuntimeException("Token request failed: " + dtuPayClient.getLatestError());
         }
     }
-
-//    @And("the payment is successful")
-//    public void thePaymentIsSuccessful() {
-//        customerReport = new CustomerReport(
-//                List.of(
-//                        new CustomerReportEntry(100, "", "098765-4321"),
-//                        new CustomerReportEntry(200, "", "098765-4321"),
-//                        new CustomerReportEntry(500, "", "010101-2323")
-//                )
-//        );
-//        merchantReport = new MerchantReport(
-//                List.of(
-//                        new MerchantReportEntry(100, ""),
-//                        new MerchantReportEntry(200, ""),
-//                        new MerchantReportEntry(300, "")
-//                )
-//        );
-//        managerReport = new ManagerReport(
-//                List.of(
-//                        new ManagerReportEntry(100, "", "098765-4321", "123456-7890"),
-//                        new ManagerReportEntry(200, "", "098765-4321", "123456-7890"),
-//                        new ManagerReportEntry(500, "", "010101-2323", "123456-7890"),
-//                        new ManagerReportEntry(300, "", "098765-4321", "112233-4455")
-//                ),
-//                1100
-//        );
-//    }
 
 
     // Customer

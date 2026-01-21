@@ -8,4 +8,5 @@ public class ReportEvent {
     public static final String CUSTOMER_REPORT_RETURNED = "CustomerReportReturned";
     public static final String MERCHANT_REPORT_RETURNED = "MerchantReportReturned";
     public static final String MANAGER_REPORT_RETURNED = "ManagerReportReturned";
+    public static final String DELETE_REPORT = "DeleteReport";
 }
