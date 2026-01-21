@@ -28,7 +28,8 @@ public class AccountService {
     // Subscribe to registration events
     mq.addHandler(AccountServiceTopics.USER_REGISTRATION_REQUESTED, this::handleUserRegistration);
     mq.addHandler(AccountServiceTopics.USER_DEREGISTERED_REQUESTED, this::handleUserDeregistration);
-    mq.addHandler(AccountServiceTopics.BANK_ACCOUNT_REQUESTED, this::handleBankAccountNumberRequested);
+    mq.addHandler(AccountServiceTopics.PAYMENT_REQUESTED, this::handleMerchantBankAccount);
+    mq.addHandler(AccountServiceTopics.TOKEN_VALIDATED, this::handleCustomerBankAccount);
   }
 
   public String createAccount(String firstName, String lastName, String cpr, String bankAccountNumber)
@@ -49,6 +50,7 @@ public class AccountService {
   public String getBankAccountNumber(String cpr) throws AccountDoesNotExistsException {
     return readRepo.getBankAccount(cpr);
   }
+
 
   public void handleUserRegistration(Event e) {
     logger.info("Received user registration event:" + e.getTopic());
@@ -82,8 +84,6 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       deregisterAccount(id);
-      mq.publish(new Event(AccountServiceTopics.TOKEN_INVALIDATION_REQUESTED, new Object[]
-              { id, System.currentTimeMillis() })); // Fire and forget
       responseEvent = new Event(AccountServiceTopics.USER_DEREGISTERED, new Object[] { id, correlationId });
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {
@@ -99,14 +99,38 @@ public class AccountService {
     }
   }
 
-  public void handleBankAccountNumberRequested(Event e) {
+
+  public void handleMerchantBankAccount(Event e){
+    String cpr = e.getArgument(0, String.class);
+    CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+    try {
+      String bankAccountNumber = getBankAccountNumber(cpr);
+      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
+          new Object[] { cpr, bankAccountNumber, correlationId });
+      mq.publish(responseEvent);
+    } catch (AccountDoesNotExistsException ex) {
+      logger.warning("Account with " + cpr + " does not exist");
+      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
+          new Object[] { ex.getMessage(), correlationId });
+      mq.publish(responseEvent);
+    } catch (Exception exe) {
+      logger.severe("Registration crashed: " + exe);
+      responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
+          new Object[] { exe.getMessage(), correlationId });
+      mq.publish(responseEvent);
+    }
+  }
+
+
+
+  public void handleCustomerBankAccount(Event e) {
     logger.info("Recieved bank account number request event:" + e.getTopic());
     String cpr = e.getArgument(0, String.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       String bankAccountNumber = getBankAccountNumber(cpr);
       responseEvent = new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
-          new Object[] { bankAccountNumber, correlationId });
+          new Object[] { cpr, bankAccountNumber, correlationId });
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account with " + cpr + " does not exist");
