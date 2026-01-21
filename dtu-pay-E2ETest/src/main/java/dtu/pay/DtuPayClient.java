@@ -11,10 +11,13 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.math.BigDecimal;
 
-public class DtuPayClient {
+public class DtuPayClient implements Closeable {
 
     private Response lastResponse;
     private final Client client;
@@ -173,5 +176,9 @@ public class DtuPayClient {
         lastResponse = base.path("manager/reports")
                 .request()
                 .delete();
+    }
+    @Override
+    public void close() throws IOException {
+        client.close();
     }
 }
