@@ -89,19 +89,6 @@ public class CommonUserSteps {
         }
         context.DTUPayAccountId = context.customerId;
         context.customer = context.user;
-        // var request = new dtu.pay.User(
-        // context.user.firstName(),
-        // context.user.lastName(),
-        // context.user.cprNumber(),
-        // context.bankAccountId);
-
-        // try {
-        // context.customerId = dtupay.registerDTUPayCustomer(request);
-        // context.DTUPayAccountId = context.customerId;
-        // context.latestError = null;
-        // } catch (RuntimeException e) {
-        // context.latestError = e;
-        // }
     }
 
     @Given("the merchant is registered with Simple DTU Pay using their bank account")
@@ -161,27 +148,5 @@ public class CommonUserSteps {
     }
   
 }
-
-    // @After
-    // public void cleanupDtuPayUsers() {
-    // try {
-    // if (context.customerId != null && !context.customerId.isBlank()) {
-    // dtupay.unregisterCustomer(context.customerId);
-    // }
-    // } catch (Exception ignored) {
-    // }
-
-    // try {
-    // if (context.merchantId != null && !context.merchantId.isBlank()) {
-    // dtupay.unregisterMerchant(context.merchantId);
-    // }
-    // } catch (Exception ignored) {
-    // }
-
-    // // reset IDs so next scenario doesn't reuse them
-    // context.customerId = null;
-    // context.merchantId = null;
-    // context.DTUPayAccountId = null;
-    // }
 
 
