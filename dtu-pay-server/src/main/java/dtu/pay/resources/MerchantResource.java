@@ -10,8 +10,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import static dtu.pay.resources.CustomerResource.getResponse;
-
 @Path("")
 public class MerchantResource {
     private final UserService service = new UserServiceFactory().getService();
