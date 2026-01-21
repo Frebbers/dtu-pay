@@ -2,13 +2,13 @@ package dtu.services;
 
 import java.util.logging.Logger;
 
-import dtu.CorrelationId;
+import dtu.tokens.CorrelationId;
 import dtu.Exceptions.AccountAlreadyExistsException;
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.User;
-import dtu.repositories.AccountServiceTopics;
+import dtu.tokens.User;
+import dtu.tokens.AccountServiceTopics;
 import dtu.repositories.ReadAccountRepository;
 import messaging.Event;
 import messaging.MessageQueue;
@@ -82,8 +82,8 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       deregisterAccount(id);
-      mq.publish(new Event(AccountServiceTopics.TOKEN_INVALIDATION_REQUESTED, id,
-              System.currentTimeMillis())); // Fire and forget
+//      mq.publish(new Event(AccountServiceTopics.TOKEN_INVALIDATION_REQUESTED, id,
+//              System.currentTimeMillis())); // Fire and forget
       responseEvent = new Event(AccountServiceTopics.USER_DEREGISTERED, id, correlationId);
       mq.publish(responseEvent);
     } catch (AccountDoesNotExistsException ex) {

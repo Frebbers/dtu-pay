@@ -116,13 +116,12 @@ public class TokenSteps {
         }
     }
 
-    @When("a token invalidation request is received for customer {string} with issued tokens")
-    public void aTokenInvalidationRequestIsReceivedForCustomer(String cpr) {
+    @When("a user deregistration request is received for customer {string} with issued tokens")
+    public void aUserDeregistrationRequestReceivedForCustomer(String cpr) {
         assert cpr != null && !cpr.isEmpty() : "CPR cannot be null or empty";
         var tokens = service.getTokenStoreForTest().unusedCount(cpr);
         Assertions.assertNotEquals(0, tokens, "No tokens to invalidate for customer " + cpr);
-        mq.send(new Event(TokenTopics.TOKEN_INVALIDATION_REQUESTED,
-                new TokenInvalidationRequested(cpr, System.currentTimeMillis())));
+        mq.send(new Event(TokenTopics.USER_DEREGISTERED_REQUESTED, cpr));
         lastPublished = mq.lastPublished();
 
     }
