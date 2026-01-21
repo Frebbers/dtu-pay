@@ -2,6 +2,7 @@ package dtu.token;
 
 import dtu.token.messages.*;
 
+import dtu.token.CorrelationId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,14 +29,19 @@ public class TokenService {
         this.store = store;
         mq.addHandler(TokenTopics.TOKEN_REQUEST_SUBMITTED, this::handleTokenRequestSubmitted);
         mq.addHandler(TokenTopics.CONSUME_TOKEN_REQUESTED, this::handleConsumeTokenRequested);
-        mq.addHandler(TokenTopics.TOKEN_INVALIDATION_REQUESTED, this::handleTokenInvalidationRequested);
+        mq.addHandler(TokenTopics.USER_DEREGISTERED_REQUESTED, this::handleUserDeregistrationRequested);
+//        mq.addHandler(TokenTopics.TOKEN_INVALIDATION_REQUESTED, this::handleTokenInvalidationRequested);
     }
-
-    private void handleTokenInvalidationRequested(Event event) {
-        TokenInvalidationRequested command = event.getArgument(0, TokenInvalidationRequested.class);
-        String userId = command.userId();
+    private void removeTokenForUser(String userId){
+        // Remove the tokens for a specific user
+        mq.publish(new Event ("TokensForCustomerDeleted", userId)); //todo implement this event?
         store.invalidateTokens(userId);
     }
+    private void handleUserDeregistrationRequested(Event event) {
+        String userId = event.getArgument(0, String.class);
+        removeTokenForUser(userId);
+    }
+
 
     private void handleTokenRequestSubmitted(Event event) {
         TokenRequestSubmitted command;

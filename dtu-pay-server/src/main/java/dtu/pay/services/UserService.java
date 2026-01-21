@@ -2,13 +2,11 @@ package dtu.pay.services;
 
 import dtu.pay.models.User;
 import dtu.pay.models.exceptions.ConflictException;
-import dtu.pay.models.exceptions.UserAlreadyExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
 import jakarta.ws.rs.NotFoundException;
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;

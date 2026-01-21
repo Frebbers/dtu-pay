@@ -2,7 +2,7 @@ package dtu.services;
 
 import java.util.logging.Logger;
 
-import dtu.CorrelationId;
+import dtu.tokens.CorrelationId;
 import dtu.Exceptions.AccountAlreadyExistsException;
 import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;

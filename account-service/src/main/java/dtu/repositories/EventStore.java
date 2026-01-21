@@ -3,13 +3,12 @@ package dtu.repositories;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import messaging.Event;
-import dtu.Event.AccountCreated;
-import dtu.Event.AccountDeregistered;
-import dtu.Event.AccountEvent;
+import dtu.tokens.AccountCreated;
+import dtu.tokens.AccountDeregistered;
+import dtu.tokens.AccountEvent;
 import lombok.NonNull;
 import messaging.MessageQueue;
 

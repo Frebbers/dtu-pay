@@ -23,7 +23,9 @@ public class PaymentService {
     String PAYMENT_FAILED = "PaymentFailed";
     String CONSUME_TOKEN_REQUESTED = "token.commands.ConsumeTokenRequested";
     String TOKEN_CONSUMED = "token.events.TokenConsumed";
+    String TOKEN_CONSUMPTION_REJECTED = "token.events.TokenConsumptionRejected";
     String GET_BANK_ACCOUNT_REQUESTED = "accounts.commands.GetBankAccount";
+    String BANK_ACCOUNT_RETRIEVAL_FAILED = "BankAccountRetrievalFailed";
     String BANK_ACCOUNT_RETRIEVED = "accounts.events.BankAccountRetrieved";
     String BANK_TRANSFER_COMPLETED_SUCCESSFULLY = "BankTransferCompletedSuccessfully";
 
@@ -40,7 +42,9 @@ public class PaymentService {
         this.bank = bank;
         queue.addHandler(PAYMENT_REQUESTED, this::policyPaymentRequested);
         queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed);
+        queue.addHandler(TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected);
         queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumberRetrieved);
+        queue.addHandler(BANK_ACCOUNT_RETRIEVAL_FAILED, this::handleBankAccNumRetrievalFailed);
     }
 
     /* Policies */
@@ -49,17 +53,21 @@ public class PaymentService {
         PaymentReq paymentReq = event.getArgument(0, PaymentReq.class);
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
 
-        String customerId = getCustomerIdByToken(paymentReq.token());
+        try {
+            String customerId = getCustomerIdByToken(paymentReq.token());
 
-        String customerBankAccNum = getUserBankNumById(customerId);
+            String customerBankAccNum = getUserBankNumById(customerId);
 
-        String merchantBankAccNum = getUserBankNumById(paymentReq.merchantId());
+            String merchantBankAccNum = getUserBankNumById(paymentReq.merchantId());
 
-        var paymentSuccess = processPayment(customerBankAccNum, merchantBankAccNum, paymentReq.amount());
-        if (paymentSuccess) {
-            notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount(), correlationId);
-        } else {
-            notifyFailedPayment(correlationId, "Bank transfer failed");
+            var paymentSuccess = processPayment(customerBankAccNum, merchantBankAccNum, paymentReq.amount());
+            if (paymentSuccess) {
+                notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount(), correlationId);
+            } else {
+                notifyFailedPayment(correlationId, "Bank transfer failed");
+            }
+        } catch (Exception e) {
+            notifyFailedPayment(correlationId, e.getMessage());
         }
     }
 
@@ -69,10 +77,23 @@ public class PaymentService {
         getCustomerIdCorrelations.get(correlationId).complete(tokenConsumed.customerId());
     }
 
+    public void handleTokenConsumptionRejected(Event event) {
+        TokenConsumptionRejected rejected = event.getArgument(0, TokenConsumptionRejected.class);
+        String correlationId = rejected.commandId();
+        String reason = rejected.reason();
+        getCustomerIdCorrelations.get(correlationId).completeExceptionally(new Exception(reason));
+    }
+
     public void handleBankAccNumberRetrieved(Event event) {
         String bankAccNum = event.getArgument(0, String.class);
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
         getBankAccCorrelations.get(correlationId).complete(bankAccNum);
+    }
+
+    public void handleBankAccNumRetrievalFailed(Event event) {
+        String errorMessage = event.getArgument(0, String.class);
+        CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
+        getBankAccCorrelations.get(correlationId).completeExceptionally(new Exception(errorMessage));
     }
 
 
@@ -83,7 +104,7 @@ public class PaymentService {
         String correlationId = UUID.randomUUID().toString();
         getCustomerIdCorrelations.put(correlationId, new CompletableFuture<>());
         ConsumeTokenRequested consumeTokenReq = new ConsumeTokenRequested(correlationId, token, "", 0, System.currentTimeMillis());
-        queue.publish(new Event(CONSUME_TOKEN_REQUESTED, new Object[]{consumeTokenReq}));
+        queue.publish(new Event(CONSUME_TOKEN_REQUESTED, consumeTokenReq));
 
         return getCustomerIdCorrelations.get(correlationId).join();
     }

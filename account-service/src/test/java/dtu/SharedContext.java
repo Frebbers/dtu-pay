@@ -4,8 +4,9 @@ import static org.mockito.Mockito.mock;
 
 import dtu.repositories.ReadAccountRepository;
 import dtu.repositories.WriteAccountRepository;
-import dtu.repositories.User;
+import dtu.tokens.User;
 import dtu.services.AccountService;
+import dtu.tokens.CorrelationId;
 import messaging.Event;
 import messaging.MessageQueue;
 import messaging.implementations.MessageQueueSync;
