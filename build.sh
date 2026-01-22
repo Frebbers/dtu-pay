@@ -19,11 +19,11 @@ print_total_time() {
 
 # Max number of concurrent Maven builds.
 PARALLEL_DEFAULT="$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)"
-PARALLEL="${PARALLEL:-${PARALLEL_DEFAULT:-5}}"
+PARALLEL="${PARALLEL:-${PARALLEL_DEFAULT:-6}}"
 
-# Extra Maven args (optional), e.g.: MAVEN_ARGS="-DskipTests" ./build.sh
-MAVEN_ARGS="${MAVEN_ARGS:-}"
-read -r -a MAVEN_ARGS_ARR <<<"${MAVEN_ARGS}"
+# Extra Maven args ONLY for the E2E project.
+E2E_MAVEN_ARGS="${E2E_MAVEN_ARGS:-}"
+read -r -a E2E_MAVEN_ARGS_ARR <<<"${E2E_MAVEN_ARGS}"
 
 mkdir -p "${LOG_DIR}"
 
@@ -96,7 +96,9 @@ trap cleanup INT TERM EXIT
 )
 
 # -----------------------------------------------------------------------------
-# 2) Build Maven services in parallel (explicitly skipping dtu-pay-E2ETest)
+# 2) Build Maven services in parallel
+#    - Services run tests normally (always).
+#    - E2E project is built with -DskipTests (only there).
 # -----------------------------------------------------------------------------
 MODULES=(
   "account-service"
@@ -108,8 +110,12 @@ MODULES=(
 
 for m in "${MODULES[@]}"; do
   throttle
-  start_job "${m}" "${ROOT_DIR}/${m}" mvn clean package "${MAVEN_ARGS_ARR[@]}"
+  start_job "${m}" "${ROOT_DIR}/${m}" mvn clean package
 done
+
+# Build E2E project too, but always skip its tests.
+throttle
+start_job "dtu-pay-E2ETest" "${ROOT_DIR}/dtu-pay-E2ETest" mvn clean package -DskipTests "${E2E_MAVEN_ARGS_ARR[@]}"
 
 # Wait for completion, collect status, and print grouped logs.
 for i in "${!JOB_PIDS[@]}"; do
