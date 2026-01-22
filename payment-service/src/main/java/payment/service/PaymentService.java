@@ -49,8 +49,9 @@ public class PaymentService {
             return;
         }
 
-        PaymentContext context = new PaymentContext(paymentReq, correlationId);
+        PaymentContext context = new PaymentContext(paymentReq);
         paymentContexts.put(correlationId, context);
+        // If we got a bank account retrieved event before the payment request, apply it here
         Map<String, String> pending = pendingBankAccountEvents.remove(correlationId);
         if (pending != null) {
             for (Map.Entry<String, String> entry : pending.entrySet()) {
@@ -81,6 +82,7 @@ public class PaymentService {
         }
     }
 
+    /// Handles the event when a bank account number is retrieved by putting it into
     public void handleBankAccNumberRetrieved(Event event) {
         String userId;
         String bankAccNum;
@@ -94,9 +96,9 @@ public class PaymentService {
         }
 
         PaymentContext context = paymentContexts.get(correlationId);
-        if (context == null) {
+        if (context == null) { // Store the event in case we haven't received the payment request yet
             pendingBankAccountEvents
-                    .computeIfAbsent(correlationId, id -> new ConcurrentHashMap<>())
+                    .computeIfAbsent(correlationId, id -> new ConcurrentHashMap<>()) //??
                     .put(userId, bankAccNum);
             return;
         }
@@ -121,6 +123,7 @@ public class PaymentService {
         notifyFailedPayment(correlationId, errorMessage);
     }
 
+    /// Applies the bank account event to the appropriate future in the payment context
     private void applyBankAccountEvent(PaymentContext context, String userId, String bankAccNum) {
         if (userId.equals(context.paymentReq.merchantId())) {
             context.merchantBankAccFuture.complete(bankAccNum);
@@ -158,14 +161,12 @@ public class PaymentService {
 
     private static class PaymentContext {
         private final PaymentReq paymentReq;
-        private final CorrelationId correlationId;
         private final CompletableFuture<String> customerBankAccFuture = new CompletableFuture<>();
         private final CompletableFuture<String> merchantBankAccFuture = new CompletableFuture<>();
         private String customerId;
 
-        private PaymentContext(PaymentReq paymentReq, CorrelationId correlationId) {
+        private PaymentContext(PaymentReq paymentReq) {
             this.paymentReq = paymentReq;
-            this.correlationId = correlationId;
         }
     }
 }
