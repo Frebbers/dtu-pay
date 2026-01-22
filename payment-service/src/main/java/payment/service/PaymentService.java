@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  * are automatically expired by a background thread.
  */
 public class PaymentService {
-    private static final long DEFAULT_EXPIRATION_SECONDS = 5;
+    private static final long DEFAULT_EXPIRATION_SECONDS = 2;
     private static final long EXPIRATION_CHECK_INTERVAL_MS = 1000;
 
     private final BankService bank;
@@ -41,6 +41,7 @@ public class PaymentService {
     String BANK_ACCOUNT_RETRIEVAL_FAILED = "BankAccountRetrievalFailed";
     String BANK_ACCOUNT_RETRIEVED = "BankAccountRetrieved";
     String BANK_TRANSFER_COMPLETED_SUCCESSFULLY = "BankTransferCompletedSuccessfully";
+    String TOKEN_CONSUMPTION_REJECTED = "TokenConsumptionRejected";
 
     public PaymentService(MessageQueue q) {
         this(q, new BankService_Service().getBankServicePort());
@@ -59,6 +60,7 @@ public class PaymentService {
         queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
         queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccountRetrieved);
         queue.addHandler(BANK_ACCOUNT_RETRIEVAL_FAILED, this::handleBankAccountRetrievalFailed);
+        queue.addHandler(TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected);
 
         startExpirationChecker();
     }
@@ -126,6 +128,24 @@ public class PaymentService {
         synchronized (context) {
             context.failed = true;
             context.errorMessage = errorMessage;
+        }
+        tryProcessPayment(correlationId);
+    }
+
+    public void handleTokenConsumptionRejected(Event event) {
+        String reason;
+        CorrelationId correlationId;
+        try {
+            reason = event.getArgument(0, String.class);
+            correlationId = event.getArgument(1, CorrelationId.class);
+        } catch (Exception e) {
+            return;
+        }
+
+        PaymentContext context = getOrCreateContext(correlationId);
+        synchronized (context) {
+            context.failed = true;
+            context.errorMessage = "Token consumption rejected: " + reason;
         }
         tryProcessPayment(correlationId);
     }

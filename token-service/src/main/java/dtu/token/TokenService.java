@@ -31,10 +31,8 @@ public class TokenService {
         this.mq = mq;
         this.store = store;
         mq.addHandler(TokenTopics.TOKEN_REQUEST_SUBMITTED, this::handleTokenRequestSubmitted);
-//        mq.addHandler(TokenTopics.CONSUME_TOKEN_REQUESTED, this::handleConsumeTokenRequested);
         mq.addHandler(TokenTopics.USER_DEREGISTERED_REQUESTED, this::handleUserDeregistrationRequested);
         mq.addHandler(TokenTopics.PAYMENT_REQUESTED, this::handlePaymentRequested);
-//        mq.addHandler(TokenTopics.TOKEN_INVALIDATION_REQUESTED, this::handleTokenInvalidationRequested);
     }
 
     private void handlePaymentRequested(Event event) {
@@ -71,33 +69,6 @@ public class TokenService {
         publishTokenConsumed(new TokenConsumed(token, record.getCustomerId(), now()), correlationId);
     }
 
-//    private void handleConsumeTokenRequested(Event event) {
-//        ConsumeTokenRequested command;
-//        try {
-//            command = event.getArgument(0, ConsumeTokenRequested.class);
-//        } catch (Exception e) {
-//            publishTokenConsumptionRejected(new TokenConsumptionRejected(UUID.randomUUID().toString(), null,
-//                    "Invalid token consumption request", now()));
-//            return;
-//        }
-//
-//        String commandId = ensureId(command.commandId());
-//        String token = safe(command.token());
-//        if (token.isEmpty()) {
-//            publishTokenConsumptionRejected(new TokenConsumptionRejected(commandId, null,
-//                    "Token is required", now()));
-//            return;
-//        }
-//
-//        TokenRecord record = store.consumeToken(token, now());
-//        if (record == null) {
-//            publishTokenConsumptionRejected(new TokenConsumptionRejected(commandId, token,
-//                    "Token is invalid or already used", now()));
-//            return;
-//        }
-//
-//        publishTokenConsumed(new TokenConsumed(commandId, record.getToken(), record.getCustomerId(), now()));
-//    }
     private void removeTokenForUser(String userId) {
         // Remove the tokens for a specific user
         mq.publish(new Event("TokensForCustomerDeleted", userId)); //todo implement this event?
