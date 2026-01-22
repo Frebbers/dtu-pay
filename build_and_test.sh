@@ -1,7 +1,5 @@
 #!/bin/bash
 set -e
-echo "Stopping containers..."
-docker compose down
 
 echo "Building project..."
 mvn package -DskipTests
@@ -12,6 +10,3 @@ echo "Waiting for services to start..."
 sleep 10
 echo "Running tests..."
 mvn test
-
-echo "Stopping containers..."
-docker compose down

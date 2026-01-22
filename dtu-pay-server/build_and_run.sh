@@ -7,4 +7,3 @@ docker compose build
 # Docker compose
 echo "Starting Quarkus server..."
 docker compose up -d
-

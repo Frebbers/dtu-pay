@@ -67,7 +67,9 @@ services:
      - dtu-net
 
   payment-service:
-    build: ./payment-service
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
     image: payment-service
     environment:
       - RABBITMQ_HOST=rabbitmq
