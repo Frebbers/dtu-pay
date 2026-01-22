@@ -37,18 +37,6 @@ class UserServiceTest {
         userService = null;
     }
 
-//    @Test
-//    void registerSuccessfully() {
-//        User User = new User("John", "Doe", "120805-1234", "12345678");
-//        publishedEvent = new CompletableFuture<Event>();
-//        new Thread(() -> {
-//            var result = UserService.register(User);
-//        }).start();
-//        mq.publish(new Event("UserRegistered"));
-//
-//    }
-
-
     @Test
     void registerSuccessfully() throws Exception {
         User user = new User("John", "Doe", "000000-0000", "12345678");
