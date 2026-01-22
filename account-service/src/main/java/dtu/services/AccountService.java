@@ -121,7 +121,7 @@ public class AccountService {
 
 
   public void handleCustomerBankAccount(Event e) {
-    logger.info("Recieved bank account number request event:" + e.getTopic());
+    logger.info("Received bank account number request event:" + e.getTopic());
     String cpr = e.getArgument(0, String.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
