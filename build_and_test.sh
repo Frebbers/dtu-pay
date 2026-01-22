@@ -1,12 +1,9 @@
 #!/bin/bash
 set -e
 
-echo "Building project..."
-mvn package -DskipTests
+echo "Building project and running service tests in parallel..."
+./build_and_run.sh
 
-echo "Starting containers using docker compose..."
-docker compose up -d --build
-echo "Waiting for services to start..."
-sleep 10
-echo "Running tests..."
+pushd dtu-pay-E2ETest
+echo "Running E2E tests..."
 mvn test

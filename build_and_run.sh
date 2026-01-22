@@ -4,10 +4,6 @@ set -e
 
 ./build.sh
 
-./deploy.sh
-
-sleep 15
-
-./test.sh
+docker compose up -d
 
 docker image prune -f
