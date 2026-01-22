@@ -65,7 +65,11 @@ public class PaymentService {
                 .whenComplete((result, ex) -> {
                     try {
                         if (ex != null) {
-                            notifyFailedPayment(correlationId, ex.getMessage());
+                            String errorMessage = ex.getMessage();
+                            if (errorMessage == null || errorMessage.isEmpty()) {
+                                errorMessage = "Payment timed out waiting for bank account information";
+                            }
+                            notifyFailedPayment(correlationId, errorMessage);
                             return;
                         }
 
@@ -100,10 +104,19 @@ public class PaymentService {
         }
 
         PaymentContext context = paymentContexts.get(correlationId);
-        if (context == null) { // Store the event in case we haven't received the payment request yet
+        if (context == null) {
+            // Store in pending and also schedule a retry in case of race condition
             pendingBankAccountEvents
-                    .computeIfAbsent(correlationId, id -> new ConcurrentHashMap<>()) //??
+                    .computeIfAbsent(correlationId, id -> new ConcurrentHashMap<>())
                     .put(userId, bankAccNum);
+
+            // Brief delay then retry - handles race where PaymentRequested is being processed
+            CompletableFuture.delayedExecutor(50, TimeUnit.MILLISECONDS).execute(() -> {
+                PaymentContext retryContext = paymentContexts.get(correlationId);
+                if (retryContext != null) {
+                    applyBankAccountEvent(retryContext, userId, bankAccNum);
+                }
+            });
             return;
         }
         applyBankAccountEvent(context, userId, bankAccNum);
