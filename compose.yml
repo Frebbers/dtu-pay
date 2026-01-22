@@ -70,7 +70,9 @@ services:
      - dtu-net
 
   payment-service:
-    build: ./payment-service
+    build:
+      context: .
+      dockerfile: payment-service/Dockerfile
     image: payment-service
     container_name: payment-service
     environment:

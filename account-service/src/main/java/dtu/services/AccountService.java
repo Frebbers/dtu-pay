@@ -59,15 +59,15 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       String id = createAccount(account.firstName(), account.lastName(), account.cprNumber(), account.bankAccountNum());
-      mq.publish(new Event(AccountServiceTopics.USER_REGISTERED, new Object[] { id, correlationId }));
+      mq.publish(new Event(AccountServiceTopics.USER_REGISTERED, id, correlationId));
     } catch (AccountAlreadyExistsException ex) {
       logger.warning("Account registration failed: " + ex.getMessage());
       mq.publish(new Event(AccountServiceTopics.USER_ALREADY_REGISTERED,
-          new Object[] { ex.getMessage(), correlationId }));
+              ex.getMessage(), correlationId));
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
       mq.publish(new Event(AccountServiceTopics.USER_REGISTRATION_FAILED,
-          new Object[] { exe.getMessage(), correlationId }));
+              exe.getMessage(), correlationId));
     }
   }
 
@@ -77,15 +77,15 @@ public class AccountService {
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       deregisterAccount(id);
-      mq.publish(new Event(AccountServiceTopics.USER_DEREGISTERED, new Object[] { id, correlationId }));
+      mq.publish(new Event(AccountServiceTopics.USER_DEREGISTERED, id, correlationId));
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account deregistration failed: " + ex.getMessage());
       mq.publish(new Event(AccountServiceTopics.USER_DOES_NOT_EXIST,
-          new Object[] { ex.getMessage(), correlationId }));
+              ex.getMessage(), correlationId));
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
       mq.publish(new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED,
-          new Object[] { exe.getMessage(), correlationId }));
+              exe.getMessage(), correlationId));
     }
   }
 
@@ -97,36 +97,36 @@ public class AccountService {
       String bankAccountNumber = getBankAccountNumber(payment.merchantId());
       
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
-          new Object[] { payment.merchantId(), bankAccountNumber, correlationId }));
+              payment.merchantId(), bankAccountNumber, correlationId));
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account with " + payment.merchantId() + " does not exist");
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-          new Object[] { ex.getMessage(), correlationId }));
+              ex.getMessage(), correlationId));
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-          new Object[] { exe.getMessage(), correlationId }));
+              exe.getMessage(), correlationId));
     }
   }
 
 
 
   public void handleCustomerBankAccount(Event e) {
-    logger.info("Recieved bank account number request event:" + e.getTopic());
+    logger.info("Received bank account number request event:" + e.getTopic());
     String cpr = e.getArgument(0, String.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       String bankAccountNumber = getBankAccountNumber(cpr);
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
-          new Object[] { cpr, bankAccountNumber, correlationId }));
+              cpr, bankAccountNumber, correlationId));
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account with " + cpr + " does not exist");
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-          new Object[] { ex.getMessage(), correlationId }));
+              ex.getMessage(), correlationId));
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-          new Object[] { exe.getMessage(), correlationId }));
+              exe.getMessage(), correlationId));
     }
   }
 }
