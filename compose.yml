@@ -17,6 +17,7 @@ services:
   account-service:
     build: ./account-service
     image: account-service
+    container_name: account-service
     environment:
      - RABBITMQ_HOST=rabbitmq
     depends_on:
@@ -30,6 +31,7 @@ services:
       context: .
       dockerfile: reporting-service/Dockerfile
     image: reporting-service
+    container_name: reporting-service
     environment:
      - RABBITMQ_HOST=rabbitmq
     depends_on:
@@ -43,6 +45,7 @@ services:
       context: .
       dockerfile: token-service/Dockerfile
     image: token-service
+    container_name: token-service
     environment:
      - RABBITMQ_HOST=rabbitmq
     depends_on:
@@ -69,9 +72,9 @@ services:
   payment-service:
     build: ./payment-service
     image: payment-service
+    container_name: payment-service
     environment:
       - RABBITMQ_HOST=rabbitmq
-    container_name: payment-service
     depends_on:
       rabbitmq:
         condition: service_healthy
