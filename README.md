@@ -1,7 +1,10 @@
 # DTU-Pay
 Group 25
 ## Building DTU Pay
-There are several ways of building DTU pay. The recommended way is to use ```build_and_test.sh```.
+There are several ways of building DTU pay. The recommended way is to use `build-and-run.sh`, which runs:
+- `install-libraries.sh`
+- `compile-and-build-images.sh`
+- `deploy-and-run-tests.sh`
 
 Requirements:
 - Docker
