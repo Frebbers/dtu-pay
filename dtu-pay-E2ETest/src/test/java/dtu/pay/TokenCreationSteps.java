@@ -11,6 +11,7 @@ import io.cucumber.java.en.Then;
 
 import dtu.ws.fastmoney.User;
 import jakarta.ws.rs.core.Response;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 
 import java.math.BigDecimal;
@@ -53,6 +54,8 @@ public class TokenCreationSteps {
         if (context.tokens == null) {
             context.latestError = new RuntimeException("Token request failed: " + dtupay.getLatestError());
         }
+        assertNotNull(context.tokens);
+        assert(context.tokens.size() <= amount);
     }
 
     @Then("the customer receives exactly {int} unique tokens")
