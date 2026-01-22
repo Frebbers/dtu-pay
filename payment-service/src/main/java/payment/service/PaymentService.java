@@ -21,17 +21,18 @@ public class PaymentService {
     String PAYMENT_REQUESTED = "PaymentRequested";
     String PAYMENT_SUCCEEDED = "PaymentSuccessful";
     String PAYMENT_FAILED = "PaymentFailed";
-    String CONSUME_TOKEN_REQUESTED = "token.commands.ConsumeTokenRequested";
-    String TOKEN_CONSUMED = "token.events.TokenConsumed";
-    String TOKEN_CONSUMPTION_REJECTED = "token.events.TokenConsumptionRejected";
-    String GET_BANK_ACCOUNT_REQUESTED = "accounts.commands.GetBankAccount";
+//    String CONSUME_TOKEN_REQUESTED = "token.commands.ConsumeTokenRequested";
+//    String TOKEN_CONSUMED = "token.events.TokenConsumed";
+//    String TOKEN_CONSUMPTION_REJECTED = "token.events.TokenConsumptionRejected";
+//    String GET_BANK_ACCOUNT_REQUESTED = "accounts.commands.GetBankAccount";
     String BANK_ACCOUNT_RETRIEVAL_FAILED = "BankAccountRetrievalFailed";
     String BANK_ACCOUNT_RETRIEVED = "accounts.events.BankAccountRetrieved";
     String BANK_TRANSFER_COMPLETED_SUCCESSFULLY = "BankTransferCompletedSuccessfully";
 
     // Get customerId by token
-    private final Map<String, CompletableFuture<String>> getCustomerIdCorrelations = new ConcurrentHashMap<>();
+//    private final Map<String, CompletableFuture<String>> getCustomerIdCorrelations = new ConcurrentHashMap<>();
     private final Map<CorrelationId, CompletableFuture<String>> getBankAccCorrelations = new ConcurrentHashMap<>();
+    private final Map<CorrelationId, CompletableFuture<String>> getCustomerIdCorrelations = new ConcurrentHashMap<>();
 
     public PaymentService(MessageQueue q) {
         this(q, new BankService_Service().getBankServicePort());
@@ -41,8 +42,8 @@ public class PaymentService {
         this.queue = q;
         this.bank = bank;
         queue.addHandler(PAYMENT_REQUESTED, this::policyPaymentRequested);
-        queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed); //TODO delete this!
-        queue.addHandler(TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected); //TODO delete this!
+//        queue.addHandler(TOKEN_CONSUMED, this::handleTokenConsumed); //TODO delete this!
+//        queue.addHandler(TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected); //TODO delete this!
         queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumberRetrieved);
         queue.addHandler(BANK_ACCOUNT_RETRIEVAL_FAILED, this::handleBankAccNumRetrievalFailed);
     }
@@ -54,11 +55,9 @@ public class PaymentService {
         CorrelationId correlationId = event.getArgument(1, CorrelationId.class);
 
         try {
-            String customerId = getCustomerIdByToken(paymentReq.token());
-
-            String customerBankAccNum = getUserBankNumById(customerId);
-
-            String merchantBankAccNum = getUserBankNumById(paymentReq.merchantId());
+//            String customerId = getCustomerIdByToken(paymentReq.token());
+//            String customerBankAccNum = getUserBankNumById(customerId);
+//            String merchantBankAccNum = getUserBankNumById(paymentReq.merchantId());
 
             var paymentSuccess = processPayment(customerBankAccNum, merchantBankAccNum, paymentReq.amount());
             if (paymentSuccess) {
@@ -70,19 +69,19 @@ public class PaymentService {
             notifyFailedPayment(correlationId, e.getMessage());
         }
     }
-    //TODO delete this! Account service should handle it
-    public void handleTokenConsumed(Event event) {
-        TokenConsumed tokenConsumed = event.getArgument(0, TokenConsumed.class);
-        String correlationId = tokenConsumed.commandId();
-        getCustomerIdCorrelations.get(correlationId).complete(tokenConsumed.customerId());
-    }
+//    //TODO delete this! Account service should handle it
+//    public void handleTokenConsumed(Event event) {
+//        TokenConsumed tokenConsumed = event.getArgument(0, TokenConsumed.class);
+//        String correlationId = tokenConsumed.commandId();
+//        getCustomerIdCorrelations.get(correlationId).complete(tokenConsumed.customerId());
+//    }
 
-    public void handleTokenConsumptionRejected(Event event) {
-        TokenConsumptionRejected rejected = event.getArgument(0, TokenConsumptionRejected.class);
-        String correlationId = rejected.commandId();
-        String reason = rejected.reason();
-        getCustomerIdCorrelations.get(correlationId).completeExceptionally(new Exception(reason));
-    }
+//    public void handleTokenConsumptionRejected(Event event) {
+//        TokenConsumptionRejected rejected = event.getArgument(0, TokenConsumptionRejected.class);
+//        String correlationId = rejected.commandId();
+//        String reason = rejected.reason();
+//        getCustomerIdCorrelations.get(correlationId).completeExceptionally(new Exception(reason));
+//    }
 
     public void handleBankAccNumberRetrieved(Event event) {
         String bankAccNum = event.getArgument(0, String.class);
@@ -100,24 +99,24 @@ public class PaymentService {
     /* Commands */
 
     /// Fetch the customerId by sending CONSUME_TOKEN_REQUESTED events to TokenService
-    public String getCustomerIdByToken(String token) {
-        String correlationId = UUID.randomUUID().toString();
-        getCustomerIdCorrelations.put(correlationId, new CompletableFuture<>());
-        ConsumeTokenRequested consumeTokenReq = new ConsumeTokenRequested(correlationId, token, "", 0, System.currentTimeMillis());
-        queue.publish(new Event(CONSUME_TOKEN_REQUESTED, consumeTokenReq));
+//    public String getCustomerIdByToken(String token) {
+//        String correlationId = UUID.randomUUID().toString();
+//        getCustomerIdCorrelations.put(correlationId, new CompletableFuture<>());
+//        ConsumeTokenRequested consumeTokenReq = new ConsumeTokenRequested(correlationId, token, "", 0, System.currentTimeMillis());
+//        queue.publish(new Event(CONSUME_TOKEN_REQUESTED, consumeTokenReq));
+//
+//        return getCustomerIdCorrelations.get(correlationId).join();
+//    }
 
-        return getCustomerIdCorrelations.get(correlationId).join();
-    }
-
-    public String getUserBankNumById(String userId) {
-        // Use userId to get customer/merchant bank account number by
-        //  sending REQUEST_BANKACCNUM_BY_USER_ID events to AccountService
-        CorrelationId correlationId = CorrelationId.randomId();
-        getBankAccCorrelations.put(correlationId, new CompletableFuture<>());
-        queue.publish(new Event(GET_BANK_ACCOUNT_REQUESTED, new Object[]{userId, correlationId}));
-
-        return getBankAccCorrelations.get(correlationId).join();
-    }
+//    public String getUserBankNumById(String userId) {
+//        // Use userId to get customer/merchant bank account number by
+//        //  sending REQUEST_BANKACCNUM_BY_USER_ID events to AccountService
+//        CorrelationId correlationId = CorrelationId.randomId();
+//        getBankAccCorrelations.put(correlationId, new CompletableFuture<>());
+//        queue.publish(new Event(GET_BANK_ACCOUNT_REQUESTED, new Object[]{userId, correlationId}));
+//
+//        return getBankAccCorrelations.get(correlationId).join();
+//    }
 
     public boolean processPayment(String customerBankAccNum, String merchantBankAccNum, BigDecimal amount) {
         try {
