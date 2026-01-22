@@ -7,15 +7,9 @@ public class AccountServiceTopics {
   public static final String USER_DEREGISTERED= "UserDeregistered";
   public static final String TOKEN_VALIDATED = "TokenValidated";
   public static final String PAYMENT_REQUESTED = "PaymentRequested";
-  public static final String CUSTOMER_BANK_ACCOUNT_RETRIEVED = "CustomerBankAccountRetrieved";
-  public static final String MERCHANT_BANK_ACCOUNT_RETRIEVED = "MerchantBankAccountRetrieved";
   public static final String BANK_ACCOUNT_RETRIEVED = "BankAccountRetrieved";
   public static final String BANK_ACCOUNT_RETRIEVAL_FAILED = "BankAccountRetrievalFailed";
-  public static final String ACCOUNT_CREATED = "AccountCreated";
-  public static final String ACCOUNT_DEREGISTERED = "AccountDeregistered";
   public static final String USER_DEREGISTRATION_FAILED = "UserDeregistrationFailed";
-  public static final String USER_DOES_NOT_EXIST = "UserDoesNotExist"; 
   public static final String USER_ALREADY_REGISTERED = "UserAlreadyRegistered";
   public static final String USER_REGISTRATION_FAILED = "UserRegistrationFailed";
-//  public static final String TOKEN_INVALIDATION_REQUESTED = "token.events.TokenInvalidationRequested";
 }

@@ -22,17 +22,11 @@ public class UserService {
         mq.addHandler("UserRegistrationFailed", this::handleUserNotRegistered);
 
         mq.addHandler("UserDeregistered", this::handleUserDeregistered);
-        mq.addHandler("UserDoesNotExist", this::handleUserDoesNotExist);
         mq.addHandler("UserDeregistrationFailed", this::handleUserNotDeregistered);
 
     }
 
     public String register(User merchant) throws ConflictException {
-        System.out.println("DTU Pay publishing UserRegistrationRequested: "
-                + "first=" + merchant.firstName()
-                + " last=" + merchant.lastName()
-                + " cpr=" + merchant.cprNumber()
-                + " bank=" + merchant.bankAccountNum());
         CorrelationId correlationId = CorrelationId.randomId();
         CompletableFuture<String> future = new CompletableFuture<>();
         correlations.put(correlationId, future);
@@ -109,15 +103,15 @@ public class UserService {
         }
     }
 
-    public void handleUserDoesNotExist(Event e) {
-        String message = e.getArgument(0, String.class);
-        CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-
-        CompletableFuture<String> future = correlations.remove(correlationId);
-        if (future != null) {
-            future.completeExceptionally(new NotFoundException(message));
-        }
-    }
+//    public void handleUserDoesNotExist(Event e) {
+//        String message = e.getArgument(0, String.class);
+//        CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+//
+//        CompletableFuture<String> future = correlations.remove(correlationId);
+//        if (future != null) {
+//            future.completeExceptionally(new NotFoundException(message));
+//        }
+//    }
 
     public void handleUserNotDeregistered(Event e) {
         String error = e.getArgument(0, String.class);

@@ -108,7 +108,7 @@ public class AccountCreationSteps {
   public void theDeregistrationFailureMessageIs(String expectedMessage) {
     verify(context.queueExternal).publish(
         new Event(
-            AccountServiceTopics.USER_DOES_NOT_EXIST,
-            new Object[] { expectedMessage, context.correlationId }));
+            AccountServiceTopics.USER_DEREGISTRATION_FAILED,
+                expectedMessage, context.correlationId));
   }
 }

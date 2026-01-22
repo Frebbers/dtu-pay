@@ -78,12 +78,8 @@ public class AccountService {
     try {
       deregisterAccount(id);
       mq.publish(new Event(AccountServiceTopics.USER_DEREGISTERED, id, correlationId));
-    } catch (AccountDoesNotExistsException ex) {
-      logger.warning("Account deregistration failed: " + ex.getMessage());
-      mq.publish(new Event(AccountServiceTopics.USER_DOES_NOT_EXIST,
-              ex.getMessage(), correlationId));
     } catch (Exception exe) {
-      logger.severe("Registration crashed: " + exe);
+      logger.warning("Deregistration failed: " + exe);
       mq.publish(new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED,
               exe.getMessage(), correlationId));
     }
