@@ -59,27 +59,31 @@ public class PaymentService {
             }
         }
 
-        try {
-            CompletableFuture.allOf(context.customerBankAccFuture, context.merchantBankAccFuture)
-                    .orTimeout(5, TimeUnit.SECONDS)
-                    .join();
+        // Run asynchronously to avoid blocking the message handler thread
+        CompletableFuture.allOf(context.customerBankAccFuture, context.merchantBankAccFuture)
+                .orTimeout(5, TimeUnit.SECONDS)
+                .whenComplete((result, ex) -> {
+                    try {
+                        if (ex != null) {
+                            notifyFailedPayment(correlationId, ex.getMessage());
+                            return;
+                        }
 
-            String customerBankAccNum = context.customerBankAccFuture.join();
-            String merchantBankAccNum = context.merchantBankAccFuture.join();
-            String customerId = context.customerId != null ? context.customerId : paymentReq.token();
+                        String customerBankAccNum = context.customerBankAccFuture.join();
+                        String merchantBankAccNum = context.merchantBankAccFuture.join();
+                        String customerId = context.customerId != null ? context.customerId : paymentReq.token();
 
-            boolean paymentSuccess = processPayment(customerBankAccNum, merchantBankAccNum, paymentReq.amount());
-            if (paymentSuccess) {
-                notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount(),
-                        correlationId);
-            } else {
-                notifyFailedPayment(correlationId, "Bank transfer failed");
-            }
-        } catch (Exception e) {
-            notifyFailedPayment(correlationId, e.getMessage());
-        } finally {
-            paymentContexts.remove(correlationId);
-        }
+                        boolean paymentSuccess = processPayment(customerBankAccNum, merchantBankAccNum, paymentReq.amount());
+                        if (paymentSuccess) {
+                            notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount(),
+                                    correlationId);
+                        } else {
+                            notifyFailedPayment(correlationId, "Bank transfer failed");
+                        }
+                    } finally {
+                        paymentContexts.remove(correlationId);
+                    }
+                });
     }
 
     /// Handles the event when a bank account number is retrieved by putting it into

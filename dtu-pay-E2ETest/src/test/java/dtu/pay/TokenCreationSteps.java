@@ -29,12 +29,8 @@ public class TokenCreationSteps {
     private BankService bank = new BankService_Service().getBankServicePort();
     private String bankApiKey = "amber2460";
     private DtuPayClient dtupay = new DtuPayClient();
-    private String createdUserBankAccNumber;
     private List<String> bankAccounts = new ArrayList<>();
-    private dtu.pay.User customer;
-    private String DTUPayAccountId;
-    private List<String> tokens;
-    private Throwable latestError;
+
 
     public TokenCreationSteps(ScenarioContext context) {
         this.context = context;
@@ -95,5 +91,13 @@ public class TokenCreationSteps {
             bank.retireAccount(bankApiKey, acc.getId());
         }
         catch (BankServiceException_Exception ignored) {}
+    }
+
+    @When("the customer requests {int} tokens again")
+    public void theCustomerRequestsTokensAgain(int amount) {
+        context.tokens = dtupay.requestTokens(context.customerId, amount);
+        if (context.tokens == null) {
+            context.latestError = new RuntimeException("Token request failed: " + dtupay.getLatestError());
+        }
     }
 }

@@ -19,5 +19,5 @@ Feature: Token management (E2E)
     And the user is registered with the bank with an initial balance of 1000 kr
     And the customer is registered with Simple DTU Pay using their bank account
     And the customer has 2 unused tokens
-    When the customer requests 5 tokens
+    When the customer requests 5 tokens again
     Then the customer doesn't get tokens
