@@ -6,16 +6,33 @@ import messaging.MessageQueue;
 import payment.service.models.*;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * PaymentService handles payment processing by listening for three events:
+ * - PaymentRequested: initiates a payment context
+ * - BankAccountRetrieved: provides bank account info for customer or merchant
+ * - BankAccountRetrievalFailed: marks payment as failed
+ *
+ * Each event independently updates the PaymentContext. Once all required data
+ * is available, the payment is processed. Contexts that exceed the timeout
+ * are automatically expired by a background thread.
+ */
 public class PaymentService {
-    BankService bank;
-    MessageQueue queue;
+    private static final long DEFAULT_EXPIRATION_SECONDS = 2;
+    private static final long EXPIRATION_CHECK_INTERVAL_MS = 1000;
+
+    private final BankService bank;
+    private final MessageQueue queue;
+    private final ScheduledExecutorService scheduler;
+    private final long expirationSeconds;
     private final Map<CorrelationId, PaymentContext> paymentContexts = new ConcurrentHashMap<>();
-    private final Map<CorrelationId, Map<String, String>> pendingBankAccountEvents = new ConcurrentHashMap<>();
 
     // Event names
     String PAYMENT_REQUESTED = "PaymentRequested";
@@ -24,22 +41,43 @@ public class PaymentService {
     String BANK_ACCOUNT_RETRIEVAL_FAILED = "BankAccountRetrievalFailed";
     String BANK_ACCOUNT_RETRIEVED = "BankAccountRetrieved";
     String BANK_TRANSFER_COMPLETED_SUCCESSFULLY = "BankTransferCompletedSuccessfully";
+    String TOKEN_CONSUMPTION_REJECTED = "TokenConsumptionRejected";
 
     public PaymentService(MessageQueue q) {
         this(q, new BankService_Service().getBankServicePort());
     }
 
     public PaymentService(MessageQueue q, BankService bank) {
-        this.queue = q;
-        this.bank = bank;
-        queue.addHandler(PAYMENT_REQUESTED, this::policyPaymentRequested);
-        queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccNumberRetrieved);
-        queue.addHandler(BANK_ACCOUNT_RETRIEVAL_FAILED, this::handleBankAccNumRetrievalFailed);
+        this(q, bank, Executors.newSingleThreadScheduledExecutor(), DEFAULT_EXPIRATION_SECONDS);
     }
 
-    /* Policies */
+    public PaymentService(MessageQueue q, BankService bank, ScheduledExecutorService scheduler, long expirationSeconds) {
+        this.queue = q;
+        this.bank = bank;
+        this.scheduler = scheduler;
+        this.expirationSeconds = expirationSeconds;
 
-    public void policyPaymentRequested(Event event) {
+        queue.addHandler(PAYMENT_REQUESTED, this::handlePaymentRequested);
+        queue.addHandler(BANK_ACCOUNT_RETRIEVED, this::handleBankAccountRetrieved);
+        queue.addHandler(BANK_ACCOUNT_RETRIEVAL_FAILED, this::handleBankAccountRetrievalFailed);
+        queue.addHandler(TOKEN_CONSUMPTION_REJECTED, this::handleTokenConsumptionRejected);
+
+        startExpirationChecker();
+    }
+
+    public void shutdown() {
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void handlePaymentRequested(Event event) {
         PaymentReq paymentReq;
         CorrelationId correlationId;
         try {
@@ -49,49 +87,14 @@ public class PaymentService {
             return;
         }
 
-        PaymentContext context = new PaymentContext(paymentReq);
-        paymentContexts.put(correlationId, context);
-        // If we got a bank account retrieved event before the payment request, apply it here
-        Map<String, String> pending = pendingBankAccountEvents.remove(correlationId);
-        if (pending != null) {
-            for (Map.Entry<String, String> entry : pending.entrySet()) {
-                applyBankAccountEvent(context, entry.getKey(), entry.getValue());
-            }
+        PaymentContext context = getOrCreateContext(correlationId);
+        synchronized (context) {
+            context.paymentReq = paymentReq;
         }
-
-        // Run asynchronously to avoid blocking the message handler thread
-        CompletableFuture.allOf(context.customerBankAccFuture, context.merchantBankAccFuture)
-                .orTimeout(5, TimeUnit.SECONDS)
-                .whenComplete((result, ex) -> {
-                    try {
-                        if (ex != null) {
-                            String errorMessage = ex.getMessage();
-                            if (errorMessage == null || errorMessage.isEmpty()) {
-                                errorMessage = "Payment timed out waiting for bank account information";
-                            }
-                            notifyFailedPayment(correlationId, errorMessage);
-                            return;
-                        }
-
-                        String customerBankAccNum = context.customerBankAccFuture.join();
-                        String merchantBankAccNum = context.merchantBankAccFuture.join();
-                        String customerId = context.customerId != null ? context.customerId : paymentReq.token();
-
-                        boolean paymentSuccess = processPayment(customerBankAccNum, merchantBankAccNum, paymentReq.amount());
-                        if (paymentSuccess) {
-                            notifySuccessfulPayment(customerId, paymentReq.merchantId(), paymentReq.token(), paymentReq.amount(),
-                                    correlationId);
-                        } else {
-                            notifyFailedPayment(correlationId, "Bank transfer failed");
-                        }
-                    } finally {
-                        paymentContexts.remove(correlationId);
-                    }
-                });
+        tryProcessPayment(correlationId);
     }
 
-    /// Handles the event when a bank account number is retrieved by putting it into
-    public void handleBankAccNumberRetrieved(Event event) {
+    public void handleBankAccountRetrieved(Event event) {
         String userId;
         String bankAccNum;
         CorrelationId correlationId;
@@ -103,26 +106,15 @@ public class PaymentService {
             return;
         }
 
-        PaymentContext context = paymentContexts.get(correlationId);
-        if (context == null) {
-            // Store in pending and also schedule a retry in case of race condition
-            pendingBankAccountEvents
-                    .computeIfAbsent(correlationId, id -> new ConcurrentHashMap<>())
-                    .put(userId, bankAccNum);
-
-            // Brief delay then retry - handles race where PaymentRequested is being processed
-            CompletableFuture.delayedExecutor(50, TimeUnit.MILLISECONDS).execute(() -> {
-                PaymentContext retryContext = paymentContexts.get(correlationId);
-                if (retryContext != null) {
-                    applyBankAccountEvent(retryContext, userId, bankAccNum);
-                }
-            });
-            return;
+        PaymentContext context = getOrCreateContext(correlationId);
+        synchronized (context) {
+            // Store the bank account - we'll determine which one it is when we have the payment request
+            context.addBankAccount(userId, bankAccNum);
         }
-        applyBankAccountEvent(context, userId, bankAccNum);
+        tryProcessPayment(correlationId);
     }
 
-    public void handleBankAccNumRetrievalFailed(Event event) {
+    public void handleBankAccountRetrievalFailed(Event event) {
         String errorMessage;
         CorrelationId correlationId;
         try {
@@ -131,22 +123,109 @@ public class PaymentService {
         } catch (Exception e) {
             return;
         }
-        PaymentContext context = paymentContexts.get(correlationId);
-        if (context != null) {
-            context.customerBankAccFuture.completeExceptionally(new RuntimeException(errorMessage));
-            context.merchantBankAccFuture.completeExceptionally(new RuntimeException(errorMessage));
-            return;
+
+        PaymentContext context = getOrCreateContext(correlationId);
+        synchronized (context) {
+            context.failed = true;
+            context.errorMessage = errorMessage;
         }
-        notifyFailedPayment(correlationId, errorMessage);
+        tryProcessPayment(correlationId);
     }
 
-    /// Applies the bank account event to the appropriate future in the payment context
-    private void applyBankAccountEvent(PaymentContext context, String userId, String bankAccNum) {
-        if (userId.equals(context.paymentReq.merchantId())) {
-            context.merchantBankAccFuture.complete(bankAccNum);
-        } else if (context.customerId == null || userId.equals(context.customerId)) {
-            context.customerId = userId;
-            context.customerBankAccFuture.complete(bankAccNum);
+    public void handleTokenConsumptionRejected(Event event) {
+        TokenConsumptionRejected rejection;
+        CorrelationId correlationId;
+        try {
+            rejection = event.getArgument(0, TokenConsumptionRejected.class);
+            correlationId = event.getArgument(1, CorrelationId.class);
+        } catch (Exception e) {
+            return;
+        }
+
+        PaymentContext context = getOrCreateContext(correlationId);
+        synchronized (context) {
+            context.failed = true;
+            context.errorMessage = "Token consumption rejected: " + rejection.reason();
+        }
+        tryProcessPayment(correlationId);
+    }
+
+    /* Core Logic */
+
+    private PaymentContext getOrCreateContext(CorrelationId correlationId) {
+        return paymentContexts.computeIfAbsent(correlationId, id -> new PaymentContext());
+    }
+
+    private void tryProcessPayment(CorrelationId correlationId) {
+        PaymentContext context = paymentContexts.get(correlationId);
+        if (context == null) {
+            return;
+        }
+
+        synchronized (context) {
+            // Check if already processed
+            if (context.processed) {
+                return;
+            }
+
+            // Check for failure condition
+            if (context.failed) {
+                context.processed = true;
+                paymentContexts.remove(correlationId);
+                notifyFailedPayment(correlationId, context.errorMessage);
+                return;
+            }
+
+            // Check if we have all required data
+            if (!context.isReady()) {
+                return;
+            }
+
+            // Mark as processed before releasing lock
+            context.processed = true;
+        }
+
+        // Remove from map
+        paymentContexts.remove(correlationId);
+
+        // Process the payment (outside synchronized block)
+        PaymentReq req = context.paymentReq;
+        String customerBankAccNum = context.getCustomerBankAccNum();
+        String merchantBankAccNum = context.getMerchantBankAccNum();
+        String customerId = context.customerId;
+
+        boolean success = processPayment(customerBankAccNum, merchantBankAccNum, req.amount());
+        if (success) {
+            notifySuccessfulPayment(customerId, req.merchantId(), req.token(), req.amount(), correlationId);
+        } else {
+            notifyFailedPayment(correlationId, "Bank transfer failed");
+        }
+    }
+
+    private void startExpirationChecker() {
+        scheduler.scheduleAtFixedRate(this::checkExpiredContexts,
+                EXPIRATION_CHECK_INTERVAL_MS, EXPIRATION_CHECK_INTERVAL_MS, TimeUnit.MILLISECONDS);
+    }
+
+    private void checkExpiredContexts() {
+        Instant expirationThreshold = Instant.now().minusSeconds(expirationSeconds);
+        Iterator<Map.Entry<CorrelationId, PaymentContext>> iterator = paymentContexts.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<CorrelationId, PaymentContext> entry = iterator.next();
+            CorrelationId correlationId = entry.getKey();
+            PaymentContext context = entry.getValue();
+
+            synchronized (context) {
+                if (context.processed) {
+                    continue;
+                }
+                if (context.creationTime.isBefore(expirationThreshold)) {
+                    context.processed = true;
+                    iterator.remove();
+                    notifyFailedPayment(correlationId, "Payment timed out waiting for required information");
+                }
+            }
         }
     }
 
@@ -163,12 +242,8 @@ public class PaymentService {
 
     public void notifySuccessfulPayment(String customerId, String merchantId, String token, BigDecimal amount,
             CorrelationId correlationId) {
-        // Send PaymentProcessSuccess event to ReportService
         PaymentRecord record = new PaymentRecord(amount, token, customerId, merchantId);
-        // No correlationId since we don't expect response
         queue.publish(new Event(BANK_TRANSFER_COMPLETED_SUCCESSFULLY, new Object[] { record }));
-
-        // Send PAYMENT_SUCCEEDED to DTU pay server
         queue.publish(new Event(PAYMENT_SUCCEEDED, new Object[] { "OK", correlationId }));
     }
 
@@ -176,14 +251,52 @@ public class PaymentService {
         queue.publish(new Event(PAYMENT_FAILED, new Object[] { error, correlationId }));
     }
 
-    private static class PaymentContext {
-        private final PaymentReq paymentReq;
-        private final CompletableFuture<String> customerBankAccFuture = new CompletableFuture<>();
-        private final CompletableFuture<String> merchantBankAccFuture = new CompletableFuture<>();
-        private String customerId;
+    /* Payment Context */
 
-        private PaymentContext(PaymentReq paymentReq) {
-            this.paymentReq = paymentReq;
+    private static class PaymentContext {
+        private final Instant creationTime = Instant.now();
+        private final Map<String, String> bankAccounts = new ConcurrentHashMap<>();
+
+        private PaymentReq paymentReq;
+        private String customerId;
+        private boolean failed = false;
+        private String errorMessage;
+        private boolean processed = false;
+
+        void addBankAccount(String userId, String bankAccNum) {
+            bankAccounts.put(userId, bankAccNum);
+            // If we already have the payment request, determine which account this is
+            if (paymentReq != null && !userId.equals(paymentReq.merchantId())) {
+                customerId = userId;
+            }
+        }
+
+        boolean isReady() {
+            if (paymentReq == null) {
+                return false;
+            }
+            // Need both customer and merchant bank accounts
+            String merchantId = paymentReq.merchantId();
+            boolean hasMerchant = bankAccounts.containsKey(merchantId);
+
+            // Customer is anyone who is not the merchant
+            String customerKey = null;
+            for (String key : bankAccounts.keySet()) {
+                if (!key.equals(merchantId)) {
+                    customerKey = key;
+                    customerId = key;
+                    break;
+                }
+            }
+            return hasMerchant && customerKey != null;
+        }
+
+        String getCustomerBankAccNum() {
+            return bankAccounts.get(customerId);
+        }
+
+        String getMerchantBankAccNum() {
+            return paymentReq != null ? bankAccounts.get(paymentReq.merchantId()) : null;
         }
     }
 }
