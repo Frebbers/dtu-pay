@@ -133,10 +133,10 @@ public class PaymentService {
     }
 
     public void handleTokenConsumptionRejected(Event event) {
-        String reason;
+        TokenConsumptionRejected rejection;
         CorrelationId correlationId;
         try {
-            reason = event.getArgument(0, String.class);
+            rejection = event.getArgument(0, TokenConsumptionRejected.class);
             correlationId = event.getArgument(1, CorrelationId.class);
         } catch (Exception e) {
             return;
@@ -145,7 +145,7 @@ public class PaymentService {
         PaymentContext context = getOrCreateContext(correlationId);
         synchronized (context) {
             context.failed = true;
-            context.errorMessage = "Token consumption rejected: " + reason;
+            context.errorMessage = "Token consumption rejected: " + rejection.reason();
         }
         tryProcessPayment(correlationId);
     }
