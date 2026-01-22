@@ -57,8 +57,10 @@ public class PaymentStepdefs {
     }
 
     @And("the customerId is fetched via TokenService")
-    public void theCustomerIdIsFetchedViaTokenService() {
+    public void theCustomerIdIsFetchedViaTokenService() throws InterruptedException {
         customerId = "customer_123";
+        // Wait briefly to ensure the PaymentRequested handler thread has started
+        Thread.sleep(100);
     }
 
     @And("the customerBankAccNum is fetched via AccountService")
