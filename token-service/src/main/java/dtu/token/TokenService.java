@@ -16,6 +16,7 @@ import messaging.MessageQueue;
 public class TokenService {
     private final MessageQueue mq;
     private final TokenStore store;
+    private static final String TOKEN_VALIDATED = "TokenValidated";
 
     public TokenService(MessageQueue mq) {
         this(mq, new TokenStore());
@@ -66,6 +67,7 @@ public class TokenService {
                             "Token is invalid or already used", now()), correlationId);
             return;
         }
+        publishTokenValidated(record.getCustomerId(), correlationId);
         publishTokenConsumed(new TokenConsumed(token, record.getCustomerId(), now()), correlationId);
     }
 
@@ -158,6 +160,10 @@ public class TokenService {
 
     private void publishTokenConsumptionRejected(TokenConsumptionRejected rejected, CorrelationId correlationId) {
         mq.publish(new Event(TokenTopics.TOKEN_CONSUMPTION_REJECTED, rejected, correlationId));
+    }
+
+    private void publishTokenValidated(String customerId, CorrelationId correlationId) {
+        mq.publish(new Event(TOKEN_VALIDATED, customerId, correlationId));
     }
 
     private static String safe(String value) {
