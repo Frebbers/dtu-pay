@@ -146,8 +146,6 @@ public class DtuPayClient implements Closeable {
     }
 
     public List<String> requestTokens(String customerId, int amount) {
-//        TokenRequest request = new TokenRequest(amount);
-
         lastResponse = base.path("customers")
                 .path(customerId)
                 .path("tokens")
