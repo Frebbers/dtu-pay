@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 
-@Path("")
+@Path("customers")
 public class CustomerResource {
 
     //    SimpleDtuPayService service = new SimpleDtuPayService();
@@ -23,7 +23,7 @@ public class CustomerResource {
     TokenServiceClient tokenService = new TokenServiceFactory().getService();
 
     @POST
-    @Path("customers")
+    @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response registerCustomer(User customer) {
@@ -32,7 +32,7 @@ public class CustomerResource {
     }
 
     @DELETE
-    @Path("customers/{id}")
+    @Path("{id}")
     public Response deleteCustomer(@PathParam("id") String id) {
         try {
             service.unregisterUserById(id);
@@ -46,21 +46,21 @@ public class CustomerResource {
     }
 
     @GET
-    @Path("customers/{id}")
+    @Path("{id}")
     public Response customerExists(@PathParam("id") String id) {
         Boolean exists = service.userExists(id);
         return Response.ok(exists).build();
     }
 
     @GET
-    @Path("customers/{customerId}/reports")
+    @Path("{customerId}/reports")
     @Produces(MediaType.APPLICATION_JSON)
     public CustomerReport getReport(@PathParam("customerId") String customerId) {
         return reportingService.getCustomerReport(customerId);
     }
 
     @POST
-    @Path("customers/{id}/tokens")
+    @Path("{id}/tokens")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response requestTokens(@PathParam("id") String customerId, TokenRequest request) {
@@ -77,7 +77,7 @@ public class CustomerResource {
     }
 
     @DELETE
-    @Path("customers/{id}/tokens")
+    @Path("{id}/tokens")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response invalidateTokens(@PathParam("id") String customerId) {
