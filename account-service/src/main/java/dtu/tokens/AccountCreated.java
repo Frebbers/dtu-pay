@@ -12,7 +12,7 @@ import java.io.Serial;
 public class AccountCreated extends AccountEvent {
 
     @Serial
-    private static final long serialVersionUID = -1599019626118724482L; //TODO find out what this is for and why this exact value @fadl
+    private static final long serialVersionUID = -1599019626118724482L;
     private String firstName;
     private String lastName;
     private String cpr;

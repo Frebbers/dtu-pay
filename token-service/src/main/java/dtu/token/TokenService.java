@@ -70,8 +70,6 @@ public class TokenService {
     }
 
     private void removeTokenForUser(String userId) {
-        // Remove the tokens for a specific user
-        mq.publish(new Event("TokensForCustomerDeleted", userId)); //todo implement this event?
         store.invalidateTokens(userId);
     }
 

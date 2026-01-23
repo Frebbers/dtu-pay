@@ -87,12 +87,4 @@ public class TokenServiceClient {
             future.completeExceptionally(new RuntimeException(rejected.reason()));
         }
     }
-
-    /// Fire and forget invalidation of all tokens for a customer
-    /// TODO remove this method as we should only invalidate tokens when deleting a user
-    public void invalidateTokens(String customerId) {
-        TokenInvalidationRequested command = new TokenInvalidationRequested(customerId,
-                System.currentTimeMillis());
-        mq.publish(new Event(TokenTopics.TOKEN_INVALIDATION_REQUESTED, command));
-    }
 }

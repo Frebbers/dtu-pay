@@ -19,7 +19,6 @@ import java.util.List;
 @Path("customers")
 public class CustomerResource {
 
-    //    SimpleDtuPayService service = new SimpleDtuPayService();
     UserService service = new UserServiceFactory().getService();
     ReportingService reportingService = new ReportingServiceFactory().getService();
     TokenServiceClient tokenService = new TokenServiceFactory().getService();
@@ -76,5 +75,4 @@ public class CustomerResource {
                     .build();
         }
     }
-
 }

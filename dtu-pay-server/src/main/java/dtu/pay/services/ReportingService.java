@@ -37,7 +37,6 @@ public class ReportingService {
             correlationMap.put(correlationId, future);
             Event event = eventFactory.apply(correlationId);
             mq.publish(event);
-            // TODO: check if joining timeout
             return future.join();
         } catch (Exception e) {
             throw e;
