@@ -49,30 +49,6 @@ public class TokenServiceClient {
         }
     }
 
-    public String consumeToken(String token, String merchantId, Integer amount) {
-        String commandId = UUID.randomUUID().toString();
-        CompletableFuture<String> future = new CompletableFuture<>();
-        tokenConsumptions.put(commandId, future);
-        ConsumeTokenRequested command = new ConsumeTokenRequested(commandId, token, merchantId, amount,
-                System.currentTimeMillis());
-        mq.publish(new Event(TokenTopics.CONSUME_TOKEN_REQUESTED, command));
-        try {
-            return future.get(5, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-            tokenConsumptions.remove(commandId);
-            throw new RuntimeException("Token consumption timed out for commandId " + commandId, e);
-        } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof RuntimeException runtimeException) {
-                throw runtimeException;
-            }
-            throw new RuntimeException(cause == null ? e : cause);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Token consumption interrupted for commandId " + commandId, e);
-        }
-    }
-
     private void handleTokensIssued(Event event) {
         TokensIssued issued = event.getArgument(0, TokensIssued.class);
         CompletableFuture<List<String>> future = tokenRequests.remove(issued.commandId());
