@@ -1,6 +1,9 @@
 # DTU-Pay
 Group 25
 
+## Project Link
+https://github.com/Frebbers/dtu-pay
+
 ## Requirements
 - Docker (with `docker compose`)
 - Java 21
