@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Number of threads to use for Maven builds.
-MVN_THREADS="${MVN_THREADS:-5}"
+MVN_THREADS="${MVN_THREADS:-4}"
 
 # Example: MVN_ARGS="-DskipTests" ./build.sh
 MVN_ARGS="${MVN_ARGS:-}"
