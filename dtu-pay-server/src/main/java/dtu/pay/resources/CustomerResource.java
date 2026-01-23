@@ -77,19 +77,4 @@ public class CustomerResource {
         }
     }
 
-    @DELETE
-    @Path("{id}/tokens")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response invalidateTokens(@PathParam("id") String customerId) {
-        try {
-            tokenService.invalidateTokens(customerId);
-            return Response.noContent().build();
-        } catch (RuntimeException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(e.getMessage())
-                    .type(MediaType.TEXT_PLAIN)
-                    .build();
-        }
-    }
 }
