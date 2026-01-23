@@ -12,7 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
-/// @author s224804
+
+/// @author Frederik Bode Hendrichsen - s224804
 class UserServiceTest {
     private UserService userService;
     private CompletableFuture<Event> publishedEvent;
@@ -22,8 +23,10 @@ class UserServiceTest {
         public void publish(Event event) {
             publishedEvent.complete(event);
         }
+
         @Override
-        public void addHandler(String eventType, Consumer<Event> handler) {}
+        public void addHandler(String eventType, Consumer<Event> handler) {
+        }
     };
 
     @BeforeEach
@@ -58,11 +61,11 @@ class UserServiceTest {
         String expectedResponse = "Success!";
         userService.handleUserRegistered(new Event(
                 "UserRegistered",
-                new Object[] { expectedResponse, correlationId }
-        ));
+                new Object[] { expectedResponse, correlationId }));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
+
     @Test
     void handleUserRegistered() {
     }

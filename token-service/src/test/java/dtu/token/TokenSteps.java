@@ -17,6 +17,7 @@ import java.util.function.Consumer;
 import messaging.Event;
 import messaging.MessageQueue;
 import org.junit.jupiter.api.Assertions;
+/// @author Frederik Bode Hendrichsen - s224804
 
 public class TokenSteps {
     private TestMessageQueue mq;

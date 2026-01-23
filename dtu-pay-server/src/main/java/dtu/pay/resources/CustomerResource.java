@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.Response;
 import lombok.Builder;
 
 import java.util.List;
+/// @author Wenji Xie - s242597
 
 @Path("customers")
 public class CustomerResource {
@@ -64,7 +65,8 @@ public class CustomerResource {
     @Path("{id}/tokens")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response requestTokens(@PathParam("id") String customerId, @QueryParam("amount") @DefaultValue("0") int amount) {
+    public Response requestTokens(@PathParam("id") String customerId,
+            @QueryParam("amount") @DefaultValue("0") int amount) {
         try {
             List<String> tokens = tokenService.requestTokens(customerId, amount);
             return Response.ok(tokens).build();

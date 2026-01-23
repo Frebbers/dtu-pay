@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+/// @author Elias Mortensen - s235109
 
 public class ReportingServiceSteps {
     private TestMessageQueue mq;
@@ -37,19 +38,25 @@ public class ReportingServiceSteps {
         private final List<Event> published = new ArrayList<>();
 
         @Override
-        public void publish(Event event) { published.add(event); }
+        public void publish(Event event) {
+            published.add(event);
+        }
 
         @Override
-        public void addHandler(String topic, Consumer<Event> handler) { handlers.put(topic, handler); }
+        public void addHandler(String topic, Consumer<Event> handler) {
+            handlers.put(topic, handler);
+        }
 
         public Event getLastPublished() {
-            if (published.isEmpty()) return null;
+            if (published.isEmpty())
+                return null;
             return published.getLast();
         }
 
         public void send(Event event) {
             Consumer<Event> handler = handlers.get(event.getTopic());
-            if (handler != null) handler.accept(event);
+            if (handler != null)
+                handler.accept(event);
         }
     }
 

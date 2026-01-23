@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+/// @author Elias Mortensen - s235109
 
 public class ReportingService {
     private final MessageQueue mq;
@@ -26,11 +27,9 @@ public class ReportingService {
         mq.addHandler(ReportEvent.MANAGER_REPORT_RETURNED, this::handleManagerReport);
     }
 
-
     private <T extends Report> T requestReport(
             Map<CorrelationId, CompletableFuture<T>> correlationMap,
-            Function<CorrelationId, Event> eventFactory
-    ) {
+            Function<CorrelationId, Event> eventFactory) {
         try {
             var correlationId = CorrelationId.randomId();
             var future = new CompletableFuture<T>();
@@ -46,22 +45,19 @@ public class ReportingService {
     public CustomerReport getCustomerReport(String customerId) {
         return requestReport(
                 customerCorrelationMap,
-                corrId -> new Event(ReportEvent.CUSTOMER_REPORT_REQUESTED, customerId, corrId)
-        );
+                corrId -> new Event(ReportEvent.CUSTOMER_REPORT_REQUESTED, customerId, corrId));
     }
 
     public MerchantReport getMerchantReport(String merchantId) {
         return requestReport(
                 merchantCorrelationMap,
-                corrId -> new Event(ReportEvent.MERCHANT_REPORT_REQUESTED, merchantId, corrId)
-        );
+                corrId -> new Event(ReportEvent.MERCHANT_REPORT_REQUESTED, merchantId, corrId));
     }
 
     public ManagerReport getManagerReport() {
         return requestReport(
                 managerCorrelationMap,
-                corrId -> new Event(ReportEvent.MANAGER_REPORT_REQUESTED, corrId)
-        );
+                corrId -> new Event(ReportEvent.MANAGER_REPORT_REQUESTED, corrId));
     }
 
     public void handleCustomerReport(Event e) {

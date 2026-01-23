@@ -17,6 +17,7 @@ import io.cucumber.java.PendingException;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+/// @author Wenji Xie - s242597
 
 public class AccountCreationSteps {
 
@@ -30,7 +31,7 @@ public class AccountCreationSteps {
   private String DTUPayAccountId;
   private Throwable latestError;
 
-  public  AccountCreationSteps(ScenarioContext context) {
+  public AccountCreationSteps(ScenarioContext context) {
     this.context = context;
   }
 
@@ -48,13 +49,13 @@ public class AccountCreationSteps {
   }
 
   @After
-  public void breakDown(){
+  public void breakDown() {
     for (String account : bankAccounts) {
-            try {
-                bank.retireAccount(bankApiKey, account);
-            } catch (BankServiceException_Exception e) {
-                System.out.println("Could not retire account: " + account);
-            }
-        }
+      try {
+        bank.retireAccount(bankApiKey, account);
+      } catch (BankServiceException_Exception e) {
+        System.out.println("Could not retire account: " + account);
+      }
+    }
   }
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+/// @author Christian Hyltoft - s215816
 
 public class PaymentService {
 
@@ -22,13 +23,14 @@ public class PaymentService {
     }
 
     /// Forward payment request to message queue
-    /// @param paymentRequest the request for payment containing a merchant id, an amount and a token
+    /// @param paymentRequest the request for payment containing a merchant id, an
+    /// amount and a token
     public String pay(PaymentRequest paymentRequest) throws Exception {
         try {
             CorrelationId correlationId = CorrelationId.randomId();
             CompletableFuture<String> future = new CompletableFuture<>();
             correlations.put(correlationId, future);
-            Event event = new Event("PaymentRequested", new Object[]{paymentRequest, correlationId});
+            Event event = new Event("PaymentRequested", new Object[] { paymentRequest, correlationId });
             mq.publish(event);
             return future.orTimeout(5, TimeUnit.SECONDS).join();
         } catch (Exception e) {
@@ -36,7 +38,7 @@ public class PaymentService {
         }
     }
 
-    public void handlePaymentSuccessful(Event e){
+    public void handlePaymentSuccessful(Event e) {
         String returnedInfo = e.getArgument(0, String.class);
         CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
         correlations.get(correlationId).complete(returnedInfo);

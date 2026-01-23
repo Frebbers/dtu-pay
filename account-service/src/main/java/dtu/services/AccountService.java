@@ -15,6 +15,8 @@ import dtu.repositories.ReadAccountRepository;
 import messaging.Event;
 import messaging.MessageQueue;
 
+/// @author Fadl Matar - s195846
+
 public class AccountService {
   private static final Logger logger = Logger.getLogger(AccountService.class.getName());
   private final MessageQueue mq;
@@ -52,7 +54,6 @@ public class AccountService {
     return readRepo.getBankAccount(cpr);
   }
 
-
   public void handleUserRegistration(Event e) {
     logger.info("Received user registration event:" + e.getTopic());
     var account = e.getArgument(0, User.class);
@@ -63,11 +64,11 @@ public class AccountService {
     } catch (AccountAlreadyExistsException ex) {
       logger.warning("Account registration failed: " + ex.getMessage());
       mq.publish(new Event(AccountServiceTopics.USER_ALREADY_REGISTERED,
-              ex.getMessage(), correlationId));
+          ex.getMessage(), correlationId));
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
       mq.publish(new Event(AccountServiceTopics.USER_REGISTRATION_FAILED,
-              exe.getMessage(), correlationId));
+          exe.getMessage(), correlationId));
     }
   }
 
@@ -81,31 +82,28 @@ public class AccountService {
     } catch (Exception exe) {
       logger.warning("Deregistration failed: " + exe);
       mq.publish(new Event(AccountServiceTopics.USER_DEREGISTRATION_FAILED,
-              exe.getMessage(), correlationId));
+          exe.getMessage(), correlationId));
     }
   }
 
-
-  public void handleMerchantBankAccount(Event e){
+  public void handleMerchantBankAccount(Event e) {
     PaymentRequest payment = e.getArgument(0, PaymentRequest.class);
     CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
     try {
       String bankAccountNumber = getBankAccountNumber(payment.merchantId());
-      
+
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
-              payment.merchantId(), bankAccountNumber, correlationId));
+          payment.merchantId(), bankAccountNumber, correlationId));
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account with " + payment.merchantId() + " does not exist");
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-              ex.getMessage(), correlationId));
+          ex.getMessage(), correlationId));
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-              exe.getMessage(), correlationId));
+          exe.getMessage(), correlationId));
     }
   }
-
-
 
   public void handleCustomerBankAccount(Event e) {
     logger.info("Received bank account number request event:" + e.getTopic());
@@ -114,15 +112,15 @@ public class AccountService {
     try {
       String bankAccountNumber = getBankAccountNumber(cpr);
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVED,
-              cpr, bankAccountNumber, correlationId));
+          cpr, bankAccountNumber, correlationId));
     } catch (AccountDoesNotExistsException ex) {
       logger.warning("Account with " + cpr + " does not exist");
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-              ex.getMessage(), correlationId));
+          ex.getMessage(), correlationId));
     } catch (Exception exe) {
       logger.severe("Registration crashed: " + exe);
       mq.publish(new Event(AccountServiceTopics.BANK_ACCOUNT_RETRIEVAL_FAILED,
-              exe.getMessage(), correlationId));
+          exe.getMessage(), correlationId));
     }
   }
 }

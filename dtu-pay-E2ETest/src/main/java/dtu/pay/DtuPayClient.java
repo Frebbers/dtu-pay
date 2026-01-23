@@ -16,6 +16,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.math.BigDecimal;
+/// @author Mattia Zanellato - s253156
 
 public class DtuPayClient implements Closeable {
 
@@ -115,7 +116,6 @@ public class DtuPayClient implements Closeable {
             if (status == 204)
                 return;
 
-            
             throw new WebApplicationException(body, status);
         }
     }
@@ -155,7 +155,8 @@ public class DtuPayClient implements Closeable {
 
         if (lastResponse.getStatus() == 200) {
             latestError = null;
-            return lastResponse.readEntity(new GenericType<>() {});
+            return lastResponse.readEntity(new GenericType<>() {
+            });
         }
         latestError = lastResponse.readEntity(String.class);
         return null; // rejection case handled in steps
@@ -166,6 +167,7 @@ public class DtuPayClient implements Closeable {
                 .request()
                 .delete();
     }
+
     @Override
     public void close() throws IOException {
         client.close();

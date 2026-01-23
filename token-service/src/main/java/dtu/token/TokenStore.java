@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+/// @author Fadl Matar - s195846
 
 public class TokenStore {
     private final SecureRandom random = new SecureRandom();
@@ -74,6 +75,7 @@ public class TokenStore {
                 }
                 tokensByCustomer.remove(userId);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 }

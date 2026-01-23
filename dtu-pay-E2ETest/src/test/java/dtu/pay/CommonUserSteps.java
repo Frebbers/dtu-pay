@@ -14,6 +14,7 @@ import static org.junit.Assert.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+/// @author Fadl Matar - s195846
 
 public class CommonUserSteps {
 
@@ -112,14 +113,13 @@ public class CommonUserSteps {
                 context.user.firstName(),
                 context.user.lastName(),
                 context.user.cprNumber(),
-                context.bankAccountId
-        );
+                context.bankAccountId);
 
         try {
             dtupay.registerDTUPayCustomer(request);
             context.latestError = null; // means: unexpectedly succeeded
         } catch (Throwable t) {
-            context.latestError = t;    // expected path
+            context.latestError = t; // expected path
         }
     }
 
@@ -127,14 +127,12 @@ public class CommonUserSteps {
     public void theDTUPayRegistrationIsRejectedWithStatus(Integer expectedStatus) {
         assertNotNull("Expected registration to be rejected, but it succeeded", context.latestError);
         assertTrue(
-            "Expected a WebApplicationException but got: " + context.latestError.getClass(),
-            context.latestError instanceof WebApplicationException
-        );
+                "Expected a WebApplicationException but got: " + context.latestError.getClass(),
+                context.latestError instanceof WebApplicationException);
 
         WebApplicationException ex = (WebApplicationException) context.latestError;
         assertEquals(expectedStatus.intValue(), ex.getResponse().getStatus());
     }
-    
 
     @Then("the error message contains {string}")
     public void theErrorMessageContains(String expected) {
@@ -143,10 +141,7 @@ public class CommonUserSteps {
         assertNotNull("Error message was null", msg);
         assertTrue(
                 "Expected error message to contain '" + expected + "' but was: " + msg,
-                msg.toLowerCase().contains(expected.toLowerCase())
-        );
+                msg.toLowerCase().contains(expected.toLowerCase()));
     }
-  
+
 }
-
-

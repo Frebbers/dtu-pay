@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+/// @author Elias Mortensen - s235109
 
 public class TokenCreationSteps {
 
@@ -30,7 +31,6 @@ public class TokenCreationSteps {
     private String bankApiKey = "amber2460";
     private DtuPayClient dtupay = new DtuPayClient();
     private List<String> bankAccounts = new ArrayList<>();
-
 
     public TokenCreationSteps(ScenarioContext context) {
         this.context = context;
@@ -51,7 +51,7 @@ public class TokenCreationSteps {
             context.latestError = new RuntimeException("Token request failed: " + dtupay.getLatestError());
         }
         assertNotNull(context.tokens);
-        assert(context.tokens.size() <= amount);
+        assert (context.tokens.size() <= amount);
     }
 
     @Then("the customer receives exactly {int} unique tokens")
@@ -68,12 +68,11 @@ public class TokenCreationSteps {
         assertNotNull(response, "No HTTP response received");
         assertTrue(
                 response.getStatus() == 400 || response.getStatus() == 409,
-                "Expected token request to be rejected, but got status " + response.getStatus()
-        );
+                "Expected token request to be rejected, but got status " + response.getStatus());
     }
 
     @After
-    public void breakDown(){
+    public void breakDown() {
         for (String account : bankAccounts) {
             try {
                 bank.retireAccount(bankApiKey, account);

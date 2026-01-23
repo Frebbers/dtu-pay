@@ -13,6 +13,6 @@ public class ScenarioContext {
     public String customerId;
     public String merchantId;
     public List<String> tokens;
-    public Map<String, List<String>> tokensMap= new HashMap<>();
+    public Map<String, List<String>> tokensMap = new HashMap<>();
     public Throwable latestError;
 }

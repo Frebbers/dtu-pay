@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import messaging.Event;
 import messaging.MessageQueue;
+/// @author Mattia Zanellato - s253156
 
 public class TokenServiceClient {
     private final MessageQueue mq;

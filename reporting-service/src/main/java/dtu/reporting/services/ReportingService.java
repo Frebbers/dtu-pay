@@ -10,6 +10,7 @@ import dtu.reporting.repositories.ReportRepositoryImpl;
 import messaging.Event;
 import messaging.MessageQueue;
 
+/// @author Frederik Bode Hendrichsen - s224804
 public class ReportingService {
     private final MessageQueue mq;
     private final ReportRepository reportRepository;

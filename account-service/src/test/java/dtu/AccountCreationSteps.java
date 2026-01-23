@@ -12,6 +12,8 @@ import messaging.Event;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 
+/// @author Christian Hyltoft - s215816
+
 public class AccountCreationSteps {
 
   private final SharedContext context;
@@ -101,7 +103,7 @@ public class AccountCreationSteps {
     context.correlationId = CorrelationId.randomId();
 
     context.deregistrationRequestedEvent = new Event(
-        AccountServiceTopics.USER_DEREGISTERED_REQUESTED,  new Object[] {context.createdCpr, context.correlationId});
+        AccountServiceTopics.USER_DEREGISTERED_REQUESTED, new Object[] { context.createdCpr, context.correlationId });
   }
 
   @Then("the deregistration failure message is {string}")
@@ -109,6 +111,6 @@ public class AccountCreationSteps {
     verify(context.queueExternal).publish(
         new Event(
             AccountServiceTopics.USER_DEREGISTRATION_FAILED,
-                expectedMessage, context.correlationId));
+            expectedMessage, context.correlationId));
   }
 }

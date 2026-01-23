@@ -3,6 +3,7 @@ package dtu.token;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 import messaging.implementations.RabbitMqQueue;
+/// @author Wenji Xie - s242597
 
 public class TokenServiceApplication {
     private static final Logger logger = Logger.getLogger(TokenServiceApplication.class.getName());

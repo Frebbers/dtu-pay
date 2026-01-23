@@ -5,6 +5,7 @@ import payment.service.PaymentService;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
+/// @author Christian Hyltoft - s215816
 
 public class App {
     private static final Logger logger = Logger.getLogger(App.class.getName());

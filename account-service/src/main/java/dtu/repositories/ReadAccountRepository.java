@@ -12,6 +12,8 @@ import dtu.Exceptions.AccountDoesNotExistsException;
 import messaging.Event;
 import messaging.MessageQueue;
 
+/// @author Mattia Zanellato - s253156
+
 @Repository
 public class ReadAccountRepository {
 
@@ -53,7 +55,8 @@ public class ReadAccountRepository {
 
   public String getBankAccount(String cpr) throws AccountDoesNotExistsException {
     User u = accounts.get(cpr);
-    if(u == null) throw new AccountDoesNotExistsException("Account with CPR " + cpr + " does not exist");
+    if (u == null)
+      throw new AccountDoesNotExistsException("Account with CPR " + cpr + " does not exist");
     System.out.println("Accounts in read repo: " + accounts);
     System.out.println("Account size: " + accounts.size());
     return u.bankAccountNum();
@@ -63,7 +66,7 @@ public class ReadAccountRepository {
     return accounts.values().stream().anyMatch(account -> account.bankAccountNum().equals(bankAccountNum));
   }
 
-  public boolean existsByCpr(String cpr){
+  public boolean existsByCpr(String cpr) {
     return accounts.containsKey(cpr);
   }
 }

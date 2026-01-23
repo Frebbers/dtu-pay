@@ -10,6 +10,7 @@ import io.cucumber.java.en.When;
 import org.junit.Assert;
 import java.math.BigDecimal;
 
+/// @author Frederik Bode Hendrichsen - s224804
 public class PaymentSteps {
     private DtuPayClient dtupay = new DtuPayClient();
     private final ScenarioContext context;

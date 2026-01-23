@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
+/// @author Wenji Xie - s242597
 
 public class UserService {
     private final MessageQueue mq;
@@ -103,15 +104,15 @@ public class UserService {
         }
     }
 
-//    public void handleUserDoesNotExist(Event e) {
-//        String message = e.getArgument(0, String.class);
-//        CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
-//
-//        CompletableFuture<String> future = correlations.remove(correlationId);
-//        if (future != null) {
-//            future.completeExceptionally(new NotFoundException(message));
-//        }
-//    }
+    // public void handleUserDoesNotExist(Event e) {
+    // String message = e.getArgument(0, String.class);
+    // CorrelationId correlationId = e.getArgument(1, CorrelationId.class);
+    //
+    // CompletableFuture<String> future = correlations.remove(correlationId);
+    // if (future != null) {
+    // future.completeExceptionally(new NotFoundException(message));
+    // }
+    // }
 
     public void handleUserNotDeregistered(Event e) {
         String error = e.getArgument(0, String.class);

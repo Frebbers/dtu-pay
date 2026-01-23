@@ -7,9 +7,9 @@ import java.util.logging.Logger;
 import dtu.repositories.WriteAccountRepository;
 import dtu.repositories.ReadAccountRepository;
 
+/// @author Frederik Bode Hendrichsen - s224804
 public class AccountServiceApplication {
     private static final Logger logger = Logger.getLogger(AccountServiceApplication.class.getName());
-    
 
     public static void main(String[] args) throws InterruptedException {
         String rabbitHost = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
