@@ -29,7 +29,7 @@ public class ReportingService {
     }
 
     public void handleCompletedBankTransfer(Event event) {
-        Payment payment = event.getArgument(0, Payment.class); // TODO: check
+        Payment payment = event.getArgument(0, Payment.class);
         reportRepository.createReport(payment);
     }
 

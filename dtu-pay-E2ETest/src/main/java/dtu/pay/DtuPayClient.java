@@ -146,30 +146,21 @@ public class DtuPayClient implements Closeable {
     }
 
     public List<String> requestTokens(String customerId, int amount) {
-        TokenRequest request = new TokenRequest(amount);
+//        TokenRequest request = new TokenRequest(amount);
 
         lastResponse = base.path("customers")
                 .path(customerId)
                 .path("tokens")
+                .queryParam("amount", amount)
                 .request()
-                .post(Entity.json(request));
+                .get();
 
         if (lastResponse.getStatus() == 200) {
             latestError = null;
-            return lastResponse.readEntity(new GenericType<List<String>>() {
-            });
+            return lastResponse.readEntity(new GenericType<>() {});
         }
         latestError = lastResponse.readEntity(String.class);
         return null; // rejection case handled in steps
-    }
-
-    /// Will always return 200 OK unless an exception occurs
-    public void invalidateTokens(String customerId) {
-        lastResponse = base.path("customers")
-                .path(customerId)
-                .path("tokens")
-                .request()
-                .delete();
     }
 
     public void cleanAllPayments() {

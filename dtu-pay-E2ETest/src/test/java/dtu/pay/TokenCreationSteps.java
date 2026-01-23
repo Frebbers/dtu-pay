@@ -83,16 +83,6 @@ public class TokenCreationSteps {
         }
     }
 
-    @Given("User with CPR {string} is cleaned up")
-    public void userWithCPRIsCleanedUp(String cpr) {
-        try {dtupay.invalidateTokens(cpr);}
-        catch (Exception ignored) {}
-        try {var acc = bank.getAccountByCprNumber(cpr);
-            bank.retireAccount(bankApiKey, acc.getId());
-        }
-        catch (BankServiceException_Exception ignored) {}
-    }
-
     @When("the customer requests {int} tokens again")
     public void theCustomerRequestsTokensAgain(int amount) {
         context.tokens = dtupay.requestTokens(context.customerId, amount);

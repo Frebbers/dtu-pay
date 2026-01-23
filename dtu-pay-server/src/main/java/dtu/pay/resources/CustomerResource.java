@@ -12,6 +12,8 @@ import dtu.pay.services.UserService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import lombok.Builder;
+
 import java.util.List;
 
 @Path("customers")
@@ -59,14 +61,13 @@ public class CustomerResource {
         return reportingService.getCustomerReport(customerId);
     }
 
-    @POST
+    @GET
     @Path("{id}/tokens")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response requestTokens(@PathParam("id") String customerId, TokenRequest request) {
-        int count = request == null ? 0 : request.count();
+    public Response requestTokens(@PathParam("id") String customerId, @QueryParam("amount") @DefaultValue("0") int amount) {
         try {
-            List<String> tokens = tokenService.requestTokens(customerId, count);
+            List<String> tokens = tokenService.requestTokens(customerId, amount);
             return Response.ok(tokens).build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -76,19 +77,4 @@ public class CustomerResource {
         }
     }
 
-    @DELETE
-    @Path("{id}/tokens")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response invalidateTokens(@PathParam("id") String customerId) {
-        try {
-            tokenService.invalidateTokens(customerId);
-            return Response.noContent().build();
-        } catch (RuntimeException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(e.getMessage())
-                    .type(MediaType.TEXT_PLAIN)
-                    .build();
-        }
-    }
 }
