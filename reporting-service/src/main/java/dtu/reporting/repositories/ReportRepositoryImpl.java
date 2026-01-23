@@ -7,13 +7,15 @@ import dtu.reporting.models.report.MerchantReport;
 
 import java.util.HashMap;
 import java.util.Map;
+/// @author Fadl Matar - s195846
 
 public class ReportRepositoryImpl implements ReportRepository {
     private final Map<String, CustomerReport> customerReportMap = new HashMap<>();
     private final Map<String, MerchantReport> merchantReportMap = new HashMap<>();
     private ManagerReport managerReport = new ManagerReport();
 
-    public ReportRepositoryImpl() {}
+    public ReportRepositoryImpl() {
+    }
 
     @Override
     public void createReport(Payment payment) {

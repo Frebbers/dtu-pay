@@ -12,6 +12,8 @@ import dtu.tokens.AccountEvent;
 import lombok.NonNull;
 import messaging.MessageQueue;
 
+/// @author Elias Mortensen - s235109
+
 public class EventStore {
 
 	private Map<String, List<AccountEvent>> store = new ConcurrentHashMap<>();

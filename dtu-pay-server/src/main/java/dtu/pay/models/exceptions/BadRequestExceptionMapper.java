@@ -5,7 +5,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
-
 @Provider
 public class BadRequestExceptionMapper implements ExceptionMapper<BadRequestException> {
     @Override
@@ -15,6 +14,3 @@ public class BadRequestExceptionMapper implements ExceptionMapper<BadRequestExce
                 .build();
     }
 }
-
-
-

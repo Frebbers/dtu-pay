@@ -19,12 +19,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 import static org.mockito.Mockito.*;
+/// @author Mattia Zanellato - s253156
 
 public class PaymentStepdefs {
     private MessageQueue queue = mock(MessageQueue.class);
     private BankService bank = mock(BankService.class);
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    // Service is instantiated with the mock queue, bank, scheduler, and 5 second expiration
+    // Service is instantiated with the mock queue, bank, scheduler, and 5 second
+    // expiration
     private PaymentService service = new PaymentService(queue, bank, scheduler, 5);
 
     private PaymentReq paymentReq;
@@ -54,7 +56,8 @@ public class PaymentStepdefs {
         verify(queue).addHandler(eq(service.BANK_ACCOUNT_RETRIEVED), bankCaptor.capture());
         bankAccountRetrievedHandler = bankCaptor.getValue();
 
-        // 3. Create the event payload and invoke handler directly (no separate thread needed)
+        // 3. Create the event payload and invoke handler directly (no separate thread
+        // needed)
         paymentReq = new PaymentReq("token_123", "merchant_123", BigDecimal.valueOf(1000));
         correlationId = CorrelationId.randomId();
         Event event = new Event("PaymentRequested", new Object[] { paymentReq, correlationId });
@@ -85,14 +88,16 @@ public class PaymentStepdefs {
         Event replyEvent = new Event(service.BANK_ACCOUNT_RETRIEVED,
                 new Object[] { paymentReq.merchantId(), merchantBankAccNum, correlationId });
 
-        // Invoke the handler directly - this triggers payment processing since all data is available
+        // Invoke the handler directly - this triggers payment processing since all data
+        // is available
         bankAccountRetrievedHandler.accept(replyEvent);
     }
 
     @When("the bank processes the payment successfully")
     public void theBankProcessesThePaymentSuccessfully() {
         // Payment is triggered once the service has all required event data.
-        // In the new implementation, this happens synchronously in the last handler call.
+        // In the new implementation, this happens synchronously in the last handler
+        // call.
     }
 
     @Then("the payment request is processed successfully")
@@ -107,7 +112,7 @@ public class PaymentStepdefs {
         // Get the BankTransferCompletedSuccessfully event
         Event successEvent = eventCaptor.getAllValues().get(0);
         Assertions.assertEquals(service.BANK_TRANSFER_COMPLETED_SUCCESSFULLY, successEvent.getTopic());
-        
+
         PaymentRecord record = successEvent.getArgument(0, PaymentRecord.class);
         Assertions.assertEquals(paymentReq.amount(), record.amount());
         Assertions.assertEquals(customerId, record.customerId());

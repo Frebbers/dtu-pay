@@ -21,6 +21,9 @@ import lombok.Setter;
 @AggregateRoot
 @Entity
 @Getter
+
+/// @author Christian Hyltoft - s215816
+
 public class Account {
 	private String firstname;
 	private String lastname;
@@ -51,7 +54,6 @@ public class Account {
 		AccountDeregistered event = new AccountDeregistered(cpr);
 		this.appliedEvents.add(event);
 	}
-
 
 	public Account() {
 		registerEventHandlers();

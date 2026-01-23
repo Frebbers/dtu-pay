@@ -13,6 +13,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+/// @author Frederik Bode Hendrichsen - s224804
 @Path("")
 public class MerchantResource {
     private final PaymentService paymentService = new PaymentServiceFactory().getService();

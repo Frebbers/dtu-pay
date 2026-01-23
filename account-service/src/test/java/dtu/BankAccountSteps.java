@@ -11,6 +11,7 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import messaging.Event;
 
+/// @author Elias Mortensen - s235109
 
 public class BankAccountSteps {
 
@@ -38,7 +39,7 @@ public class BankAccountSteps {
   @Then("a {string} event is published with bank account {string}")
   public void aEventIsPublishedWithBankAccount(String eventName, String expectedBankAccount) {
     verify(context.queueExternal).publish(
-        new Event(eventName, context.createdCpr ,expectedBankAccount, context.correlationId));
+        new Event(eventName, context.createdCpr, expectedBankAccount, context.correlationId));
   }
 
   @Then("the stored bank account for that user is {string}")

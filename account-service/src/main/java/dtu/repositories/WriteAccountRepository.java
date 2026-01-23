@@ -6,6 +6,8 @@ import dtu.Exceptions.AccountDoesNotExistsException;
 import dtu.aggregate.Account;
 import messaging.MessageQueue;
 
+/// @author Wenji Xie - s242597
+
 public class WriteAccountRepository {
 
 	private EventStore eventStore;

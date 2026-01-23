@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+/// @author Christian Hyltoft - s215816
 
 public class ReportRequestSteps {
     private final ScenarioContext context;
@@ -23,17 +24,18 @@ public class ReportRequestSteps {
         this.context = context;
     }
 
-
     @Given("the global payment history is empty")
     public void theGlobalPaymentHistoryIsEmpty() {
         dtuPayClient.cleanAllPayments();
     }
 
     @When("the merchant with id {string} initiates a payment of {int} kr by the customer with id {string} using the token")
-    public void theMerchantWithIdInitiatesAPaymentOfKrByTheCustomerWithIdUsingTheToken(String merchantId, int cost, String customerId) {
+    public void theMerchantWithIdInitiatesAPaymentOfKrByTheCustomerWithIdUsingTheToken(String merchantId, int cost,
+            String customerId) {
         try {
             List<String> tokens = context.tokensMap.get(customerId);
-            if (tokens == null) throw new RuntimeException(customerId + " doesn't have tokens (map: " + context.tokensMap + ")");
+            if (tokens == null)
+                throw new RuntimeException(customerId + " doesn't have tokens (map: " + context.tokensMap + ")");
             String tokenToUse = tokens.getFirst();
             tokens.removeFirst();
             dtuPayClient.pay(tokenToUse, merchantId, new BigDecimal(cost));
@@ -49,7 +51,6 @@ public class ReportRequestSteps {
             context.latestError = new RuntimeException("Token request failed: " + dtuPayClient.getLatestError());
         }
     }
-
 
     // Customer
 
@@ -71,12 +72,10 @@ public class ReportRequestSteps {
     public void theReportContainsAPaymentOfKrToTheMerchant(int amount, String expectedMerchantId) {
         List<CustomerReportEntry> payments = customerReport.payments();
 
-        boolean matchFound = payments.stream().anyMatch(payment ->
-                payment.amount() == amount && payment.merchantId().equals(expectedMerchantId)
-        );
+        boolean matchFound = payments.stream()
+                .anyMatch(payment -> payment.amount() == amount && payment.merchantId().equals(expectedMerchantId));
         assertTrue(matchFound);
     }
-
 
     // Merchant
 
@@ -98,9 +97,7 @@ public class ReportRequestSteps {
     public void theReportContainsAPaymentOfKr(int amount) {
         List<MerchantReportEntry> payments = merchantReport.payments();
 
-        boolean matchFound = payments.stream().anyMatch(payment ->
-                payment.amount() == amount
-        );
+        boolean matchFound = payments.stream().anyMatch(payment -> payment.amount() == amount);
         assertTrue(matchFound);
     }
 
@@ -114,7 +111,6 @@ public class ReportRequestSteps {
             assertFalse(fieldName.contains("cpr"));
         }
     }
-
 
     // Manager
 

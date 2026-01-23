@@ -1,1 +1,2 @@
-public record BankAccountRetrieved(String cpr, String bankAccountNum) {}
+public record BankAccountRetrieved(String cpr, String bankAccountNum) {
+}

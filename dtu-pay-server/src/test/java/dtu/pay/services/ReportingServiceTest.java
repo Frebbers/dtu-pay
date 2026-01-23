@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+/// @author Fadl Matar - s195846
 
 class ReportingServiceTest {
     private ReportingService reportingService;
@@ -45,7 +46,8 @@ class ReportingServiceTest {
         String customerId = "customerId";
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<CustomerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getCustomerReport(customerId));
+        CompletableFuture<CustomerReport> resultFuture = CompletableFuture
+                .supplyAsync(() -> reportingService.getCustomerReport(customerId));
 
         Event request = publishedEvent.get();
         assertEquals(ReportEvent.CUSTOMER_REPORT_REQUESTED, request.getType());
@@ -55,10 +57,9 @@ class ReportingServiceTest {
         CustomerReport expectedResponse = new CustomerReport(
                 List.of(
                         new CustomerReportEntry(1, "token1", "merchantId1"),
-                        new CustomerReportEntry(2, "token2", "merchantId2")
-                )
-        );
-        reportingService.handleCustomerReport(new Event(ReportEvent.CUSTOMER_REPORT_RETURNED, expectedResponse, correlationId));
+                        new CustomerReportEntry(2, "token2", "merchantId2")));
+        reportingService
+                .handleCustomerReport(new Event(ReportEvent.CUSTOMER_REPORT_RETURNED, expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
@@ -68,7 +69,8 @@ class ReportingServiceTest {
         String merchantId = "merchantId";
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<MerchantReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getMerchantReport(merchantId));
+        CompletableFuture<MerchantReport> resultFuture = CompletableFuture
+                .supplyAsync(() -> reportingService.getMerchantReport(merchantId));
 
         Event request = publishedEvent.get();
         assertEquals(ReportEvent.MERCHANT_REPORT_REQUESTED, request.getType());
@@ -78,10 +80,9 @@ class ReportingServiceTest {
         MerchantReport expectedResponse = new MerchantReport(
                 List.of(
                         new MerchantReportEntry(1, "token1"),
-                        new MerchantReportEntry(2, "token2")
-                )
-        );
-        reportingService.handleMerchantReport(new Event(ReportEvent.MERCHANT_REPORT_RETURNED, expectedResponse, correlationId));
+                        new MerchantReportEntry(2, "token2")));
+        reportingService
+                .handleMerchantReport(new Event(ReportEvent.MERCHANT_REPORT_RETURNED, expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }
@@ -90,7 +91,8 @@ class ReportingServiceTest {
     void getManagerReportSuccessfully() throws Exception {
         publishedEvent = new CompletableFuture<>();
 
-        CompletableFuture<ManagerReport> resultFuture = CompletableFuture.supplyAsync(() -> reportingService.getManagerReport());
+        CompletableFuture<ManagerReport> resultFuture = CompletableFuture
+                .supplyAsync(() -> reportingService.getManagerReport());
 
         Event request = publishedEvent.get();
         assertEquals(ReportEvent.MANAGER_REPORT_REQUESTED, request.getType());
@@ -100,11 +102,10 @@ class ReportingServiceTest {
         ManagerReport expectedResponse = new ManagerReport(
                 List.of(
                         new ManagerReportEntry(1, "token1", "merchantId1", "customerId1"),
-                        new ManagerReportEntry(2, "token2", "merchantId2", "customerId2")
-                ),
-                3
-        );
-        reportingService.handleManagerReport(new Event(ReportEvent.MANAGER_REPORT_RETURNED, expectedResponse, correlationId));
+                        new ManagerReportEntry(2, "token2", "merchantId2", "customerId2")),
+                3);
+        reportingService
+                .handleManagerReport(new Event(ReportEvent.MANAGER_REPORT_RETURNED, expectedResponse, correlationId));
 
         assertEquals(expectedResponse, resultFuture.get());
     }

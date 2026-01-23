@@ -4,6 +4,8 @@ import dtu.pay.services.UserService;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
 
+/// @author Mattia Zanellato - s253156
+
 public class UserServiceFactory {
     private final MessageQueue mq;
 
@@ -11,6 +13,7 @@ public class UserServiceFactory {
         String host = System.getenv().getOrDefault("RABBITMQ_HOST", "rabbitmq");
         mq = new RabbitMqQueue(host);
     }
+
     public UserService getService() {
         return new UserService(mq);
     }

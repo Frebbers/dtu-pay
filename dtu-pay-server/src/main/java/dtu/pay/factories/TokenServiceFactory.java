@@ -4,6 +4,8 @@ import dtu.pay.services.TokenServiceClient;
 import messaging.MessageQueue;
 import messaging.implementations.RabbitMqQueue;
 
+/// @author Mattia Zanellato - s253156
+
 public class TokenServiceFactory {
     private final MessageQueue mq;
 

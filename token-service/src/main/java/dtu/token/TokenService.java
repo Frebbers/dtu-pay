@@ -12,7 +12,7 @@ import io.vertx.codegen.doc.Token;
 import messaging.Event;
 import messaging.MessageQueue;
 
-/// @author Christian Hyltoft
+/// @author Mattia Zanellato - s253156
 public class TokenService {
     private final MessageQueue mq;
     private final TokenStore store;
@@ -42,7 +42,7 @@ public class TokenService {
             command = event.getArgument(0, PaymentRequest.class);
             correlationId = event.getArgument(1, CorrelationId.class);
         } catch (Exception e) {
-            if(correlationId != null){
+            if (correlationId != null) {
                 publishTokenConsumptionRejected(
                         new TokenConsumptionRejected(null, "Invalid payment request", now()), correlationId);
             }
@@ -62,7 +62,7 @@ public class TokenService {
         TokenRecord record = store.consumeToken(token, now());
         if (record == null) {
             publishTokenConsumptionRejected(new TokenConsumptionRejected(token,
-                            "Token is invalid or already used", now()), correlationId);
+                    "Token is invalid or already used", now()), correlationId);
             return;
         }
         publishTokenValidated(record.getCustomerId(), correlationId);
@@ -77,7 +77,6 @@ public class TokenService {
         String userId = event.getArgument(0, String.class);
         removeTokenForUser(userId);
     }
-
 
     private void handleTokenRequestSubmitted(Event event) {
         TokenRequestSubmitted command;
@@ -102,18 +101,25 @@ public class TokenService {
         publishTokensIssued(new TokensIssued(commandId, customerId, tokens.size(), tokens, now()));
     }
 
-    private String getErrorMessageIfAny(TokenRequestSubmitted command){
+    private String getErrorMessageIfAny(TokenRequestSubmitted command) {
         String customerId = safe(command.customerId());
         int requestedCount = command.requestedCount();
 
-        if (customerId.isEmpty()) {return"Customer id is required";}
-        if (requestedCount < 1 || requestedCount > 5) {return "Requested count must be between 1 and 5";}
+        if (customerId.isEmpty()) {
+            return "Customer id is required";
+        }
+        if (requestedCount < 1 || requestedCount > 5) {
+            return "Requested count must be between 1 and 5";
+        }
         int unusedCount = store.unusedCount(customerId);
-        if (unusedCount > 1) {return "Customer has more than one unused token";}
-        if (unusedCount + requestedCount > 6) {return "Requested tokens exceed unused token limit";}
+        if (unusedCount > 1) {
+            return "Customer has more than one unused token";
+        }
+        if (unusedCount + requestedCount > 6) {
+            return "Requested tokens exceed unused token limit";
+        }
         return null;
     }
-
 
     private void publishTokensIssued(TokensIssued issued) {
         mq.publish(new Event(TokenTopics.TOKENS_ISSUED, issued));

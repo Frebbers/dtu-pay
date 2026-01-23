@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+/// @author Elias Mortensen - s235109
 
 /**
  * PaymentService handles payment processing by listening for three events:
@@ -51,7 +52,8 @@ public class PaymentService {
         this(q, bank, Executors.newSingleThreadScheduledExecutor(), DEFAULT_EXPIRATION_SECONDS);
     }
 
-    public PaymentService(MessageQueue q, BankService bank, ScheduledExecutorService scheduler, long expirationSeconds) {
+    public PaymentService(MessageQueue q, BankService bank, ScheduledExecutorService scheduler,
+            long expirationSeconds) {
         this.queue = q;
         this.bank = bank;
         this.scheduler = scheduler;
@@ -108,7 +110,8 @@ public class PaymentService {
 
         PaymentContext context = getOrCreateContext(correlationId);
         synchronized (context) {
-            // Store the bank account - we'll determine which one it is when we have the payment request
+            // Store the bank account - we'll determine which one it is when we have the
+            // payment request
             context.addBankAccount(userId, bankAccNum);
         }
         tryProcessPayment(correlationId);
