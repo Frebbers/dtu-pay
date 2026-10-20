@@ -1,8 +1,6 @@
 # DTU-Pay
-Group 25
+A containerized, event-driven micro-service written in java for [DTU course 02267](https://kurser.dtu.dk/course/02267).
 
-## Project Link
-https://github.com/Frebbers/dtu-pay
 
 ## Requirements
 - Docker (with `docker compose`)
